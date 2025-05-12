@@ -9,16 +9,12 @@ const geistSans = Geist({
 });
 
 const inter = Inter({
-  "subsets":[
-    "latin"
-  ], 
+  subsets:[ "latin" ], 
   weight:["200", "500","800"]
 })
 
 const dm_sans = DM_Sans({
-  "subsets":[
-    "latin"
-  ], 
+  subsets:[ "latin" ], 
   weight:["200", "500","800"]
 })
 

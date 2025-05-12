@@ -1,0 +1,1 @@
+export let mailId = "mailto:quikcrats@gmail.com"
