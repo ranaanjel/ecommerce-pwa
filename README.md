@@ -15,3 +15,5 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+Having one login only i.e via oauth or otp - no password based signin -- providing the user with the jwt on the signup itself.
