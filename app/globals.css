@@ -24,7 +24,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   overscroll-behavior: none;
+  --navy-blue: #014BAE;
+  --accent-blue: #38B6FF;
+  --search-margin: -3px;
 }
+
 /* button {
   background-color: rgb(115, 94, 231);
   color:white;
@@ -37,8 +41,91 @@ h3 {
   font-size: 1rem;
   font-weight: 700;
 }
+
 p {
-  font-size:0.8rem;
-  font-weight:500;
+  font-size: 0.8rem;
+  font-weight: 500;
 }
 
+@theme {
+  --color-primary: #38b6ff;
+  --color-logo:#014bae;
+  --color-link:#099FFF;
+
+  --animate-vertical: :vertical 10s infinite;
+  
+
+  @keyframes vertical {
+    0% {
+      opacity: 100%;
+    }
+
+
+    100% {
+      top: -178px;
+      opacity: 100%;
+    }
+
+
+  }
+
+  --animate-wiggle: wiggle 3s ease-in-out 2 forwards;
+
+  @keyframes wiggle {
+
+    0% {
+      top: -3px;
+    }
+
+    20% {
+      top: -38px;
+    }
+
+    40% {
+
+      top: -73px;
+    }
+
+    60% {
+      top: -108px;
+    }
+
+    80% {
+
+      top: -143px;
+    }
+
+    100% {
+      top: -182px;
+    }
+
+  }
+
+  --animate-spin: spin 900ms infinite;
+
+  @keyframes spin {
+
+  0% {
+    transform:rotateY(0deg) rotateX(80deg) ;
+  }
+  25% {
+    transform:rotateY(90deg) rotateX(80deg);
+  }
+  50% {
+    transform:rotateY(180deg) rotateX(80deg) ;
+  }
+  
+  75% {
+    transform:rotateY(270deg) rotateX(80deg);
+  }
+  100% {
+    transform:rotateY(360deg) rotateX(80deg);
+  }
+  }
+ 
+}
+
+
+.caraousel {
+  scrollbar-width:none ;
+}

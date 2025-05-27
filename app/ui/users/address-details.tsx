@@ -56,7 +56,7 @@ export default function AddressDetails({
   };
 
   return (
-    <div className=" bg-white h-screen w-full font-dm-sans">
+    <div className=" bg-white h-screen w-full font-dm-sans text-black">
       <div className="bg-white border-b border-gray-400 flex w-full px-8 py-5 gap-10 text-xl font-semibold ">
         <div onClick={handleBack} className="cursor-pointer">
           <ChevronLeftIcon className="w-8 h-8" />

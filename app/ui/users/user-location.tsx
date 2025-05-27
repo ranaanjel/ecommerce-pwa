@@ -71,7 +71,7 @@ export default function UserLocation({ userId }: UserLocationProps) {
   };
 
   return (
-    <div className="w-full h-screen bg-gray-500/50 overflow-hidden select-none">
+    <div className="w-full h-screen bg-gray-500/50 overflow-hidden select-none text-black">
       <div className="w-full py-4 border-b border-[#B4B4B4] bg-white flex items-center px-6 gap-10">
         <div onClick={handleBack} className="cursor-pointer bg-gray-700/5 rounded">
           <ChevronLeftIcon className="size-8" />

@@ -6,6 +6,7 @@ import Image from "next/image";
 export default function FallbackUIDesktop({children}: {children: React.ReactNode}) {
 
     const [isMobile, setIsMobile] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     const checkDevice = () => {
         let ua = window.navigator.userAgent;
@@ -14,18 +15,29 @@ export default function FallbackUIDesktop({children}: {children: React.ReactNode
         let smallDevice = window.innerWidth < 768;
         return (pattern.test(ua) && isTouchDevice) || smallDevice;
     }
-
+    
+    
     function handleResize() {
         setIsMobile(checkDevice());
     }
 
     useEffect(function ()  {
         setIsMobile(checkDevice());
-
+        setTimeout(function () {setLoading(false)},1000);
         window.addEventListener("resize", handleResize)
         return () => window.removeEventListener("resize", handleResize);
 
     },[])
+
+    console.log("checking")
+
+    if(loading)  {
+        return <div className="flex justify-center h-screen w-screen items-center bg-white ">
+            <Image src="/loading-page.gif" className="w-[80%] relative left-[-10px] z-2 " alt='loading..' width={237} height={512} /> 
+            <div className="h-[50px] rotate-x-80  absolute w-[100px] bg-gray-400/80 z-[1] top-[60%] rounded-[100%] animate-spin">
+            </div>
+        </div>
+    }
 
     if(!isMobile) {
     return <div className="p-4 text-center">
