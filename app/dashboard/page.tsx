@@ -1,7 +1,6 @@
 "use client"
 import { useEffect, useRef, useState } from "react";
 import { TopBar } from "../ui/dashboard/topBar";
-import { MapIcon } from "../ui/svg/mapicon";
 import { FilledMapIcon } from "../ui/svg/filledMapIcon";
 import { SearchBar } from "../ui/dashboard/searchBar";
 import CaraouselBanner from "../ui/dashboard/carouselBanner";
@@ -25,6 +24,8 @@ export default function Page() {
         setAddress("paschim vihar, delhi")
 
     }, [])
+
+    console.log("dashboard")
 
 
     return <div className={"bg-[#e7f8ff] min-h-screen w-full pb-18 "+dm_sans.className}>

@@ -11,7 +11,7 @@ export function PreorderCard({title, description, imageURL, buttonURL, list, bgB
     let totalItem = list.length;
     let bodyClass = "relative mt-2 h-86 min-w-[52%] w-[52%] max-w-[52%] rounded-lg "+ bgBody
     let titleClass = bgTitle
-    console.log(titleClass, bodyClass)
+    // console.log(titleClass, bodyClass)
     
     return <div className={bodyClass}>
       <CardHeader titleClass={titleClass} title={title} description={description} imageURL={imageURL}   />

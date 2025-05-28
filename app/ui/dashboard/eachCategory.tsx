@@ -1,3 +1,5 @@
+"use client"
+
 import axios from "axios";
 import Image from "next/image";
 import { useState, useEffect, useTransition, Suspense, lazy } from "react"
@@ -5,22 +7,29 @@ import { useState, useEffect, useTransition, Suspense, lazy } from "react"
 
 export function EachCategory({footerRef}:{footerRef:React.RefObject<HTMLElement|null>}) {
 
-    const [offset, setOffset] = useState(2)
+    const [offMargin, setOffMargin] = useState(0)
     const [isPending, startTransition] = useTransition();
     const [isLoading,SetLoading] = useState(false);
     const [itemList, setItemList] = useState([])
 
-    useEffect(function () {
-        let observer = new IntersectionObserver((entry) => {
-                entry.forEach(m=> {
+    console.log("running twice")
 
+    useEffect(function () {
+        console.log("category component running")
+
+        let observer = new IntersectionObserver((entry) => {
+            console.log(entry.length)
+                entry.forEach(m=> {
                     if(m.isIntersecting) {
 
+                        fetchData()
+                        setOffMargin(prev => {
+                            console.log(prev, "--- inside the state action")
+                            return prev + 2;
+                        })
                         //calling the async function here and startTransition to be inside that.    
                         startTransition( () =>{
                             SetLoading(true)
-
-                            
                             // setTimeout(function () {
                             // SetLoading(false)
                             // console.log(offset)
@@ -38,7 +47,6 @@ export function EachCategory({footerRef}:{footerRef:React.RefObject<HTMLElement|
         return () =>{
             if(footerRef.current)
             {
-
             observer.unobserve(footerRef.current);
             }
         };
@@ -47,9 +55,9 @@ export function EachCategory({footerRef}:{footerRef:React.RefObject<HTMLElement|
 
     async function fetchData() {
         let url = window.location.origin;
-        let result = await axios(url + "/query/v1/category");
-
-        //getting the data
+        console.log("fetching the data")
+        let result = await axios(url + "/query/v1/category?offset="+offMargin);
+        console.log(result, offMargin)   
     }
 
     return <div>

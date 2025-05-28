@@ -23,13 +23,13 @@ export default function FallbackUIDesktop({children}: {children: React.ReactNode
 
     useEffect(function ()  {
         setIsMobile(checkDevice());
-        setTimeout(function () {setLoading(false)},1000);
+        setTimeout(function () {setLoading(false)},400);
         window.addEventListener("resize", handleResize)
         return () => window.removeEventListener("resize", handleResize);
 
     },[])
 
-    console.log("checking")
+    // console.log("checking")
 
     if(loading)  {
         return <div className="flex justify-center h-screen w-screen items-center bg-white ">

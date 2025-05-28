@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { AccountIcon, CategoryIcon, CrateIcon, HomeIcon, OrderIcon } from "../svg/bottomBarSvg"
+import Link from "next/link";
 
 export function BottomBar() {
 
@@ -31,16 +32,14 @@ export function BottomBar() {
 
                     }
 
-                    return <div key={index} onClick={function () {
-                        router.push(url)
-                    }} className="flex flex-col items-center w-1/5 justify-center mb-1">
+                    return <Link key={index} href={url} className="flex flex-col items-center w-1/5 justify-center mb-1">
                         <div className={" min-h-10 w-full flex justify-center items-center "+iconColor}> 
                                 {icon}
                         </div>
                             <div className={"text-sm font-normal "+textColor}>
                                 {name}
                             </div>
-                    </div>
+                    </Link>
                 })
             }
         </div>
