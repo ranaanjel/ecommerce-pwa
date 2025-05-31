@@ -25,6 +25,8 @@ export default function Page() {
 
     }, [])
 
+    //having all time - cart logo / preorder list logo to quickly go to their page in case of adding the items from navigating the places.
+
     console.log("dashboard")
 
 

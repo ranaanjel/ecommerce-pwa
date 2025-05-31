@@ -27,6 +27,7 @@ body {
   --navy-blue: #014BAE;
   --accent-blue: #38B6FF;
   --search-margin: -3px;
+  scrollbar-color: gray;
 }
 
 /* button {
@@ -128,4 +129,15 @@ p {
 
 .caraousel {
   scrollbar-width:none ;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield; 
+  appearance: none;
+}
+
+::-webkit-inner-spin-button ,
+::-webkit-outer-spin-button {
+  --webkit-appearance: none;
+  margin:0
 }

@@ -128,9 +128,6 @@ let bodyClass = "flex text-black relative px-3 py-4 h-[35%] w-full overflow-hidd
     </div>
 }
 
-
-
-
 function CardFooter({ totalItems , buttonURL}: CardFooterProps) {
   return (
     <div className="flex gap-5 justify-between px-4 py-5 font-bold leading-none border-t bg-opacity-10 border-gray-500 border-opacity-10">
