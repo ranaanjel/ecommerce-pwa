@@ -19,7 +19,7 @@ export const Footer = forwardRef((prop, ref: ForwardedRef<HTMLDivElement>) => {
                 </div>
             </div>
             <div>
-                <Image src={"/logo.png"} alt="company_logo" className="" height={60} width={60}/>
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={"/logo.png"} alt="company_logo" className="" height={60} width={60}/>
             </div>
         </div>
         <div className="text-end w-full text-xs">

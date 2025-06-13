@@ -13,7 +13,7 @@ export default function ComingSoon() {
 
     return <div className="h-full flex flex-col justify-end overflow-hidden">
         <div className="absolute w-full z-0 top-0">
-            <Image src="/comingsoon.png" alt="comingsoon" height="614" width="393" className="w-full object-fill"/>
+            <Image placeholder="blur" blurDataURL="/blur.jpg" src="/comingsoon.png" alt="comingsoon" height="614" width="393" className="w-full object-fill"/>
         </div>
         <div className="p-8 relative z-5 w-full rounded-t-2xl h-2/5 bg-linear-to-t from-[#014BAE] to-[#38B6FF]">
             <div>
@@ -27,8 +27,8 @@ export default function ComingSoon() {
             </div>
         </div>
         <div className="relative z-6">
-                <Image src={"/bridge.png"} alt="bridge" height={"208"} width={"216"} className="absolute right-0 mt-[-45%] "/>
-                <Image src={"/bridge.png"} alt="bridge" height={"208"} width={"216"} className="absolute left-0 mt-[-45%] rotate-y-180"/>
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={"/bridge.png"} alt="bridge" height={"208"} width={"216"} className="absolute right-0 mt-[-45%] "/>
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={"/bridge.png"} alt="bridge" height={"208"} width={"216"} className="absolute left-0 mt-[-45%] rotate-y-180"/>
             </div>
     </div>
 }

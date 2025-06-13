@@ -8,7 +8,7 @@ export default function PreOrder() {
         <nav className="flex justify-between items-center px-6">
 
         <div className="text-2xl font-medium"> Pre order List </div>
-        <Link href="/preorder" className="text-link">
+        <Link href="/dashboard/preorder-list" className="text-link">
             see all <ChevronRightIcon className="inline size-4"/>
         </Link>
         </nav>

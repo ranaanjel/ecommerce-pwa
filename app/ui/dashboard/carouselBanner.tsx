@@ -12,8 +12,8 @@ export default function CaraouselBanner() {
 
 
     return <div className="relative">
-        <div className="relative flex overflow-scroll w-full h-60 p-4  gap-4 snap-x snap-mandatory caraousel" onScroll={function (eventObject) {
-            console.log("scrolling", bannerRefs)
+        <div className=" flex overflow-scroll w-full h-full px-2 gap-4 snap-x snap-mandatory caraousel" onScroll={function (eventObject) {
+            // console.log("scrolling", bannerRefs)
             if(bannerRefs.current) {
                 let valueCheck = Infinity;
                 let indexNearest = 0;

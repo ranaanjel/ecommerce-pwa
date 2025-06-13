@@ -44,9 +44,12 @@ export default function Page() {
             </div>
         </TopBar>
         <SearchBar/>
-        <CaraouselBanner/>
+        <div className="h-60 p-4">
+
+            <CaraouselBanner/>
+        </div>
         <PreOrder/>
-        <Categories/>
+        <Categories type="component"/>
         
         {/* each category to show with loading - not infinte but loading on scroll down - similar to infinite but limited -- adding the value in 2 */}
         <EachCategory footerRef={footerRef}/>

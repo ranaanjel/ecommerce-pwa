@@ -1,4 +1,4 @@
-import { Preorder, PreorderItem } from "@/app/lib/placeholder-data"
+import { Itemlist, Preorder, PreorderItem } from "@/app/lib/placeholder-data"
 import Image from "next/image";
 import Link from "next/link"
 
@@ -6,35 +6,48 @@ interface CardFooterProps {
   totalItems: number;
   buttonURL:string
 }
-export function PreorderCard({title, description, imageURL, buttonURL, list, bgBody, bgTitle}:Preorder) {
+export function PreorderCard({title, description, imageURL, buttonURL, list, bgBody, bgTitle, type}:Preorder) {
 
     let totalItem = list.length;
-    let bodyClass = "relative mt-2 h-86 min-w-[52%] w-[52%] max-w-[52%] rounded-lg "+ bgBody
+    let bodyClass = "relative mt-2 h-86 min-w-[52%] w-[52%] max-w-[52%] rounded-lg "+ bgBody;
     let titleClass = bgTitle
     // console.log(titleClass, bodyClass)
     
-    return <div className={bodyClass}>
-      <CardHeader titleClass={titleClass} title={title} description={description} imageURL={imageURL}   />
+    if (type == "page") {
+      bodyClass = "relative h-86 rounded-lg "+ bgBody;
 
+    }
+
+    return <div className={bodyClass}>
+    <CardHeader titleClass={titleClass} title={title} description={description} imageURL={imageURL}   />
     <div className="min-h-[38%]">
         {
-           list.length > 0 ? list.slice(0,2).map((item, index) => {
+           list.length > 0 ? list.filter(m => !m.outOfStock).slice(0,2).map((item:Itemlist, index) => {
                 let imageURL = item.imageURL;
-                let itemName = item.itemName;
-                let mrp = item.mrp;
-                let discountPrice = item.discountPrice;
-                let totalDiscountPrice = item.totalDiscountPrice;
-                let totalPrice = item.totalPrice;
-                let quantity = item.quantity;
-                let unit = item.unit;
+                let itemName = item.name;
 
+                
+
+                let mrp = String(item.mrp);
+                let quantity = item.currentQuantity ?? item.quantity;
+
+                if(localStorage.getItem("crate")) {
+                  let localCrate = JSON.parse(localStorage.getItem("crate")as string);
+                  if (itemName in localCrate ) {
+                    quantity = localCrate[itemName].quant;
+                  }
+                }
+
+                let discountPrice = item.discountValue;
+                let totalDiscountPrice = quantity* discountPrice;
+                let totalPrice = quantity * (+mrp);
+                let unit = item.unit;
 
                 return <ProductItem key={itemName} unit={unit} quantity={quantity} totalDiscountPrice={totalDiscountPrice} totalPrice={totalPrice} discountPrice={discountPrice} mrp={mrp} itemName={itemName} imageURL={imageURL} />
             }) : <ProductItemSkeleton/>
         }
     </div>
       <CardFooter buttonURL={buttonURL} totalItems={totalItem} />
-
       <div className="flex w-full bg-zinc-300 min-h-2.5 rounded-b-lg" />
     </div>
 }
@@ -49,14 +62,14 @@ function ProductItem({ imageURL,itemName, mrp, discountPrice, totalDiscountPrice
         alt={itemName}
         className="object-contain shrink-0 aspect-square w-[25px]"
       />
-        <div className="flex flex-col gap-2 text-xs text-black">
+        <div className="flex flex-col gap-1 text-xs text-black">
           <div className="font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis w-25  ">{itemName.toLocaleLowerCase()}</div>
-            <span>{quantity}</span>
+            <span className="text-gray-500">{quantity}</span>
         </div>
       </div>
-        <div className="flex flex-col gap-2 justify-between mt-1 text-xs font-medium text-black self-start">
-          <span className="font-medium">{totalDiscountPrice}</span>
-          <span className="line-through">{totalPrice}</span>
+        <div className="flex flex-col gap-1 justify-between mt-1 text-xs font-medium text-black self-start">
+          <span className="font-medium self-end">{totalDiscountPrice}</span>
+          <span className="line-through text-gray-500 self-end">{totalPrice}</span>
         </div>
     </section>
   );
@@ -95,7 +108,7 @@ function ProductItemSkeleton() {
     </section>
     <Link href={"/dashboard/preorder-list/create"} className="w-full h-full bg-gray-600/20 absolute top-0 rounded-lg backdrop-blur-[2px] flex justify-center items-center"> 
 
-        <Image src="/plus.svg" alt="create one" height={50} width={50} className=""/>
+        <Image placeholder="blur" blurDataURL="/blur.jpg" src="/plus.svg" alt="create one" height={50} width={50} className=""/>
 
     </Link>
     </div>

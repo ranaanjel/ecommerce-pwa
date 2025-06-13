@@ -1,8 +1,186 @@
-
+"use client"
+import axios from "axios";
+import { useEffect, useState } from "react"
+import { SkeletonPreOrderCard } from "../page";
+import { Itemlist, Preorder, unit } from "@/app/lib/placeholder-data";
+import { useParams, useRouter } from "next/navigation";
+import { ChevronLeftIcon, MagicWandIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
+import Image from "next/image";
+import { ItemCard } from "@/app/ui/dashboard/itemCard";
 
 export default function Page() {
+    const [data, setData] = useState<Preorder>({
+        title: "",
+        description: "",
+        imageURL: "",
+        buttonURL: "",
+        list: [],
+        bgTitle: "",
+        bgBody: "",
+    })
+    let params = String(useParams().preorderCard);
+    if (!localStorage.getItem("preorder-list")) {
+        localStorage.setItem("preorder-list", "{}");
+    }
+
+    useEffect(function () {
+        let url = window.location.origin + "/query/v1/preorder-list/" + params;
+        axios.get(url).then(m => {
+            // console.log(m.data.result)
+            setData(() => {
+                let value: Preorder = m.data.result;
+                let newdata = {
+                    title: value.title,
+                    description: value.description,
+                    imageURL: value.imageURL,
+                    buttonURL: value.buttonURL,
+                    list: value.list,
+                    bgTitle: value.bgTitle,
+                    bgBody: value.bgBody,
+                    type: value.type
+                };
+
+
+                return newdata
+            })
+        })
+    }, [])
 
     return <div>
-
+        {
+            data.title == "" ? <SketelonPage></SketelonPage> : null
+        }
+        {
+            data.title ? <PreorderCardPage buttonURL={data.buttonURL} title={data.title} imageURL={data.imageURL} list={data.list} bgTitle={data.bgTitle} bgBody={data.bgBody} type={data.type} description={data.description} ></PreorderCardPage> : ""
+        }
     </div>
 }
+
+function SketelonPage() {
+    return <div>
+        <div className="w-full h-36 bg-gray-200 animate-pulse"></div>
+        <SkeletonPreOrderCard />
+    </div>
+}
+
+function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody, type }: Preorder) {
+
+
+    let currentPreorderData: { category: string, discountPrice: number, itemname: string, mrp: number, quant: number, unit: unit }[] = [];
+
+    //adding more items - local storage using for that
+    //three section  -- header , body, fixed times.
+    const router = useRouter();
+    imageURL = imageURL.replace(".png", "_page.png");
+    const [items, setItems] = useState(list)
+
+    return <div className="select-none h-screen overflow-hidden relative">
+        <div className={"overflow-hidden relative  p-4 pt-8 h-36 " + bgTitle}>
+            <div className="flex relative z-2 justify-between text-white">
+                <div className="bg-logo" onClick={function () {
+                    router.back()
+                }}>
+                    <ChevronLeftIcon className="size-7" />
+                </div>
+                <div onClick={function () {
+                    router.push("/dashboard/search")
+                }}>
+                    < MagnifyingGlassIcon className="size-7" />
+                </div>
+            </div>
+            <div className="absolute z-1 flex justify-center items-center w-full h-full top-0 left-0 flex-1">
+                <Image src={imageURL} alt={title} width={200} className="w-[250px] h-42 object-contain" height={200} />
+            </div>
+        </div>
+        <div className={bgBody + " p-4 h-[80%] pb-18 overflow-scroll"}>
+
+            <div className="flex justify-between">
+                <div>
+                    <div className="font-bold text-2xl">{title}</div>
+                    <div className="font-normal text-sm text-gray-500">{description}</div>
+                </div>
+                <div className="bg-logo flex justify-center items-center px-2 rounded-sm text-white" onClick={function () {
+                    // redirecting to the page for adding the more items 
+                    // making sure we are adding the item list to the localstorage
+                }}>
+                    Add more items
+                </div>
+            </div>
+
+            {
+                items.length > 0 ? <div className="grid grid-cols-2 gap-2 pt-4">
+                    {
+                        list.map((m: Itemlist, index) => {
+
+                            let name = m.name;
+                            let imageURL = m.imageURL;
+                            let buttonURL = m.buttonURL;
+                            let quantity = m.quantity;
+                            let primarySize = m.primarySize;
+                            let secondarySize = m.secondarySize;
+                            let mrp = m.mrp;
+                            let discountPrice = m.discountValue;
+                            let savingAmount = m.savingAmount;
+                            let offers = m.offers;
+                            let unit = m.unit;
+                            let brand = m.brand;
+                            let secondaryUnit = m.secondaryUnit;
+                            let conversion = m.conversionRate
+                            let outofstock = m.outOfStock
+                            let comingSoon = m.comingSoon
+                            let category = m.category;
+                            let currentQuant = m.currentQuantity ?? 0
+
+                            return <ItemCard cardType="preorder" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} currentQuantity={currentQuant} currentData={currentPreorderData} />
+
+                        })
+                    }
+                </div> : null
+            }
+
+        </div>
+        <div className="h-21 border-t border-gray-200 bg-white fixed bottom-0 p-4 shadow-xs  w-full">
+            {/* //add to cart fixed on the page */}
+            <div className="flex justify-between items-center px-8 py-4 text-white bg-logo rounded-sm cursor-pointer text-xl" onClick={function () {
+                // making the crate -- localstorage filled with the current list 
+                let localstorageObject;
+                if (!localStorage.getItem("crate")) {
+                    localstorageObject = localStorage.setItem("crate", "{}");
+                }
+                localstorageObject = JSON.parse(localStorage.getItem("crate") as string);
+
+                for (var items of currentPreorderData) {
+                    if (!(items.itemname in localstorageObject)) {
+                        localstorageObject[items.itemname] = items;
+                        console.log("creating", items, localstorageObject)
+                    } else {
+                        localstorageObject[items.itemname].quant = items.quant;
+                        console.log("changing", items.itemname)
+                    }
+
+                }
+                localStorage.setItem("crate", JSON.stringify(localstorageObject));
+                // console.log(localStorage.getItem("crate"))
+                // value and redirecting to the /dashboard/crates
+                // console.log(currentPreorderData)
+                router.push("/dashboard/crate")
+            }}>
+                <div>
+                    {list.length} items |
+                </div>
+                <div >
+                    Add to crate
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+}
+//DONE
+// ability to have the value in case of previous value -- all the preorder value must have it but not mandatory.
+// checking the add to crate value
+
+//TO DO 
+// ability to delete , modal creation
+    // propogating to the database as well. 

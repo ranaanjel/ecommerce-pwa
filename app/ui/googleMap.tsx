@@ -367,7 +367,7 @@ const MapSkeleton2 = () => {
     return (
         <div className="mx-auto w-full bg-gray-200 h-screen rounded-md p-4">
             <div className="flex animate-pulse space-x-4">
-                <Image src="/map-image.jpg" alt="fallback-map" height="700" width="400" />
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src="/map-image.jpg" alt="fallback-map" height="700" width="400" />
             </div>
         </div>
     );

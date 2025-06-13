@@ -16,4 +16,5 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-Having one login only i.e via oauth or otp - no password based signin -- providing the user with the jwt on the signup itself.
+- [ ] Having one login only i.e via oauth or otp - no password based signin -- providing the user with the jwt on the signup itself.
+- [ ] quick icon sign similar to chat to agent hovering box i.e for their current pre-order card list and cart - 2 value
