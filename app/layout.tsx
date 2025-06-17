@@ -38,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${dm_sans.className} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none`}
+        className={`${dm_sans.className} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none select-none`}
       >
         <FallbackUIDesktop>
           {children}

@@ -20,7 +20,7 @@ export default async function Page({ params }: { params: Promise<{ categoryType:
         <TopBar>
            <CategoryAll data={data}/>
         </TopBar>
-        <div >
+        <div className="h-full">
             {/* //body  */}
           <CategoryBody categoryType={categoryType.categoryType}/>
         </div>

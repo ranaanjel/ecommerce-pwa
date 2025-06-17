@@ -1,5 +1,6 @@
 "use client"
 import { Itemlist, Preorder } from "@/app/lib/placeholder-data"
+import { localPreorder } from "@/app/lib/utils"
 import { BackButton } from "@/app/ui/dashboard/BackButton"
 import { BottomBar } from "@/app/ui/dashboard/bottomBar"
 import { CrateComponent } from "@/app/ui/dashboard/crateComponent"
@@ -14,30 +15,41 @@ import { useEffect, useState } from "react"
 export default function Page() {
 
 
-    let [list, setList] = useState([]);
+    let [list, setList] = useState<Preorder[]>([]);
 
-    if(!localStorage.getItem("preorder-list")) {
-        localStorage.setItem("preorder-list", "{}")
+
+    if(localStorage.getItem(localPreorder)) {
+        let data = JSON.parse(localStorage.getItem(localPreorder) as string);
+        let result:Preorder[] = Array.from(Object.values(data));
+        list = (result)
+    }else {
+        localStorage.setItem(localPreorder, "{}");
     }
+
+    useEffect(function () {
+        let url = window.location.origin + "/query/v1/preorder-list";
+        axios.get(url).then(m => {
+            let data  = m.data.result;
+            //replacing the localstorage data with the data
+            let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
+            for (let items of data) {
+                let title = items.title.toLowerCase()
+                //simply updating the local database with outside value.
+                // in case the value is there it will change or if not will create it.
+                 localData[title] = items
+            }
+            localStorage.setItem(localPreorder,JSON.stringify(localData))
+            let result:Preorder[] = Array.from(Object.values(data));
+            setList(result)
+        })
+
+    },[])
+
 
     //about the preorder list - we must store the value of the preorder for the faster loading and better quality experience and fetching the data after 
     // in case of new updates.
 
-    useEffect(function () {
-        let url = window.location.origin + "/query/v1/preorder-list/" 
-        axios.get(url).then(m =>  {
-            setList(m.data.result)
-            // this is latest preorder list for the users saving it in the localstorage.
-            let data:Record<string, Preorder> = {};
-
-            m.data.result.forEach((m:Preorder) => {
-                data[m.title.toLocaleLowerCase()] = m;
-            })
-            localStorage.setItem("preorder-list", JSON.stringify(data))   
-        })
-    },[])
-
-    return <div >
+    return <div className="text-black bg-[#ebf6f6]">
         <TopBar>
             <div className="select-none w-full flex justify-between items-center relative ">
                 <div className="flex flex-start items-center mb-2">

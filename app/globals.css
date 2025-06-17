@@ -131,6 +131,9 @@ p {
 .caraousel, .typebar {
   scrollbar-width:none ;
 }
+.lightScroll {
+  scrollbar-color:rgb(191, 191, 191);
+}
 
 
 input[type="number"] {

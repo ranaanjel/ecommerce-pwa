@@ -44,7 +44,7 @@ export function PreorderCard({title, description, imageURL, buttonURL, list, bgB
                 let unit = item.unit;
 
                 return <ProductItem key={itemName} unit={unit} quantity={quantity} totalDiscountPrice={totalDiscountPrice} totalPrice={totalPrice} discountPrice={discountPrice} mrp={mrp} itemName={itemName} imageURL={imageURL} />
-            }) : <ProductItemSkeleton/>
+            }) : <ProductItemSkeleton bgBody={bgBody} title={title}/>
         }
     </div>
       <CardFooter buttonURL={buttonURL} totalItems={totalItem} />
@@ -74,7 +74,14 @@ function ProductItem({ imageURL,itemName, mrp, discountPrice, totalDiscountPrice
     </section>
   );
 }
-function ProductItemSkeleton() {
+function ProductItemSkeleton({title, bgBody}:{title:string, bgBody:string}) {
+  
+  
+  // console.log(bgBody)
+  bgBody = String(bgBody)
+
+  let createOne = title.toLocaleLowerCase() == "create one"
+
   return (<div className="flex flex-col gap-2 px-3.5 py-2.5 items-center justify-between">
     <section className="flex overflow-hidden gap-2.5 items-start px-3.5 py-2.5 leading-none bg-opacity-10">
       <div
@@ -106,10 +113,11 @@ function ProductItemSkeleton() {
         </div>
       </div>
     </section>
-    <Link href={"/dashboard/preorder-list/create"} className="w-full h-full bg-gray-600/20 absolute top-0 rounded-lg backdrop-blur-[2px] flex justify-center items-center"> 
-
-        <Image placeholder="blur" blurDataURL="/blur.jpg" src="/plus.svg" alt="create one" height={50} width={50} className=""/>
-
+    <Link href={title.toLocaleLowerCase() == "create one"?"/dashboard/preorder-list/create":"/dashboard/preorder-list/"+title.replace(/\s/g,"_")+"/add-to-list"} className={"w-full h-full absolute top-0 rounded-lg backdrop-blur-[2px] flex justify-center items-center "+`${createOne? " bg-gray-600/20 ":bgBody}`}> 
+        { title.toLowerCase() == "create one" ? <Image placeholder="blur" blurDataURL="/blur.jpg" src="/plus.svg" alt="create one" height={50} width={50} className=""/>
+        : <div className="text-logo border p-2 rounded-sm bg-white/60">
+        Add items to list
+        </div>}
     </Link>
     </div>
   );

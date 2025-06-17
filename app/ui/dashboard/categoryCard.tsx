@@ -1,8 +1,10 @@
 import { categoryList, upcomingCategoryList } from "@/app/lib/placeholder-data"
+import { ChevronRight } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-export function Categories({ type , active}: { type: "page" | "dropdown" | "component", active?:string }) {
+export function Categories({ type , active}: { type: "page" | "dropdown" | "component"| "line", active?:string }) {
 
     //component - inside the dashboard
     //page for the /dashbaord/category
@@ -58,6 +60,26 @@ export function Categories({ type , active}: { type: "page" | "dropdown" | "comp
         </div>
     }
 
+    if(type == "line") {
+        return <div className=" text-black">
+            <div className="flex justify-between">
+                <div className="text-md font-semibold">Categories</div>
+                <div className="text-md font-normal text-logo flex"><Link className="flex" href="/dashboard/category">see all <ChevronRight></ChevronRight></Link> </div>
+            </div>
+            <div className="flex pb-2 place-items-center text-center w-full gap-2 my-2 overflow-x-scroll lightScroll ">
+                {
+                    categoryList.map((m, index) => {
+                        let itemName = m.name;
+                        let imageURL = m.imageURL
+                        let buttonURL = m.buttonURL;
+                        return <CategoryItem type="component" key={index} itemName={itemName} imageURL={imageURL} buttonURL={buttonURL} />
+                    })
+                }
+            </div>
+        </div>
+        
+    }
+
     return  <div className="px-6 text-black">
             <div className="grid grid-cols-3 place-items-center text-center w-full gap-2 my-2">
                 {
@@ -89,7 +111,7 @@ function CategoryItem({ active,itemName, imageURL, buttonURL, type }: { active?:
         </div>
     }
     if (type == "page") {
-        console.log("inside the page")
+        // console.log("inside the page")
         if (itemName.toLocaleLowerCase() == "vegetables") {
 
             console.log(imageURL)

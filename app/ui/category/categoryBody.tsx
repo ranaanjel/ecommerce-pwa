@@ -15,7 +15,7 @@ export function CategoryBody({ categoryType }: { categoryType: string }) {
     const footerRef = useRef<HTMLDivElement>(null)
 
     useEffect(function () {
-        console.log(categoryType)
+        // console.log(categoryType)
             let url = window.location.origin + "/query/v1/type/" + categoryType + "?brand=true"
            
             axios.get(url).then(m => {
@@ -62,7 +62,7 @@ export function CategoryBody({ categoryType }: { categoryType: string }) {
 
     let dataItemFetch = categoryType.replace(/(\s|,|-|&|_)/g, "")
 
-    return <div className="h-screen w-full bg-[#EBF6FF] flex pb-5 relative">
+    return <div className="h-full w-full bg-[#EBF6FF] flex pb-5 ">
         <div className="w-[16%] bg-gray-400/30">
             {/* //fixed  */}
             <TypeBar type={categoryType} setType={setOriginalFilter}></TypeBar>

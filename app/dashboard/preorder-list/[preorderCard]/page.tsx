@@ -7,9 +7,12 @@ import { useParams, useRouter } from "next/navigation";
 import { ChevronLeftIcon, MagicWandIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
 import { ItemCard } from "@/app/ui/dashboard/itemCard";
+import { ConfirmModal } from "@/app/ui/confirmModal";
+import { localPreorder } from "@/app/lib/utils";
+import { Trash2Icon } from "lucide-react";
 
 export default function Page() {
-    const [data, setData] = useState<Preorder>({
+    let [data, setData] = useState<Preorder>({
         title: "",
         description: "",
         imageURL: "",
@@ -19,15 +22,37 @@ export default function Page() {
         bgBody: "",
     })
     let params = String(useParams().preorderCard);
-    if (!localStorage.getItem("preorder-list")) {
-        localStorage.setItem("preorder-list", "{}");
+    let router = useRouter()
+
+    // console.log(data)
+
+    if (localStorage.getItem(localPreorder)) {
+        let dataResult = JSON.parse(localStorage.getItem(localPreorder) as string);
+        params = params.replace(/_/g, " ")
+        //console.log(dataResult[params], params)
+        if (params in dataResult) {
+            data = dataResult[params]
+        }
+    } else {
+        localStorage.setItem(localPreorder, "{}");
     }
 
     useEffect(function () {
         let url = window.location.origin + "/query/v1/preorder-list/" + params;
+
         axios.get(url).then(m => {
             // console.log(m.data.result)
-            setData(() => {
+            if (m.data.result == "non-found") {
+                let dataResult = JSON.parse(localStorage.getItem(localPreorder) as string);
+                //console.log(dataResult[params], params)
+                if (params in dataResult) {
+                    //TODO database cehcking
+                }else {
+                    router.push("/not-found-404")
+                }
+                //TODO - pushing the data to the database for future references
+            }else {
+                  setData(() => {
                 let value: Preorder = m.data.result;
                 let newdata = {
                     title: value.title,
@@ -39,10 +64,12 @@ export default function Page() {
                     bgBody: value.bgBody,
                     type: value.type
                 };
-
-
                 return newdata
             })
+            }
+          
+        }).catch(err => {
+            console.log("error")
         })
     }, [])
 
@@ -63,7 +90,7 @@ function SketelonPage() {
     </div>
 }
 
-function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody, type }: Preorder) {
+function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody, type, buttonURL }: Preorder) {
 
 
     let currentPreorderData: { category: string, discountPrice: number, itemname: string, mrp: number, quant: number, unit: unit }[] = [];
@@ -71,8 +98,15 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
     //adding more items - local storage using for that
     //three section  -- header , body, fixed times.
     const router = useRouter();
-    imageURL = imageURL.replace(".png", "_page.png");
-    const [items, setItems] = useState(list)
+    if(!imageURL.includes("_page.png")) {
+        imageURL = imageURL.replace(".png", "_page.png");
+    }
+    const [items, setItems] = useState(list) // current item list of preorder card
+    const [openModal, setOpenModal] = useState(false);
+    const [itemDelete, setItemDelete] = useState("");
+    const [wholeListDelete, setWholeListDelete ] = useState(false)
+
+    // console.log(itemDelete, items)
 
     return <div className="select-none h-screen overflow-hidden relative">
         <div className={"overflow-hidden relative  p-4 pt-8 h-36 " + bgTitle}>
@@ -91,17 +125,24 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
             <div className="absolute z-1 flex justify-center items-center w-full h-full top-0 left-0 flex-1">
                 <Image src={imageURL} alt={title} width={200} className="w-[250px] h-42 object-contain" height={200} />
             </div>
+            <div className="custor-pointer h-auto w-auto" onClick={function () {
+                setItemDelete(title.toLocaleLowerCase())
+                setWholeListDelete(true)
+                setOpenModal(true)
+            }}> 
+                <Trash2Icon className="z-10 cursor-pointer size-6 text-yellow-500 absolute right-4  bottom-4" />
+            </div>
         </div>
         <div className={bgBody + " p-4 h-[80%] pb-18 overflow-scroll"}>
 
             <div className="flex justify-between">
                 <div>
-                    <div className="font-bold text-2xl">{title}</div>
+                    <div className="font-bold text-2xl capitalize">{title}</div>
                     <div className="font-normal text-sm text-gray-500">{description}</div>
                 </div>
-                <div className="bg-logo flex justify-center items-center px-2 rounded-sm text-white" onClick={function () {
-                    // redirecting to the page for adding the more items 
-                    // making sure we are adding the item list to the localstorage
+                <div className="bg-logo flex justify-center items-center px-2 rounded-sm text-white" onClick={function () { // redirecting to the page for adding the more items // making sure we are adding the item list to the localstorage
+                    router.push(buttonURL+"/add-to-list")
+
                 }}>
                     Add more items
                 </div>
@@ -110,8 +151,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
             {
                 items.length > 0 ? <div className="grid grid-cols-2 gap-2 pt-4">
                     {
-                        list.map((m: Itemlist, index) => {
-
+                        items.map((m: Itemlist, index) => {
                             let name = m.name;
                             let imageURL = m.imageURL;
                             let buttonURL = m.buttonURL;
@@ -131,7 +171,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                             let category = m.category;
                             let currentQuant = m.currentQuantity ?? 0
 
-                            return <ItemCard cardType="preorder" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} currentQuantity={currentQuant} currentData={currentPreorderData} />
+                            return <ItemCard setItemDelete={setItemDelete} setOpenModal={setOpenModal} cardType="preorder" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} currentQuantity={currentQuant} currentData={currentPreorderData} />
 
                         })
                     }
@@ -166,21 +206,22 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                 router.push("/dashboard/crate")
             }}>
                 <div>
-                    {list.length} items |
+                    {items.length} items |
                 </div>
                 <div >
                     Add to crate
                 </div>
             </div>
         </div>
-
+        {openModal && <ConfirmModal preorderName={title.toLowerCase()} wholeList={wholeListDelete} itemDelete={itemDelete} setItems={setItems} setOpenModal={setOpenModal} />}
     </div>
 
 }
 //DONE
 // ability to have the value in case of previous value -- all the preorder value must have it but not mandatory.
 // checking the add to crate value
-
-//TO DO 
 // ability to delete , modal creation
-    // propogating to the database as well. 
+
+//TODO 
+// propogating to the database as well. 
+// delete the item - precard 

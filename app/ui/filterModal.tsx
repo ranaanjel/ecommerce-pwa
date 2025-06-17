@@ -5,11 +5,15 @@ import { Dispatch, SetStateAction } from "react"
 import { Cross1Icon, MixerHorizontalIcon, MixerVerticalIcon } from "@radix-ui/react-icons"
 import { useState } from "react"
 
+type filterId = "price" | "brand" | "type"|"category";
+type filterType = "Price" | "Brand" | "Type"|"Category";
+
 export interface filterProps {
-  id: "price" | "brand" | "type",
-  name: "Price" | "Brand" | "Type",
+  id: filterId,
+  name: filterType,
   options: optionProp[]
 }
+
 
 export interface optionProp {
   id: string,
@@ -33,7 +37,7 @@ export function FilterModal({filterProps, setFilterProps, beforeFilter, setBefor
 
   // const [categories, setCategories] = useState<filterProps[]>()
   let [openModal, setOpenModal] = useState(false);
-  let [activeFilter, setActiveFilter] = useState<"price"|"brand"|"type">("price")
+  let [activeFilter, setActiveFilter] = useState<filterId>("price")
   let [filtering, ] = useState(false)
 
   function clickHandle() {
@@ -57,18 +61,18 @@ export function FilterModal({filterProps, setFilterProps, beforeFilter, setBefor
               return <div onClick={function () {
             setActiveFilter(filterId)
             setOpenModal(true)
-          }} key={filterId} className={"flex justify-between items-center border text-xs gap-2 px-4 rounded text-primary bg-sky-200/50 border-primary"}>{filterValue}</div>
+          }} key={index} className={"flex justify-between items-center border text-xs gap-2 px-4 rounded text-primary bg-sky-200/50 border-primary "}>{filterValue}</div>
           }
    
           return <div onClick={function () {
             setActiveFilter(filterId)
             setOpenModal(true)
-          }} key={filterId} className={"flex justify-between items-center border-1 text-xs gap-2 px-4 rounded  border-gray-500/50 text-gray-500/80"}>{filterValue}</div>
+          }} key={index} className={"flex justify-between items-center border-1 text-xs gap-2 px-4 rounded  border-gray-500/50 text-gray-500/80"}>{filterValue}</div>
         })
       }
     </div>
-    {openModal && <div className="flex items-end-safe h-full z-10 pb-21  w-full bg-gray-400/60 left-0 absolute bottom-0 overflow-hidden">
-    <div onClick={clickHandle} className="w-8 cursor-pointer h-8 absolute left-[48%] top-[35%] bg-gray-700 text-white z-6 flex justify-center items-center rounded-full border">
+    {openModal && <div className="flex flex-col justify-end h-screen z-10  w-full bg-gray-400/60 left-0 top-0 absolute overflow-hidden">
+    <div onClick={clickHandle} className="w-8 cursor-pointer h-8 absolute left-[48%] top-[32%] bg-gray-700 text-white z-6 flex justify-center items-center rounded-full border">
       <Cross1Icon />
     </div>
     <div className="w-full h-[400px] overflow-hidden rounded-lg shadow-lg bg-white ">
@@ -87,7 +91,7 @@ export default function FilterModalValue({
 }: {
   categories: filterProps[]
   setCategories: Dispatch<SetStateAction<filterProps[]>>,setOpenModal:any
-  setBeforeFilter: Dispatch<SetStateAction<filterProps[]>>, active : "price" | "brand"| "type"
+  setBeforeFilter: Dispatch<SetStateAction<filterProps[]>>, active : filterId
 }) {
   
 
@@ -167,10 +171,10 @@ export default function FilterModalValue({
       <div className="flex flex-1 overflow-hidden">
         {/* Categories Sidebar */}
         <div className="w-1/3 border-r border-gray-200 bg-white">
-          {categories.map((category) => (
+          {categories.map((category, index) => (
             <div
-              key={category.id}
-              className={`p-4 cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50 ${activeCategory === category.id ? "bg-blue-50 border-r-2 border-r-blue-600" : ""
+              key={index}
+              className={`p-4 bg-white cursor-pointer border-b border-gray-100 transition-colors hover:bg-gray-50 ${activeCategory === category.id ? "bg-blue-50 border-r-2 border-r-blue-600" : ""
                 }`}
               onClick={() => setActiveCategory(category.id)}
             >
@@ -183,12 +187,12 @@ export default function FilterModalValue({
         <div className="w-2/3 bg-white">
           <div className="h-full overflow-y-auto">
             <div className="p-1">
-              {getActiveOptions().map((option) => {
+              {getActiveOptions().map((option, index) => {
 
                 if (option.radio) {
                   return (
                     <div
-                      key={option.id}
+                      key={index}
                       className="flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                     >
                       <label htmlFor={option.id} className="text-gray-900 cursor-pointer flex-1">
@@ -217,7 +221,7 @@ export default function FilterModalValue({
 
                 return (
                   <div
-                    key={option.id}
+                    key={index}
                     className="flex items-center justify-between p-3 border-b border-gray-100 hover:bg-gray-50 transition-colors"
                   >
                     <label htmlFor={option.id} className="text-gray-900 cursor-pointer flex-1 text-sm capitalize">

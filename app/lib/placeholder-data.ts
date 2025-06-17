@@ -31,8 +31,37 @@ export enum unit {
 
 }
 
-type category = "all" | "vegetable" | "dairy" | "ration_pluses_oil" | "masala" | "packaging-materials" | "cleaning_consumables" | "confectionary_sauces" | "rice_flours";
-type upcomingCategory = "beverages_drink" | "bread_pizza_base" | "frozen food"
+export const colorPalette = [
+  ["bg-[#3674B5]", "bg-[#6FA1D3]/60"],
+  ["bg-[#578FCA]", "bg-[#89B2DC]/60"],
+  ["bg-[#FFB823]", "bg-[#FFD773]/60"],
+  ["bg-[#7B4019]", "bg-[#A86F4D]/60"],
+  ["bg-[#725CAD]", "bg-[#A495D3]/60"],
+  ["bg-[#B33791]", "bg-[#D97DB5]/60"],
+  ["bg-[#254D70]", "bg-[#5C7FA1]/60"],
+  ["bg-[#16610E]", "bg-[#4C9D45]/60"],
+  ["bg-[#5459AC]", "bg-[#8A90D1]/60"],
+  ["bg-[#FF9898]", "bg-[#FFCCCC]/60"],
+  ["bg-[#FE5D26]", "bg-[#FF9E71]/60"],
+  ["bg-[#E9A319]", "bg-[#F6C85E]/60"]
+]
+
+export const createImagePreorder = [
+"/preorder-list/create_one.png",
+"/preorder-list/daily_order.png",
+"/preorder-list/festival_time.png",
+"/preorder-list/last_day_order.png",
+"/preorder-list/masala.png",
+"/preorder-list/packaging.png",
+"/preorder-list/ration_stock.png",
+"/preorder-list/cleaning.png",
+"/preorder-list/pizza_burger.png",
+"/preorder-list/vegetable.png",
+"/preorder-list/masala2.png",
+"/preorder-list/drinks.png",
+]
+
+
 
 //helpful in categorizing inside the crates
 
@@ -123,17 +152,17 @@ export const preorderList: Preorder[] = [
       name: "Button Mushroom",
       imageURL: "/categories-item/vegetable/button_mushroom.png",
       buttonURL: "/item/button_mushroom",
-      quantity: 0.5,
-      primarySize: 0.5,
-      secondarySize: 0,
+      quantity: 1,
+      primarySize: 1,
+      secondarySize: 200,
       mrp: 60,
       discountValue: 42,
       savingAmount: 18,
       offers: [{ price: 35, quantity: 5, unit: unit.kg }, { price: 250, quantity: "1", unit: unit.bag, type: "bag" }],
-      unit: unit.kg,
+      unit: unit.pkt,
       brand: "generic",
-      secondaryUnit: unit.none,
-      conversionRate: 2,
+      secondaryUnit: unit.gm,
+      conversionRate: 1,
       type: { all: "all", vegetable: "exotic vegetables" },
       outOfStock: false,
       currentQuantity: 2
@@ -442,19 +471,20 @@ export const preorderList: Preorder[] = [
       name: "Coriander Powder",
       imageURL: "/categories-item/masala/coriander_powder.png",
       buttonURL: "/item/coriander_powder",
-      quantity: 200,
-      primarySize: 200,
-      secondarySize: 0,
-      mrp: 4500,
-      discountValue: 700,
-      savingAmount: 700,
-      offers: [{ price: 3800, quantity: 200, unit: unit.gm }],
-      unit: unit.gm,
+      quantity: 1,
+      primarySize: 1,
+      secondarySize: 250,
+      mrp: 450,
+      discountValue: 250,
+      savingAmount: 0,
+      offers: [{ price: 240, quantity: 10, unit: unit.pkt }],
+      unit: unit.pkt,
       brand: "kbm",
-      secondaryUnit: unit.none,
+      secondaryUnit: unit.gm,
       type: { all: "all", masala: "chilli, turmeric & coriander powder" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 5,
+      conversionRate:1
 
     },
     {
@@ -480,19 +510,20 @@ export const preorderList: Preorder[] = [
       name: "Iodized Salt",
       imageURL: "/categories-item/masala/iodized_salt.png",
       buttonURL: "/item/iodized_salt",
-      quantity: 1000,
-      primarySize: 1000,
-      secondarySize: 0,
-      mrp: 2000,
+      quantity: 1,
+      primarySize: 1,
+      secondarySize: 1,
+      mrp: 400,
       discountValue: 200,
       savingAmount: 200,
-      offers: [{ price: 1800, quantity: 1000, unit: unit.gm }],
-      unit: unit.kg,
+      offers: [{ price: 180, quantity: 10, unit: unit.pkt }],
+      unit: unit.pkt,
       brand: "generic",
-      secondaryUnit: unit.none,
+      secondaryUnit: unit.kg,
       type: { all: "all", masala: "salt & sugar" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      conversionRate:1
     }],
     bgTitle: "bg-[#85c178]",
     bgBody: "bg-[#f3f9f1]"
@@ -893,7 +924,7 @@ type confectionarySaucesCategoryType = "vinegar, chilli & soy sauces" | "oregano
 
 type allType = riceFlourCategoryType[] | vegetableCategoryType[] | dairyCategoryType[] | rationPulsesOilCategoryTypes[] | masalaCategoryType[] | packagingMaterialsCategoryType[] | cleaningConsumbalesCategoryType[] | confectionarySaucesCategoryType[];
 
-interface CategoryType {
+export interface CategoryType {
   all: "all",
   vegetable?: vegetableCategoryType,
   dairy?: dairyCategoryType,
@@ -904,12 +935,15 @@ interface CategoryType {
   confectionary_sauces?: confectionarySaucesCategoryType,
   rice_flours?: riceFlourCategoryType,
 }
+export type category = "all" | "vegetable" | "dairy" | "ration_pluses_oil" | "masala" | "packaging-materials" | "cleaning_consumables" | "confectionary_sauces" | "rice_flours";
+type upcomingCategory = "beverages_drink" | "bread_pizza_base" | "frozen food"
+
 
 //ability to add and delete types from the backend using the admin website application and adding the images from their as well
 //new categories and properties as well
 
 export interface Itemlist {
-  name: string,
+  name: string, //unique
   imageURL: string,
   buttonURL: string,
   quantity: number,
@@ -923,11 +957,12 @@ export interface Itemlist {
   secondaryUnit: unit,
   brand: allBrand,
   conversionRate?: number,
-  category?: string,
-  type?: CategoryType,
+  category?: category | string,
+  type?: CategoryType, // type within category not the category itself
   outOfStock?: boolean, // only showing in case of the categories search and dashboard search , preorder card (but removing from the add to cart in case of coming soon or outofstock)-- not showing in the search values -- card caraousel, preorder card - small listing
   comingSoon?: boolean, // same goes as above - outofstock
   currentQuantity?: number; // incase of preorder card having it
+  regexDescription?:string ; //includes the name, category, type, brand, alias names
 }
 interface Offer {
   price: number,
@@ -1142,24 +1177,25 @@ const vegetableList: Itemlist[] = [
     outOfStock: true
   },
   {
-    // difference between the secondary and primary size i.e conversion
-    name: "Button Mushroom",
-    imageURL: "/categories-item/vegetable/button_mushroom.png",
-    buttonURL: "/item/button_mushroom",
-    quantity: 0.5,
-    primarySize: 0.5,
-    secondarySize: 0,
-    mrp: 60,
-    discountValue: 42,
-    savingAmount: 18,
-    offers: [{ price: 35, quantity: 5, unit: unit.kg }, { price: 250, quantity: "1", unit: unit.bag, type: "bag" }],
-    unit: unit.kg,
-    brand: "generic",
-    secondaryUnit: unit.none,
-    conversionRate: 2,
-    type: { all: "all", vegetable: "exotic vegetables" },
-    outOfStock: false
-  },
+      // difference between the secondary and primary size i.e conversion
+      name: "Button Mushroom",
+      imageURL: "/categories-item/vegetable/button_mushroom.png",
+      buttonURL: "/item/button_mushroom",
+      quantity: 1,
+      primarySize: 1,
+      secondarySize: 200,
+      mrp: 60,
+      discountValue: 42,
+      savingAmount: 18,
+      offers: [{ price: 35, quantity: 5, unit: unit.kg }, { price: 250, quantity: "1", unit: unit.bag, type: "bag" }],
+      unit: unit.pkt,
+      brand: "generic",
+      secondaryUnit: unit.gm,
+      conversionRate: 200,
+      type: { all: "all", vegetable: "exotic vegetables" },
+      outOfStock: false,
+      currentQuantity: 2
+    },
   {
     name: "purple cabbage",
     imageURL: "/categories-item/vegetable/purple_cabbage.png",
@@ -2034,7 +2070,6 @@ export const categoryItemInfo = {
   }
 }
 
-
 export const categoryTypeValue = {
   all: "all",
   vegetable: vegetableType,
@@ -2047,7 +2082,6 @@ export const categoryTypeValue = {
   "ration_pulses_oil": rationPulsesOilTypes,
 }
 
-
 export const brandValueCategoryWise = {
   vegetable: ["generic"],
   dairy: ["generic", "amul", "go", "good rich", "nutralite", "delight", "mother dairy", "ananda", "patanjali"],
@@ -2056,10 +2090,10 @@ export const brandValueCategoryWise = {
   "rice_flours": ["Generic", "India Gate", "Daawat", "Fortune", "Aashirvaad", "Tata Sampann", "Kohinoor", "Delhi mills", "Rajdhani", "AS"],
   "cleaning_consumables": ["generic", "harpic", "lifeboy", "vim", "NIP"],
   "confectionary_sauces": ["generic", "funfoods", "veeba", "golden crown", "rajdhani", "kissan", "tops", "yumsie", "freshy+", "amul"],
-  "ration_pulses_oil": ["generic", "fortune", "aashirvaad", "wilmar", "raag gold", "mahakosh", "vibhor"],
+  "ration_pulses_oil": ["generic", "fortune", "aashirvaad", "wilmar", "raag gold", "mahakosh", "vibhor", "vanaspati"],
 }
 
-type allBrand =
+export type allBrand =
   "generic" |
   "amul" |
   "go" |
@@ -2101,4 +2135,4 @@ type allBrand =
   "wilmar" |
   "raag gold" |
   "mahakosh" |
-  "vibhor" | "kbm" | "kissan" | "freshy+" | "yumsie" | "tops";
+  "vibhor" | "kbm" | "kissan" | "freshy+" | "yumsie" | "tops"| "vanaspati";
