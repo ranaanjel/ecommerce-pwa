@@ -134,8 +134,9 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
                                                                                 let conversion = m.conversionRate
                                                                                 let outofstock = m.outOfStock;
                                                                                 let comingsoon = m.comingSoon;
+                                                                                let category = m.category;
 
-                                                                                return <ItemCard cardType="dashboard" outOfStock={outofstock} comingSoon={outofstock} key={index} category={categoryName!} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
+                                                                                return <ItemCard   category={category} cardType="dashboard" outOfStock={outofstock} comingSoon={comingsoon} key={index} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
                                                                         })
                                                                 }
                                                         </div>

@@ -1,13 +1,14 @@
+
 import { CategoryAll } from "@/app/ui/category/categoryAll";
 import { CategoryBody } from "@/app/ui/category/categoryBody";
-import { TypeBar } from "@/app/ui/category/typeBar";
+
 import { TopBar } from "@/app/ui/dashboard/topBar";
 
 
 export default async function Page({ params }: { params: Promise<{ categoryType: string }> }) {
     let categoryType = (await params);
     let data = categoryType.categoryType.split("_").join(" , ");
-    
+
     if(data.includes("-")) {
         data = data.replace("-", " ")
     }
@@ -18,7 +19,7 @@ export default async function Page({ params }: { params: Promise<{ categoryType:
 
     return <div className="bg-[#EBF6FF] h-screen overflow-hidden text-black select-none overscroll-none">
         <TopBar>
-           <CategoryAll data={data}/>
+           <CategoryAll crateLength={0} data={data}/>
         </TopBar>
         <div className="h-full">
             {/* //body  */}

@@ -3,6 +3,7 @@ import Image from "next/image"
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
+import {localId} from "../../lib/utils"
 
 export default function InviteCode() {
     const [inviteCode, setInviteCode] = useState<string>("")
@@ -19,12 +20,19 @@ export default function InviteCode() {
         // db call to check the invite code and then claiming that as used for -- tying that invite code to phone 
         // on login we will check invite code given and used -- if not given then asking for them to come soon or call.
         // creating the user with the phone no and redirecting to the registration page.
+        //getting this id from the backend
+        //TODO -- only when the userid does not exist 
+        // here will create the userId and save it to the localaddress.
 
         let userId = "djdc12321-duqweam" ;//uuid -- object id
+
+        localStorage.setItem(localId, userId)
+
+        
         router.push("/registration/"+ userId)
     }
 
-    return <div className="w-full max-h-screen bg-white overflow-hidden">
+    return <div className="w-full max-h-screen uselect-none bg-white overflow-hidden">
         <div className="relative w-full h-screen">
             {/* Background Image */}
             <div className="absolute inset-0 w-full h-full">

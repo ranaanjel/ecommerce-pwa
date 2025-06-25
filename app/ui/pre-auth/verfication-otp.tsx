@@ -80,13 +80,19 @@ export default function VerificationOTP() {
       return;
     }
 
-    // Handle verification logic here
-    console.log("Verifying OTP:", otp);
-    console.log("WhatsApp consent:", whatsappConsent);
-    console.log("Terms agreed:", termsAgreed);
+    // // Handle verification logic here
+    // console.log("Verifying OTP:", otp);
+    // console.log("WhatsApp consent:", whatsappConsent);
+    // console.log("Terms agreed:", termsAgreed);
 
     // Navigate to next page after verification
     // router.push("/dashboard"); // Uncomment when ready to navigate
+
+    // first getting checking if the user exist with the number and on verfication sending the to the dashboard
+    //TODO  -- exist or don't if don't then invitation code is required for the person
+    // if exist the user but we don't have the information about the user then 
+    // all information i.e -- only the name, restaurant and delivery, address as well 
+    // router.push("/registration/<userid>")
     router.push("/login/invite-code")
   };
 
@@ -103,7 +109,7 @@ export default function VerificationOTP() {
   }
 
   return (
-    <div className="w-full max-h-screen bg-white overflow-hidden">
+    <div className="w-full max-h-screen select-none bg-white overflow-hidden">
       <div className="relative w-full h-screen">
         {/* Background Image */}
         <div className="absolute inset-0 w-full h-full">

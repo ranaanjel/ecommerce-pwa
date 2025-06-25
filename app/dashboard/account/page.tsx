@@ -11,3 +11,7 @@ export default function Page() {
         <BottomBar></BottomBar>
     </div>
 }
+
+
+
+// user address --> bunch of address and users --- default to via radio values.

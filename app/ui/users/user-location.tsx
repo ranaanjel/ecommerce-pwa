@@ -1,6 +1,6 @@
 "use client";
 
-import { notFound, useRouter } from "next/navigation";
+import { notFound, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import React, { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, DrawingPinFilledIcon, DrawingPinIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
@@ -18,15 +18,16 @@ export default function UserLocation({ userId }: UserLocationProps) {
   const [geoAllowed, setGeoAllowed] = useState(false);
   const [searchPlaces, setSearchPlaces] = useState(false);
   const [address, setAddress] = useState("Address");
-  const [coords, setCoords] = useState<{lat:number, lng:number}>({lat:11, lng:72})
+  const [coords, setCoords] = useState<{ lat: number, lng: number }>({ lat: 11, lng: 72 })
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const handleBack = () => {
     router.back();
 
   };
-  const locationRef = useRef< () => void | null>(null)
+  const locationRef = useRef<() => void | null>(null)
   const inputRef = useRef<HTMLInputElement | null>(null)
   const centerRef = useRef<HTMLDivElement | null>(null)
+  const params = useSearchParams();
 
 
   //checking the userId by the middleware instead of the useEffect here.
@@ -59,17 +60,39 @@ export default function UserLocation({ userId }: UserLocationProps) {
   const handleConfirm = () => {
     // Navigate to the next page in the flow
     // This could be a dashboard or order page
-    let pathValue = `/users/${userId}/address_details?value=`;
+    console.log(params.get("type"))
+    if (params.get("type")== 'modified') {
 
-    if(address == "Address") {
-      return ""
+      if (address == "Address") {
+        return ""
+      }
+
+      let searchValue = decodeURI(window.location.search)
+      
+      let replaceSearch = searchValue.replace(/address=(.)*?&/, "address=" + address + "&")
+      router.push(`/users/${userId}/address_details?`+ encodeURI(replaceSearch.replace("?", "&")))
+
+    } else if (params.get("type") == "create"){
+      if (address == "Address") {
+        return ""
+      }
+
+      let searchValue = decodeURI(window.location.search)
+      let replaceSearch = searchValue + "&address="+address;
+      router.push(`/users/${userId}/address_details?`+ encodeURI(replaceSearch.replace("?", "&")))
+
     }
-    let searchParams = address ;
-    let url = encodeURI(pathValue+searchParams)
-   //console.log(url)
-    router.push(url);
-  };
+      else {
+      let pathValue = `/users/${userId}/address_details?value=`;
 
+      let searchParams = address + window.location.search.replace("?", "&");
+      // console.log(window.location.search)
+      let url = encodeURI(pathValue + searchParams)
+      //console.log(url)
+      router.push(url);
+    }
+  };
+  
   return (
     <div className="w-full h-screen bg-gray-500/50 overflow-hidden select-none text-black">
       <div className="w-full py-4 border-b border-[#B4B4B4] bg-white flex items-center px-6 gap-10">
@@ -105,7 +128,7 @@ export default function UserLocation({ userId }: UserLocationProps) {
 
               console.log(locationRef.current?.())
 
-            }         
+            }
           } className="border-2 cursor-pointer p-2 bg-white border-gray-400  absolute z-9 right-[0%] top-[-30%] translate-x-[-50%] rounded-lg">
             <CurrentGPS />
           </div>
@@ -116,7 +139,7 @@ export default function UserLocation({ userId }: UserLocationProps) {
               </div>
               <input type="text" placeholder="search for a place" className="border-none focus:outline-none p-2" onFocus={function () {
                 setSearchPlaces(true)
-              }}/>
+              }} />
             </div>
           </div>
           <div className="mb-6">
@@ -146,14 +169,14 @@ export default function UserLocation({ userId }: UserLocationProps) {
                 </svg>
               </div>
               <div className="ml-2">
-                <div className="text-xl font-bold">{address.split(",").slice(1,3).join(",")}</div>
+                <div className="text-xl font-bold">{address.split(",").slice(1, 3).join(",")}</div>
                 <div className="text-xs text-[#000000] mt-2">
                   {address}
                 </div>
               </div>
             </div>
           </div>
-          <button 
+          <button
             onClick={handleConfirm}
             className="w-full h-[58px] bg-[#099FFF] rounded-[5px] text-white text-2xl font-bold shadow-[0px_4px_6.1px_0px_rgba(0,0,0,0.14)]"
           >
@@ -163,10 +186,10 @@ export default function UserLocation({ userId }: UserLocationProps) {
         </div>
       </div>
       {searchPlaces && <FetchDataLocation setSearch={setSearchPlaces}>
-          <CustomAutocomplete mapRef={map} centerRef={centerRef} inputRef={inputRef} setCenter={setCoords} setAddress={setAddress} callBack={function () {
-            setSearchPlaces(false)
-          }}/>
-        </FetchDataLocation>}
+        <CustomAutocomplete mapRef={map} centerRef={centerRef} inputRef={inputRef} setCenter={setCoords} setAddress={setAddress} callBack={function () {
+          setSearchPlaces(false)
+        }} />
+      </FetchDataLocation>}
     </div>
   );
 }

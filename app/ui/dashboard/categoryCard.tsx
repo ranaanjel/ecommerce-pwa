@@ -3,8 +3,9 @@ import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { SetStateAction } from "react";
 
-export function Categories({ type , active}: { type: "page" | "dropdown" | "component"| "line", active?:string }) {
+export function Categories({  type , active}: { type: "page" | "dropdown" | "component"| "line", active?:string }) {
 
     //component - inside the dashboard
     //page for the /dashbaord/category

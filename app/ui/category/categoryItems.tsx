@@ -158,7 +158,8 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
                 let conversion = m.conversionRate
                 let outofstock = m.outOfStock
                 let comingSoon = m.comingSoon
-                return <ItemCard cardType="category" key={index} category={category as CategoryType} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} setOpenModal={function (value: SetStateAction<boolean>): void {
+                let category = m.category;
+                return <ItemCard cardType="category" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} setOpenModal={function (value: SetStateAction<boolean>): void {
                                     throw new Error("Function not implemented.");
                                 } } setItemDelete={function (value: SetStateAction<string>): void {
                                     throw new Error("Function not implemented.");

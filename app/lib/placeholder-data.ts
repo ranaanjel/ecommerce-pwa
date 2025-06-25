@@ -124,6 +124,9 @@ export interface Preorder {
 //naming the card with title 
 //default description in the creation as well
 
+//not doing this way all the data to be seprated i.e brand, items, category, preorder
+// joining them when required.
+
 export const preorderList: Preorder[] = [
   {
     title: "Daily Order",
@@ -146,7 +149,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "tomato , potato & onion" },
       outOfStock: true,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     }, {
       // difference between the secondary and primary size i.e conversion
       name: "Button Mushroom",
@@ -165,7 +169,8 @@ export const preorderList: Preorder[] = [
       conversionRate: 1,
       type: { all: "all", vegetable: "exotic vegetables" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "purple cabbage",
@@ -183,7 +188,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "exotic vegetables" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "ginger",
@@ -202,7 +208,8 @@ export const preorderList: Preorder[] = [
       type: { all: "all", vegetable: "indian vegetable" },
       outOfStock: false,
       comingSoon: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "red carrot",
@@ -220,7 +227,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "indian vegetable" },
       outOfStock: true,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "English Cucumber",
@@ -238,7 +246,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "indian vegetable" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     }, {
       name: "Basmati Rice",
       imageURL: "/categories-item/ration-oil/basmati_rice.png",
@@ -255,7 +264,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "vanaspati & others" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2.5,
+      category:"ration_pulses_oil"
     },
     {
       name: "Tur Dal",
@@ -273,7 +283,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "toor, kabuli & channa dal" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     {
       name: "Sunflower Oil",
@@ -291,7 +302,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "sunflower oil" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     {
       name: "Sugar",
@@ -309,7 +321,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "vanaspati & others" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     {
       name: "Vibhor Soyabean Oil",
@@ -327,7 +340,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "soyabean oil" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     ],
     bgTitle: "bg-[#38b6ff]",
@@ -354,7 +368,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", dairy: "milk & milk powder" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"dairy"
     },
     {
       name: "Amul Butter",
@@ -372,7 +387,9 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.gm,
       type: { all: "all", dairy: "butter" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"dairy"
+
     },
     {
       name: "Paneer",
@@ -390,7 +407,9 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", dairy: "paneer" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"dairy"
+
     },
     {
       name: "Curd",
@@ -408,7 +427,9 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", dairy: "curd" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"dairy"
+
 
     },
     {
@@ -427,7 +448,9 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", dairy: "cheese" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"dairy"
+
 
     }, {
       name: "Turmeric Powder",
@@ -446,7 +469,9 @@ export const preorderList: Preorder[] = [
       type: { all: "all", masala: "chilli, turmeric & coriander powder" },
       outOfStock: false
       ,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"masala"
+
     },
     {
       name: "Red Chili Powder",
@@ -464,7 +489,9 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", masala: "chilli, turmeric & coriander powder" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"masala"
+
 
     },
     {
@@ -484,7 +511,9 @@ export const preorderList: Preorder[] = [
       type: { all: "all", masala: "chilli, turmeric & coriander powder" },
       outOfStock: false,
       currentQuantity: 5,
-      conversionRate:1
+      conversionRate:1,
+      category:"masala"
+
 
     },
     {
@@ -503,7 +532,9 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", masala: "whole spices" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"masala"
+
 
     },
     {
@@ -523,7 +554,9 @@ export const preorderList: Preorder[] = [
       type: { all: "all", masala: "salt & sugar" },
       outOfStock: false,
       currentQuantity: 2,
-      conversionRate:1
+      conversionRate:1,
+      category:"masala"
+
     }],
     bgTitle: "bg-[#85c178]",
     bgBody: "bg-[#f3f9f1]"
@@ -558,7 +591,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.ltr,
       type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"confectionary_sauces"
 
     },
     {
@@ -577,7 +611,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"confectionary_sauces"
 
     },
     {
@@ -596,7 +631,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"confectionary_sauces"
 
     },
     {
@@ -615,7 +651,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"confectionary_sauces"
 
     },
     {
@@ -634,7 +671,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"confectionary_sauces"
 
     }, {
       name: "Tomato",
@@ -652,7 +690,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "tomato , potato & onion" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
 
     }, {
       // difference between the secondary and primary size i.e conversion
@@ -672,7 +711,8 @@ export const preorderList: Preorder[] = [
       conversionRate: 2,
       type: { all: "all", vegetable: "exotic vegetables" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "purple cabbage",
@@ -690,7 +730,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "exotic vegetables" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "ginger",
@@ -709,7 +750,8 @@ export const preorderList: Preorder[] = [
       type: { all: "all", vegetable: "indian vegetable" },
       outOfStock: false,
       comingSoon: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "red carrot",
@@ -727,7 +769,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "indian vegetable" },
       outOfStock: true,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
     {
       name: "English Cucumber",
@@ -745,7 +788,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "indian vegetable" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     }, {
       name: "Basmati Rice",
       imageURL: "/categories-item/ration-oil/basmati_rice.png",
@@ -762,7 +806,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "vanaspati & others" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     {
       name: "Tur Dal",
@@ -780,7 +825,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "toor, kabuli & channa dal" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     {
       name: "Sunflower Oil",
@@ -798,7 +844,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "sunflower oil" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     {
       name: "Sugar",
@@ -816,7 +863,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "vanaspati & others" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     },
     {
       name: "Vibhor Soyabean Oil",
@@ -834,7 +882,8 @@ export const preorderList: Preorder[] = [
       secondaryUnit: unit.none,
       type: { all: "all", ration_pluses_oil: "soyabean oil" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"ration_pulses_oil"
     }],
     bgTitle: "bg-[#efc282]",
     bgBody: "bg-[#fdf9f2]"
@@ -1000,7 +1049,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "tomato , potato & onion" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
 
   },
   {
@@ -1018,7 +1068,10 @@ const vegetableList: Itemlist[] = [
     unit: unit.kg,
     brand: "generic",
     type: { all: "all", vegetable: "tomato , potato & onion" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
+
+
   },
   {
     name: "Onion",
@@ -1035,7 +1088,10 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "tomato , potato & onion" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
+
+
   },
   {
     // difference between the secondary and primary size i.e conversion
@@ -1054,7 +1110,10 @@ const vegetableList: Itemlist[] = [
     secondaryUnit: unit.none,
     conversionRate: 2,
     type: { all: "all", vegetable: "indian vegetable" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
+
+
   },
   {
     name: "Cabbage",
@@ -1071,7 +1130,10 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "leafy vegetables" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
+
+
   },
   {
     name: "Garlic Peeled",
@@ -1088,7 +1150,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "indian vegetable" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
   },
   {
     name: "orange carrot",
@@ -1105,7 +1168,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "indian vegetable" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
   },
   {
     name: "Indian Cucumber",
@@ -1122,7 +1186,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "indian vegetable" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
   }, {
     name: "Tomato",
     imageURL: "/categories-item/vegetable/tomato.png",
@@ -1138,7 +1203,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "tomato , potato & onion" },
-    outOfStock: true
+    outOfStock: true,
+    category:"vegetable"
 
   },
   {
@@ -1157,7 +1223,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     type: { all: "all", vegetable: "tomato , potato & onion" },
     outOfStock: false,
-    comingSoon: true
+    comingSoon: true,
+    category:"vegetable"
   },
   {
     name: "Onion",
@@ -1174,7 +1241,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "tomato , potato & onion" },
-    outOfStock: true
+    outOfStock: true,
+    category:"vegetable"
   },
   {
       // difference between the secondary and primary size i.e conversion
@@ -1194,7 +1262,8 @@ const vegetableList: Itemlist[] = [
       conversionRate: 200,
       type: { all: "all", vegetable: "exotic vegetables" },
       outOfStock: false,
-      currentQuantity: 2
+      currentQuantity: 2,
+      category:"vegetable"
     },
   {
     name: "purple cabbage",
@@ -1211,7 +1280,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "exotic vegetables" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
   },
   {
     name: "ginger",
@@ -1229,7 +1299,8 @@ const vegetableList: Itemlist[] = [
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "indian vegetable" },
     outOfStock: false,
-    comingSoon: false
+    comingSoon: false,
+    category:"vegetable"
   },
   {
     name: "red carrot",
@@ -1246,7 +1317,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "indian vegetable" },
-    outOfStock: true
+    outOfStock: true,
+    category:"vegetable"
   },
   {
     name: "English Cucumber",
@@ -1263,7 +1335,8 @@ const vegetableList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", vegetable: "indian vegetable" },
-    outOfStock: false
+    outOfStock: false,
+    category:"vegetable"
   },
 ]
 
@@ -1283,7 +1356,8 @@ const rationOilList: Itemlist[] = [
     brand: "India Gate",
     secondaryUnit: unit.none,
     type: { all: "all", ration_pluses_oil: "vanaspati & others" },
-    outOfStock: false
+    outOfStock: false,
+    category:"ration_pulses_oil"
   },
   {
     name: "Tur Dal",
@@ -1300,7 +1374,8 @@ const rationOilList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", ration_pluses_oil: "toor, kabuli & channa dal" },
-    outOfStock: false
+    outOfStock: false,
+    category:"ration_pulses_oil"
   },
   {
     name: "Sunflower Oil",
@@ -1317,7 +1392,8 @@ const rationOilList: Itemlist[] = [
     brand: "Fortune",
     secondaryUnit: unit.none,
     type: { all: "all", ration_pluses_oil: "sunflower oil" },
-    outOfStock: false
+    outOfStock: false,
+    category:"ration_pulses_oil"
   },
   {
     name: "Sugar",
@@ -1334,7 +1410,8 @@ const rationOilList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", ration_pluses_oil: "vanaspati & others" },
-    outOfStock: false
+    outOfStock: false,
+    category:"ration_pulses_oil"
   },
   {
     name: "Vibhor Soyabean Oil",
@@ -1351,7 +1428,8 @@ const rationOilList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", ration_pluses_oil: "soyabean oil" },
-    outOfStock: false
+    outOfStock: false,
+    category:"ration_pulses_oil"
   },
   {
     name: "Wheat Flour",
@@ -1368,7 +1446,8 @@ const rationOilList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", ration_pluses_oil: "vanaspati & others" },
-    outOfStock: false
+    outOfStock: false,
+    category:"ration_pulses_oil"
   }
 ];
 const dairyList: Itemlist[] = [
@@ -1387,7 +1466,8 @@ const dairyList: Itemlist[] = [
     brand: "amul",
     secondaryUnit: unit.none,
     type: { all: "all", dairy: "milk & milk powder" },
-    outOfStock: false
+    outOfStock: false,
+    category:"dairy"
   },
   {
     name: "Amul Butter",
@@ -1404,7 +1484,9 @@ const dairyList: Itemlist[] = [
     brand: "amul",
     secondaryUnit: unit.gm,
     type: { all: "all", dairy: "butter" },
-    outOfStock: false
+    outOfStock: false,
+    category:"dairy"
+
   },
   {
     name: "Paneer",
@@ -1421,7 +1503,9 @@ const dairyList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", dairy: "paneer" },
-    outOfStock: false
+    outOfStock: false,
+    category:"dairy"
+
   },
   {
     name: "Curd",
@@ -1438,7 +1522,9 @@ const dairyList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", dairy: "curd" },
-    outOfStock: false
+    outOfStock: false,
+    category:"dairy"
+
 
   },
   {
@@ -1456,7 +1542,9 @@ const dairyList: Itemlist[] = [
     brand: "amul",
     secondaryUnit: unit.none,
     type: { all: "all", dairy: "cheese" },
-    outOfStock: false
+    outOfStock: false,
+    category:"dairy"
+
 
   }
 ]
@@ -1477,7 +1565,9 @@ const packagingList: Itemlist[] = [
     brand: "Biogreen",
     secondaryUnit: unit.none,
     type: { all: "all", "packaging-materials": "carry bags" },
-    outOfStock: false
+    outOfStock: false,
+    category:"packaging-materials"
+
   },
   {
     name: "Cardboard Box Large",
@@ -1494,7 +1584,8 @@ const packagingList: Itemlist[] = [
     brand: "Ecopack",
     secondaryUnit: unit.none,
     type: { all: "all", "packaging-materials": "reusable containers" },
-    outOfStock: false
+    outOfStock: false,
+    category:"packaging-materials"
 
   },
   {
@@ -1512,7 +1603,8 @@ const packagingList: Itemlist[] = [
     brand: "Hotpack",
     secondaryUnit: unit.none,
     type: { all: "all", "packaging-materials": "tapes, silverfoil & kitchen wraps" },
-    outOfStock: false
+    outOfStock: false,
+    category:"packaging-materials"
 
   },
   {
@@ -1530,7 +1622,8 @@ const packagingList: Itemlist[] = [
     brand: "Packman Packaging",
     secondaryUnit: unit.pcs,
     type: { all: "all", "packaging-materials": "cutlery & tissues" },
-    outOfStock: false
+    outOfStock: false,
+    category:"packaging-materials"
 
   },
   {
@@ -1548,7 +1641,8 @@ const packagingList: Itemlist[] = [
     brand: "Pactiv",
     secondaryUnit: unit.pcs,
     type: { all: "all", "packaging-materials": "carry bags" },
-    outOfStock: false
+    outOfStock: false,
+    category:"packaging-materials"
     //it should not be here
   }
 ]
@@ -1569,7 +1663,8 @@ const masalaList: Itemlist[] = [
     brand: "kbm",
     secondaryUnit: unit.none,
     type: { all: "all", masala: "chilli, turmeric & coriander powder" },
-    outOfStock: false
+    outOfStock: false,
+    category:"masala"
 
   },
   {
@@ -1587,7 +1682,9 @@ const masalaList: Itemlist[] = [
     brand: "kbm",
     secondaryUnit: unit.none,
     type: { all: "all", masala: "chilli, turmeric & coriander powder" },
-    outOfStock: false
+    outOfStock: false,
+    category:"masala"
+
 
   },
   {
@@ -1605,7 +1702,9 @@ const masalaList: Itemlist[] = [
     brand: "kbm",
     secondaryUnit: unit.none,
     type: { all: "all", masala: "chilli, turmeric & coriander powder" },
-    outOfStock: false
+    outOfStock: false,
+    category:"masala"
+
 
   },
   {
@@ -1623,7 +1722,9 @@ const masalaList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", masala: "whole spices" },
-    outOfStock: false
+    outOfStock: false,
+    category:"masala"
+
 
   },
   {
@@ -1641,7 +1742,9 @@ const masalaList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", masala: "salt & sugar" },
-    outOfStock: false
+    outOfStock: false,
+    category:"masala"
+
   }
 ]
   ;
@@ -1661,7 +1764,9 @@ const riceFlourList: Itemlist[] = [
     brand: "India Gate",
     secondaryUnit: unit.none,
     type: { all: "all", "rice_flours": "rice" },
-    outOfStock: false
+    outOfStock: false,
+    category:"rice_flours"
+
 
   },
   {
@@ -1679,7 +1784,8 @@ const riceFlourList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", "rice_flours": "flours" },
-    outOfStock: false
+    outOfStock: false,
+    category:"rice_flours"
 
   },
   {
@@ -1697,7 +1803,8 @@ const riceFlourList: Itemlist[] = [
     brand: "Aashirvaad",
     secondaryUnit: unit.none,
     type: { all: "all", "rice_flours": "flours" },
-    outOfStock: false
+    outOfStock: false,
+    category:"rice_flours"
 
   },
   {
@@ -1715,7 +1822,8 @@ const riceFlourList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", rice_flours: "flours" },
-    outOfStock: false
+    outOfStock: false,
+    category:"rice_flours"
 
   },
   {
@@ -1733,7 +1841,8 @@ const riceFlourList: Itemlist[] = [
     brand: "AS",
     secondaryUnit: unit.none,
     type: { all: "all", rice_flours: "maida" },
-    outOfStock: false
+    outOfStock: false,
+    category:"rice_flours"
 
   }
 ]
@@ -1754,7 +1863,8 @@ const cleaningList: Itemlist[] = [
     brand: "harpic",
     secondaryUnit: unit.none,
     type: { all: "all", cleaning_consumables: "toilet & bathroom cleaner" },
-    outOfStock: false
+    outOfStock: false,
+    category:"cleaning_consumables"
 
   },
   {
@@ -1772,7 +1882,8 @@ const cleaningList: Itemlist[] = [
     brand: "vim",
     secondaryUnit: unit.none,
     type: { all: "all", cleaning_consumables: "dishwash & detergents" },
-    outOfStock: false
+    outOfStock: false,
+    category:"cleaning_consumables"
 
   },
   {
@@ -1790,7 +1901,8 @@ const cleaningList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", cleaning_consumables: "floor & glass cleaner" },
-    outOfStock: false
+    outOfStock: false,
+    category:"cleaning_consumables"
 
   },
   {
@@ -1808,7 +1920,8 @@ const cleaningList: Itemlist[] = [
     brand: "generic",
     secondaryUnit: unit.none,
     type: { all: "all", cleaning_consumables: "cleaning tools" },
-    outOfStock: false
+    outOfStock: false,
+    category:"cleaning_consumables"
 
   },
   {
@@ -1826,7 +1939,8 @@ const cleaningList: Itemlist[] = [
     brand: "vim",
     secondaryUnit: unit.none,
     type: { all: "all", cleaning_consumables: "consumables" },
-    outOfStock: false
+    outOfStock: false,
+    category:"cleaning_consumables"
 
   }
 ]
@@ -1847,7 +1961,8 @@ const confectionaryList: Itemlist[] = [
     brand: "kissan",
     secondaryUnit: unit.ltr,
     type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
-    outOfStock: false
+    outOfStock: false,
+    category:"confectionary_sauces"
 
   },
   {
@@ -1865,7 +1980,10 @@ const confectionaryList: Itemlist[] = [
     brand: "amul",
     secondaryUnit: unit.none,
     type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
-    outOfStock: false
+    outOfStock: false,
+    category:"confectionary_sauces"
+
+
 
   },
   {
@@ -1883,7 +2001,10 @@ const confectionaryList: Itemlist[] = [
     brand: "freshy+",
     secondaryUnit: unit.none,
     type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
-    outOfStock: false
+    outOfStock: false,
+    category:"confectionary_sauces"
+
+
 
   },
   {
@@ -1901,7 +2022,10 @@ const confectionaryList: Itemlist[] = [
     brand: "yumsie",
     secondaryUnit: unit.none,
     type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
-    outOfStock: false
+    outOfStock: false,
+    category:"confectionary_sauces"
+
+
 
   },
   {
@@ -1919,7 +2043,10 @@ const confectionaryList: Itemlist[] = [
     brand: "freshy+",
     secondaryUnit: unit.none,
     type: { all: "all", confectionary_sauces: "cheese blend & other sauces" },
-    outOfStock: false
+    outOfStock: false,
+    category:"confectionary_sauces"
+
+
 
   }
 ]

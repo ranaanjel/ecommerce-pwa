@@ -10,6 +10,7 @@ import { ItemCard } from "@/app/ui/dashboard/itemCard";
 import { ConfirmModal } from "@/app/ui/confirmModal";
 import { localPreorder } from "@/app/lib/utils";
 import { Trash2Icon } from "lucide-react";
+import { crateItemInterface } from "@/app/lib/definitions";
 
 export default function Page() {
     let [data, setData] = useState<Preorder>({
@@ -93,7 +94,7 @@ function SketelonPage() {
 function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody, type, buttonURL }: Preorder) {
 
 
-    let currentPreorderData: { category: string, discountPrice: number, itemname: string, mrp: number, quant: number, unit: unit }[] = [];
+    let currentPreorderData: crateItemInterface = [];
 
     //adding more items - local storage using for that
     //three section  -- header , body, fixed times.
@@ -168,8 +169,8 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                             let conversion = m.conversionRate
                             let outofstock = m.outOfStock
                             let comingSoon = m.comingSoon
-                            let category = m.category;
-                            let currentQuant = m.currentQuantity ?? 0
+                            let category = m.category ?? "all";
+                            let currentQuant = m.currentQuantity ?? 0;
 
                             return <ItemCard setItemDelete={setItemDelete} setOpenModal={setOpenModal} cardType="preorder" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} currentQuantity={currentQuant} currentData={currentPreorderData} />
 
@@ -179,7 +180,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
             }
 
         </div>
-        <div className="h-21 border-t border-gray-200 bg-white fixed bottom-0 p-4 shadow-xs  w-full">
+        <div className="h-21 border-t border-gray-200 bg-white fixed bottom-0 p-4 shadow-xs z-10  w-full">
             {/* //add to cart fixed on the page */}
             <div className="flex justify-between items-center px-8 py-4 text-white bg-logo rounded-sm cursor-pointer text-xl" onClick={function () {
                 // making the crate -- localstorage filled with the current list 
@@ -188,8 +189,9 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                     localstorageObject = localStorage.setItem("crate", "{}");
                 }
                 localstorageObject = JSON.parse(localStorage.getItem("crate") as string);
-
+                
                 for (var items of currentPreorderData) {
+
                     if (!(items.itemname in localstorageObject)) {
                         localstorageObject[items.itemname] = items;
                         console.log("creating", items, localstorageObject)
@@ -198,12 +200,18 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                         console.log("changing", items.itemname)
                     }
 
+                    if(items.skip) {
+                        delete localstorageObject[items.itemname]
+                    }
+
                 }
-                localStorage.setItem("crate", JSON.stringify(localstorageObject));
+
+                console.log(localstorageObject)
+               localStorage.setItem("crate", JSON.stringify(localstorageObject));
                 // console.log(localStorage.getItem("crate"))
                 // value and redirecting to the /dashboard/crates
                 // console.log(currentPreorderData)
-                router.push("/dashboard/crate")
+              router.push("/dashboard/crate")
             }}>
                 <div>
                     {items.length} items |
@@ -213,7 +221,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                 </div>
             </div>
         </div>
-        {openModal && <ConfirmModal preorderName={title.toLowerCase()} wholeList={wholeListDelete} itemDelete={itemDelete} setItems={setItems} setOpenModal={setOpenModal} />}
+        {openModal && <ConfirmModal type="preorder" preorderName={title.toLowerCase()} wholeList={wholeListDelete} itemDelete={itemDelete} setItems={setItems} setOpenModal={setOpenModal} />}
     </div>
 
 }
@@ -221,7 +229,9 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
 // ability to have the value in case of previous value -- all the preorder value must have it but not mandatory.
 // checking the add to crate value
 // ability to delete , modal creation
+// delete the item - precard 
 
 //TODO 
 // propogating to the database as well. 
-// delete the item - precard 
+// so in the dashboard as per the /dashboard/precard - we get the updated values as well
+//import -- add to list, delete items or the change in the values as well.

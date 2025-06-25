@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
+import { decode } from "punycode";
 
 interface AddressDetailsProps {
   userId: string;
@@ -16,11 +17,14 @@ export default function AddressDetails({
   address,
 }: AddressDetailsProps) {
   const router = useRouter();
+  const [addressValue, setAddressValue] = useState(address)
   const [shopDetails, setShopDetails] = useState("");
   const [pincode, setPincode] = useState("");
+  const [tag, setTag] = useState("");
   const [requiredFilled, setRequiredFilled] = useState(true);
   const [deliveryInstructions, setDeliveryInstructions] = useState("");
   const [receiver, setReceiver] = useState<"staff" | "manager" | null>(null);
+  let params = useSearchParams()
 
   const handleBack = () => {
     router.back();
@@ -28,32 +32,112 @@ export default function AddressDetails({
 
   const handleSaveAddress = () => {
     // Here you would typically save the address details to your backend
-    if(pincode.length != 6 || shopDetails.length == 0 || receiver == null ) {
-        
+    if(pincode.length != 6 || shopDetails.length == 0 || receiver == null || tag.length == 0) {
         setRequiredFilled(false);
         return;
     }
+    
+    
+    //checking if the tag of the address is given then updating instead of creating it.
+    // in the backend.
 
 
     console.log({
-      userId,
-      shopDetails,
+      userId,address,
+      shopDetails,pincode,
       deliveryInstructions,
-      receiver,
-    });
+      receiver, tag,
+    }, params.get("restaurantName"), params.get("restaurantType"), params.get("deliveryTiming"), params);
+    //saving all values in the database with address type default, address tag - address 1.
+
+    //address 1 , address 2 and address 3 -- array storing.
+    //pushing everything to the backend about the address.
+
+
     //checking here if the address is where are delivering to or not and then providing the things.
     //pincode
+    console.log(params.get("callback"))
+    if(params.get("callback")) {
+      
+      let searchValue = "restaurantName="+params.get("restaurantName") + "&restaurantType="+params.get("restaurantType") +"&deliveryTiming="+ params.get("deliveryTiming") +"&shopDetails="+shopDetails  +"&pincode="+pincode +"&tag="+tag +"&receiver="+receiver +"&instruction="+ deliveryInstructions+"&address=" + addressValue +"&type="+"return"+"&default="+params.get("default") ;
+      
+      //checking on the tag if exist or not in the database.
+      //either modify or new value is created -- the routine is the same.
 
+      //TODO ; pushing to the database and then 
+      // waiting for the database callback and then only going to their
+      //error throwing in case of the value is not valid  -- not deliverying and other things from the backend.
+      
+      router.push("/dashboard/crate?"+searchValue);
+    }
     //coming soon if not available.
     // right for directing it to the coming soon page.
-
     // Navigate to the next page in the flow (e.g., dashboard or confirmation)
+    else {
     router.push(`/not-available`);
+    }
   };
 
   const handleChangeAddress = () => {
-    router.push(`/users/${userId}/address`);
+    
+
+    if(params.get("type") == "modified") {
+
+       let searchValue = "restaurantName="+params.get("restaurantName") + "&restaurantType="+params.get("restaurantType") +"&deliveryTiming="+ params.get("deliveryTiming") +"&shopDetails="+shopDetails  +"&pincode="+pincode +"&tag="+tag +"&receiver="+receiver +"&instruction="+ deliveryInstructions+"&address=" + addressValue +"&type="+"modified"+"&default="+params.get("default") + "&callback="+ params.get("callback") ;
+
+
+      router.push(`/users/${userId}/address?`+searchValue);
+    } else if (params.get("type") == "create") {
+
+let searchValue = "restaurantName="+params.get("restaurantName") + "&restaurantType="+params.get("restaurantType") +"&deliveryTiming="+ params.get("deliveryTiming") +"&type=create"+ "&callback="+ params.get("callback") ;
+
+
+      router.push(`/users/${userId}/address?`+searchValue);
+
+    }else {
+      
+      router.push(`/users/${userId}/address`);
+    }
+
   };
+  useEffect(function () {
+    if(!params.get("restaurantName")) {
+      router.push("/registration/"+ userId )
+    }
+
+    //fetching the details about the noof address in the backend and setting the tag
+    // by default
+    // fetching only for the new address when being made
+    //TODO
+
+    // in the search params defining the creating or modifying value.
+    if (params.get("type")) {
+      if(params.get("type") == "modify") {
+          setTag(decodeURI(params.get("tag") || ""))
+          setPincode(decodeURI(params.get("pincode") || ""))
+          setShopDetails(decodeURI(params.get("shopDetails") || ""))
+          setDeliveryInstructions(decodeURI(params.get("instruction") || ""))
+          const receiverValue = decodeURI(params.get("receiver")|| "")
+          if (receiverValue === "staff" || receiverValue === "manager") {
+            setReceiver(receiverValue);
+          } else {
+            setReceiver("staff");
+          }
+          setAddressValue(decodeURI(params.get("address") || "shop no 7"))
+          console.log(params.get("address"))
+      }else {
+        setTag("Adress n")//doing the fetch from the db
+        setAddressValue(decodeURI(params.get("address")|| "shop no 7"))
+        //making sure we are doing it TODO
+        //TODO
+      }
+
+    } else { 
+      setTag("Address 1") // for the new user
+    }
+
+
+  }, [])
 
   return (
     <div className=" bg-white h-screen w-full font-dm-sans text-black">
@@ -79,7 +163,7 @@ export default function AddressDetails({
 
       <div className="rounded-[5px] bg-white  w-full pt-[25px]">
         <div className="flex w-full px-2 flex-col">
-          <div className="self-start flex gap-1 text-xl text-black font-bold">
+          <div className="self-start w-[80%] flex gap-1 text-xl text-black font-bold overflow-hidden">
             <Image
               src="/location-pin.svg"
               alt="Location"
@@ -87,27 +171,27 @@ export default function AddressDetails({
               height={24}
               className="flex-shrink-0"
             />
-            <div>
-              {address?.split(",").slice(1,3).join(",")}
+            <div className="w-full  overflow-hidden whitespace-nowrap overflow-ellipsis ">
+              {addressValue?.split(",").slice(1,3).join(",")}
               <br />
             </div>
           </div>
 
-          <div className="self-end flex gap-2 mt-2 items-center">
-            <div className="text-[#B4B4B4] text-[13px] font-normal ml-8 w-[70%]">
-              {address ||
+          <div className="flex gap-2 mt-2 items-center pr-2 justify-between">
+            <div className="self-start text-[#B4B4B4] text-[13px] font-normal  ml-8 w-[70%]">
+              {addressValue ||
                 "Shop No. 11, DDA Market, near indraprastha world school A 2 Block, Paschim Vihar, Delhi, 110063"}
             </div>
             <div
               onClick={handleChangeAddress}
-              className="rounded-[5px] bg-white border border-[#B4B4B4] py-1 px-2 overflow-hidden text-[14px] text-[#585858] font-medium whitespace-nowrap cursor-pointer"
+              className="rounded-[5px] bg-white border border-[#B4B4B4] py-1  px-2 overflow-hidden text-[14px] text-[#585858] font-medium  cursor-pointer"
             >
               change
             </div>
           </div>
         </div>
 
-        <div className="border border-[rgba(180,180,180,0.33)] mt-[21px] w-[392px] max-w-full h-[2px]" />
+        <div className="border border-[rgba(180,180,180,0.33)] mt-[21px] w-[392px] mx-auto max-w-full h-[2px]" />
 
         <div className="flex mt-2 w-full flex-col text-base text-black font-bold px-6">
           <div>Add address</div>
@@ -133,6 +217,16 @@ export default function AddressDetails({
             className="rounded-[5px] bg-[rgba(223,241,255,0.61)] self-stretch  text-thin w-full h-[43px] px-3"
             placeholder="Enter Pincode"
           />
+           <div className="text-[#5F5B5B] text-[14px] mt-3  mb-3">
+            Tag <span className="text-red-500">*</span>: 
+          </div>
+          <input
+            type="tel"
+            value={tag}
+            onChange={(e) => setTag(e.target.value)}
+            className="rounded-[5px] bg-[rgba(223,241,255,0.61)] self-stretch  text-thin w-full h-[43px] px-3"
+            placeholder="Eg : Address 1 , Shop or Home "
+          />
 
           <div className="mt-[13px]">Additional delivery instruction</div>
 
@@ -140,7 +234,7 @@ export default function AddressDetails({
             value={deliveryInstructions}
             onChange={(e) => setDeliveryInstructions(e.target.value)}
             className="rounded-[5px] bg-[rgba(223,241,255,0.61)] self-stretch mt-[9px] w-full h-[83px] px-3 py-2 resize-none"
-            placeholder="Add any special instructions for delivery"
+            placeholder="Add any special instructions for delivery. Eg Instruction 1, Instruction 2"
           />
 
           <div className="mt-[13px]">Who will receive goods<span className="text-red-500">*</span></div>

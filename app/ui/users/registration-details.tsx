@@ -34,8 +34,10 @@ export default function RegistrationDetails({
     if (
       !restaurantName ||
       !restaurantType ||
-      (restaurantType === "others" && !otherType)
+      (restaurantType === "others" && !otherType) ||
+      startTime > endTime
     ) {
+
       setShowError(true);
       return;
     }
@@ -44,12 +46,14 @@ export default function RegistrationDetails({
     console.log({
       userId,
       restaurantName,
-      restaurantType: restaurantType === "others" ? otherType : restaurantType,
-      deliveryTime: `${startTime}-${endTime}`,
+      deliveryTime: ``,
     });
 
     // Navigate to the next page (dashboard or additional registration steps)
-    router.push("/users/"+userId+"/address/");
+    let type = restaurantType === "others" ? otherType : restaurantType;
+    let searchParameter = "restaurantName="+ restaurantName + "&restaurantType="+type+"&deliveryTiming="+`${startTime}-${endTime}`;
+    // console.log(searchParameter)
+    router.push("/users/"+userId+"/address?"+searchParameter);
   };
 
   return (
@@ -239,7 +243,11 @@ export default function RegistrationDetails({
               <select
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="bg-transparent text-[#00429a] focus:outline-none appearance-none"
+            //     clsx(
+            //   "rounded-[5px] bg-white border border-[#B4B4B4] w-full mt-3.5 px-3.5 py-3.5  text-black text-sm focus:outline-none",
+            //   { "border-red-500": showError && !restaurantName },
+            // )}
+                className={clsx("bg-transparent text-[#00429a] focus:outline-none appearance-none", {"text-red-500 border-red-500" : showError && startTime > endTime})}
               >
                 {Array.from({ length: 24 }, (_, i) => i).map((hour) => {
                   if(hour < 8 || hour > 15) {
@@ -269,7 +277,7 @@ export default function RegistrationDetails({
               <select
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="bg-transparent text-[#00429a] focus:outline-none appearance-none"
+                className={clsx("bg-transparent text-[#00429a] focus:outline-none appearance-none", {"text-red-500 border-red-500" : showError && startTime > endTime})}
               >
                {Array.from({ length: 24 }, (_, i) => i).map((hour) => {
                   if(hour < 8 || hour > 15) {

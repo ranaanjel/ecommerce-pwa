@@ -1,10 +1,12 @@
 "use client"
+import { CrateContext } from "@/app/layout";
+import { crateItemInterface, crateItemInterfaceEach } from "@/app/lib/definitions";
 import { Itemlist } from "@/app/lib/placeholder-data";
-import { localPreorder } from "@/app/lib/utils";
+import { localCrate, localPreorder } from "@/app/lib/utils";
 import { BadgeIndianRupee, Check, Trash2Icon } from "lucide-react"
 import Image from "next/image";
 import Link from "next/link";
-import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } from "react";
 
 
 interface ExtraList extends Itemlist {
@@ -12,14 +14,15 @@ interface ExtraList extends Itemlist {
     currentData?: any,
     setOpenModal?: Dispatch<SetStateAction<boolean>>,
     setItemDelete?: Dispatch<SetStateAction<string>>,
-    preorderName?:string,
-    setCurrentTotal?:Dispatch<SetStateAction<number>>,
+    preorderName?: string,
+    setCurrentTotal?: Dispatch<SetStateAction<number>>,
 
 }
 
 export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, setOpenModal, setItemDelete, preorderName }: ExtraList) {
 
-    let wholeItem = {name, cardType, brand, mrp, imageURL, buttonURL, quantity,
+    let wholeItem = {
+        name, cardType, brand, mrp, imageURL, buttonURL, quantity,
         primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, preorderName, setOpenModal, setItemDelete
     }
 
@@ -69,7 +72,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
+                    <Button imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -93,7 +96,6 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
     if (cardType == "dashboard") {
 
         if (outOfStock || comingSoon) {
-
             return <div></div>
         }
 
@@ -127,7 +129,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
+                    <Button imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -140,22 +142,22 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
     if (cardType == "preorder-search") {
 
         let checkInList = false;
-        
-        if(!localStorage.getItem(localPreorder)) {
+
+        if (!localStorage.getItem(localPreorder)) {
             localStorage.setItem(localPreorder, "{}")
         }
 
-        let localObject =JSON.parse(localStorage.getItem(localPreorder) as string) ?? {};
+        let localObject = JSON.parse(localStorage.getItem(localPreorder) as string) ?? {};
 
-        if(!preorderName) {
-            console.log("must provide the preorder name")
+        if (!preorderName) {
+            //console.log("must provide the preorder name")
             return;
         }
 
-        if(preorderName in localObject) {
-            localObject[preorderName].list.forEach((m:Itemlist) => {
+        if (preorderName in localObject) {
+            localObject[preorderName].list.forEach((m: Itemlist) => {
 
-                if(m.name == name) {
+                if (m.name == name) {
                     checkInList = true;
                 }
 
@@ -205,7 +207,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button setCurrentTotal={setCurrentTotal} preorderName={preorderName} fullItem={wholeItem} inList={checkInList} type="preorder-list" primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
+                    <Button imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} setCurrentTotal={setCurrentTotal} preorderName={preorderName} fullItem={wholeItem} inList={checkInList} type="preorder-list" primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -220,9 +222,9 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
                 <div className="bg-logo p-2 rounded-sm text-white">
                     Coming Soon
                 </div>
-            </div> : null} 
+            </div> : null}
             {
-                checkInList ? <AlreadyInList/> :""
+                checkInList ? <AlreadyInList /> : ""
             }
         </div>
 
@@ -275,7 +277,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button currentPreorderData={currentData} toShow={(outOfStock ?? false) || (comingSoon ?? false)} currentQuantity={currentQuantity ?? 0} primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
+                    <Button imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} currentPreorderData={currentData} toShow={(outOfStock ?? false) || (comingSoon ?? false)} currentQuantity={currentQuantity ?? 0} primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={setQuantity} discountPrice={discountValue} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -302,20 +304,44 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
     }
 
+
+    const crateContext = useContext(CrateContext);
+    const setTotalLength = crateContext?.setCrateLength ?? (() => { });
+
+    useEffect(function () {
+
+        if (localStorage.getItem(localCrate)) {
+            setTotalLength(Array.from(Object.keys(JSON.parse(localStorage.getItem(localCrate) as string))).length)
+        }
+
+        setTotalLength(0)
+
+    }, [])
+
+
     return <div>
         items
     </div>
 
 }
 
-function Button({setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData , inList, preorderName }: { type?: "preorder-list", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: any, inList?:boolean, fullItem?:Itemlist, preorderName?:string, setCurrentTotal?:React.Dispatch<SetStateAction<number>> }) {
+function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData, inList, preorderName, skip, imageURL, buttonURL }: { type?: "preorder-list" | "crateList", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: any, inList?: boolean, fullItem?: Itemlist, preorderName?: string, setCurrentTotal?: React.Dispatch<SetStateAction<number>>, skip: boolean, imageURL: string, buttonURL: string }) {
     //managing the cart value in the localstorage for multi page state management?.
     let existingData;
     let [quantity, setQuantity] = useState(0)
     const inputRef = useRef<HTMLInputElement>(null);
     const [preorderState, setPreorderState] = useState(inList);
+    let length;
 
-    quantity = currentQuantity;
+    if (localStorage.getItem(localCrate)) {
+        let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
+        length = Array.from(Object.keys(localObject)).length;
+
+    }
+    const crateContext = useContext(CrateContext);
+    const totalLength = crateContext?.crateLength ?? 0;
+    const setTotalLength = crateContext?.setCrateLength ?? (() => { });
+
 
     if (localStorage.getItem("crate")) {
         existingData = JSON.parse(localStorage.getItem("crate") as string);
@@ -326,9 +352,13 @@ function Button({setCurrentTotal, fullItem, type, quant, itemname, category, set
     }
 
     useEffect(function () {
-        if (quantity > 0) {
-            setItemQuantity(quantity)
+
+    
+        if (currentQuantity != 0) {
+            setItemQuantity(currentQuantity);
+            setQuantity(currentQuantity);
         }
+
     }, [])
 
     let basicColor = "select-none text-primary w-[90%] bg-sky-300/40 text-sm justify-between items-center flex rounded-lg border-1 border-primary"
@@ -338,7 +368,11 @@ function Button({setCurrentTotal, fullItem, type, quant, itemname, category, set
         category,
         unit,
         discountPrice,
-        mrp
+        mrp,
+        skip,
+        primarySize,
+        buttonURL,
+        imageURL
     }
     if (currentPreorderData) {
         currentPreorderData.push(itemData)
@@ -355,70 +389,106 @@ function Button({setCurrentTotal, fullItem, type, quant, itemname, category, set
         if (!(itemname in localstorageObject)) {
             itemData.quant = quantity;
             localstorageObject[itemname] = itemData;
-            // console.log("creating", itemname, localstorageObject)
+            // //console.log("creating", itemname, localstorageObject)
         } else {
             localstorageObject[itemname].quant = quantity;
-            // console.log("changing", itemname)
+            if (quantity == 0) {
+                delete localstorageObject[itemname];
+            }
+            // //console.log("changing", itemname)
         }
         localStorage.setItem("crate", JSON.stringify(localstorageObject));
-        //  console.log(localStorage)
+        //  //console.log(localStorage)
     }
 
     function addingToList() {
         //saving the fullitem in the localstorage
-        // console.log(fullItem)
-        if(preorderState) {
+        // //console.log(fullItem)
+        if (preorderState) {
             return;
         }
 
-        if(!localStorage.getItem(localPreorder)) {
+        if (!localStorage.getItem(localPreorder)) {
             localStorage.setItem(localPreorder, "{}")
         }
 
-        let localObject =JSON.parse(localStorage.getItem(localPreorder) as string) ?? {};
+        let localObject = JSON.parse(localStorage.getItem(localPreorder) as string) ?? {};
 
-        if(!preorderName) {
-            console.log("must provide the preorder name")
+        if (!preorderName) {
+            //console.log("must provide the preorder name")
             return;
         }
 
-        if(preorderName in localObject) {
-            // console.log(localObject[preorderName].list, "before")
+        if (preorderName in localObject) {
+            // //console.log(localObject[preorderName].list, "before")
             localObject[preorderName].list.push(fullItem)
-            // console.log(localObject[preorderName].list, "after");
+            // //console.log(localObject[preorderName].list, "after");
 
             setCurrentTotal?.(localObject[preorderName].list.length)
             setPreorderState(true)
             localStorage.setItem(localPreorder, JSON.stringify(localObject))
-        }else return;
+        } else return;
     }
 
     function increase() {
         setQuantity(prev => {
             //setItemQuantity(prev+quant)
-            return prev + quant
+            //console.log("quantity - prev ------", prev)
+            return prev + quant;
         })
+        // //console.log(quantity)
+        //quant is the primary value and quantity is the current quantity.
         setItemQuantity(quant + quantity)
         saveInLocal(quant + quantity)
         if (inputRef.current) {
             inputRef.current.value = String(quantity + quant);
         }
+
+
+        if (localStorage.getItem(localCrate)) {
+            let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
+            let length = Array.from(Object.keys(localObject)).length;
+            //console.log(length)
+            setTotalLength(length)
+
+        }
     }
-    function decrease() {
-        setQuantity(prev => {
-            return prev - quant
+    function decrease() {    
+        
+        let difference = quantity - quant;
+
+        if(difference <= 0) {
+            difference = 0;
+            setQuantity(prev => {
+                return 0;
+            })
+        }else {
+             setQuantity(prev => {
+                //console.log(" ---- decreasing the value", prev)
+            return prev - quant;
+        } ) }  
+
+        if (difference > 0) {
+            setItemQuantity(difference)
         }
-        )
-        if (quantity - quant > 0) {
-            setItemQuantity(quantity - quant)
+
+        saveInLocal(difference)
+         if (inputRef.current) {
+                    inputRef.current.value = String(quantity - quant);
+             }
+
+        if (localStorage.getItem(localCrate)) {
+            let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
+            let length = Array.from(Object.keys(localObject)).length;
+
+            //console.log(length)
+            setTotalLength(length)
         }
-        saveInLocal(quantity - quant)
-        if (inputRef.current) {
-            inputRef.current.value = String(quantity - quant);
-        }
+
+
     }
     function changeValue(value: number) {
-        console.log("changing value")
+
         setQuantity(prev => {
             return value
         }
@@ -431,12 +501,14 @@ function Button({setCurrentTotal, fullItem, type, quant, itemname, category, set
 
     //after a certain threshold changing the value as well -- i.e offers to check and imply
     if (type == "preorder-list") {
-        return <div  onClick={addingToList}  className={"select-none px-4 py-2 text-center w-[90%]  text-sm rounded-lg border-1 " + `${ preorderState ? "text-purple-600 border-purple-600 bg-purple-400/20":"text-primary border-primary bg-sky-300/40"}`}>
-            {preorderState ? <div >Already in list</div>:<div>Add to list</div>}
+        return <div onClick={addingToList} className={"select-none px-4 py-2 text-center w-[90%]  text-sm rounded-lg border-1 " + `${preorderState ? "text-purple-600 border-purple-600 bg-purple-400/20" : "text-primary border-primary bg-sky-300/40"}`}>
+            {preorderState ? <div >Already in list</div> : <div>Add to list</div>}
         </div>
     }
 
+    // //console.log(quantity, itemname)
     if (quantity <= 0) {
+
         return <div onClick={increase} className={basicColor}>
             <div className="flex-1 text-center p-1">
                 Add
@@ -458,14 +530,25 @@ function Button({setCurrentTotal, fullItem, type, quant, itemname, category, set
     let clearValue: number | undefined;
 
 
+    return <div onClick={function () {
 
-
-    return <div className={basicColor}>
-        <div onClick={decrease} className="w-3/10 p-1 text-center">-</div>
+    }} className={basicColor}>
+        <div onClick={function () {
+            let value ;
+            if (inputRef.current) {
+                   value = inputRef.current.value ;
+                }
+            if(type == "crateList" && Number(value) == Number(primarySize) ) {
+                // do nothing
+                //console.log("end")
+            }else {     
+                decrease();
+            }
+            
+        }} className="w-3/10 p-1 text-center">-</div>
         <input ref={inputRef} defaultValue={quantity} type="phone" onChange={(obj) => {
 
             clearInterval(clearValue);
-
             clearValue = window.setTimeout(function () {
                 let data = obj.target.value;
                 if (data.match(/[A-z]/)) {
@@ -484,7 +567,7 @@ function Button({setCurrentTotal, fullItem, type, quant, itemname, category, set
                 }
 
                 if (inputRef.current) {
-                    console.log(inputRef.current.value)
+                    //console.log(inputRef.current.value)
                     inputRef.current.value = data
                     changeValue(Number(data))
                 }
@@ -497,8 +580,109 @@ function Button({setCurrentTotal, fullItem, type, quant, itemname, category, set
 
 
 function AlreadyInList() {
-    return <div className="absolute top-0 right-[10%]"> 
+    return <div className="absolute top-0 right-[10%]">
         <Image src={"/already.png"} width={10} height={50} alt="decoration" className="w-[15px] h-[70px]" ></Image>
         <Check className="absolute size-3 top-[10%] left-[15%] font-bold text-primary"></Check>
     </div>
+}
+
+
+interface extraCrateList extends crateItemInterfaceEach {
+    setCrateList:React.Dispatch<SetStateAction<[string, crateItemInterface][]>>,
+    setSaving:React.Dispatch<SetStateAction<number>>,
+    setTotalPrice:React.Dispatch<SetStateAction<number>>,
+}
+
+export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemname, quant, category, unit, discountPrice, mrp, skip, primarySize, imageURL, buttonURL }: extraCrateList) {
+
+
+    // //console.log(primarySize, quant, itemname)
+
+    const [quantityValue, setQuant] = useState(quant);
+
+    if (skip) {
+        return <div></div>
+    }
+
+    return <div onClick={function () {
+        let save =0;
+        let price = 0;
+
+         if ( localStorage.getItem(localCrate)) {
+            
+            let localObject = JSON.parse(localStorage.getItem(localCrate) as string);
+            Array.from(Object.values(localObject)).forEach((m, index) =>  {
+                const item = m as crateItemInterfaceEach;
+                let totalPrice = item.quant * item.discountPrice;
+                let totalSaving = item.quant*item.mrp - totalPrice;
+
+                save += totalSaving;
+                price +=totalPrice;
+            })
+
+            setSaving(save) 
+            setTotalPrice(price)
+                    
+        }
+
+
+        
+        
+    }} className="bg-white relative mt-2 w-full px-4 flex items-start justify-between">
+        <div className=" flex justify-center w-[50px] -h-[50px] items-center ">
+            <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={itemname} className="w-[50px] h-[50px] object-contain" />
+        </div>
+        <div className="py-2 px-4 w-2/5 flex flex-col justify-between text-black ">
+            <div className="text-sm w-full whitespace-nowrap overflow-hidden overflow-ellipsis">
+                <Link href={buttonURL}>{itemname}</Link>
+            </div>
+            <div className="text-xs text-gray-500">
+                {primarySize + " " + unit}
+            </div>
+            <div className="text-xs text-gray-500">
+                {"Total : " + quantityValue + " " + unit}
+            </div>
+        </div>
+        <div className="flex py-2  text-sm whitespace-nowrap">
+            ₹ {" " + quantityValue * discountPrice}
+        </div>
+        <div className="flex w-2/5 py-2 flex-col gap-2 justify-end items-end">
+            {/* //button */}
+            <div className="  w-4/5 flex flex-col justify-center gap-2 items-center">
+                <Button type={"crateList"}  setItemQuantity={setQuant} skip={skip} primarySize={parseFloat(primarySize)} mrp={mrp} itemname={itemname} quant={Number(primarySize)} discountPrice={discountPrice} category={category!} unit={unit} imageURL={imageURL} buttonURL={buttonURL} />
+                <div onClick={function (){
+                    setCrateList(prev=> {
+                        let list:crateItemInterface | undefined = prev.find(function (value) {
+                            return value[0] == category;
+                        })?.[1] 
+
+                        if(list) {
+                        prev = prev.filter(value => value[0] != category);
+                        list = list?.filter(value => value.itemname != itemname)
+                            prev.push([category, list])
+                        }
+                        let newValue = prev;
+                        // //console.log(newValue)
+                        return newValue;
+                    })
+
+                    //removing from the localstorage and propagating to the db as well.
+                    if(localStorage.getItem(localCrate)) {
+                        let localObject = JSON.parse(localStorage.getItem(localCrate) as string);
+                        delete (localObject[itemname]);
+                        localStorage.setItem(localCrate, JSON.stringify(localObject))
+                    }
+                    //db call
+
+                }}>
+                    <Trash2Icon className="text-red-500 size-4"></Trash2Icon>
+                </div>
+            </div>
+
+
+        </div>
+
+    </div>
+
+
 }

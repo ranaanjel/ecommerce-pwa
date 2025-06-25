@@ -43,7 +43,7 @@ export function SearchBar() {
     </div>
 }
 
-export function SearchBarComponent({ refValue, onClickHandler, onKeypressHandler, onchangeHandler}: { refValue?: React.RefObject<HTMLInputElement | null>, onClickHandler?:(React.ChangeEventHandler<HTMLInputElement>) , onKeypressHandler?:(React.KeyboardEventHandler<HTMLInputElement>), onchangeHandler : React.Dispatch<SetStateAction<string>>}) {
+export function SearchBarComponent({ refValue, onClickHandler, onKeypressHandler, onchangeHandler}: { refValue?: React.RefObject<HTMLInputElement | null>, onClickHandler?:(React.ChangeEventHandler<HTMLInputElement>) , onKeypressHandler?:(React.KeyboardEventHandler<HTMLInputElement>), onchangeHandler? : React.Dispatch<SetStateAction<string>>}) {
 
     let itemList  = ["peri peri", "cornflakes", "mushroom", "paneer", "cheese blend", "cabbage", "potato", "curd", "milk", "packaging material", "napkins"]
     let randomValue = Math.floor(Math.random()*itemList.length)
@@ -56,9 +56,7 @@ export function SearchBarComponent({ refValue, onClickHandler, onKeypressHandler
                 <MagnifyingGlassIcon className="size-6" />
             </div>
             <input onChangeCapture={function(eob) {
-
-                onchangeHandler((eob.target as HTMLInputElement).value);
-
+                onchangeHandler?.((eob.target as HTMLInputElement).value);
             }} onKeyDown={onKeypressHandler} ref={refValue}  onInput={onClickHandler} type="search" className="text-black w-full border-none p-2 item-stretch focus:outline-none focus-visible:outline-none" placeholder={"Search for '" + currentItem+"'"} />
             </div>
 

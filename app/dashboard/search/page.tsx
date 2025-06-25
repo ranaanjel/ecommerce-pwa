@@ -26,6 +26,7 @@ export default function SearchPage() {
     const [searchProxy, setSearchProxy] = useState(true);
     let [list, setList] = useState<Itemlist[]>([])
     const [fetchDone, setFetchDone] = useState(false)
+    const [crateLength, setCrateLength] = useState(0)
 
     let clearValue: number | ReturnType<typeof setTimeout> = 0
     let localObject: { "recentSearch": string[] };
@@ -246,7 +247,7 @@ export default function SearchPage() {
                 <div className="flex flex-start items-center mb-2 flex-1">
                     <BackButton />
                     <div className="flex flex-col flex-1">
-                        <SearchBarComponent onKeypressHandler={keyHandler} refValue={searchRef} onClickHandler={searchHandle} />
+                        <SearchBarComponent onKeypressHandler={keyHandler}  refValue={searchRef} onClickHandler={searchHandle} />
                     </div>
                 </div>
                 <div className="flex items-center gap-2  mb-2">

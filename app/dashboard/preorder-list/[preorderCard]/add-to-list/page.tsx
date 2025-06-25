@@ -11,10 +11,8 @@ import { TopBar } from "@/app/ui/dashboard/topBar";
 import { CategoryLoading } from "@/app/ui/loadingComponent";
 import { SelectComponent } from "@/app/ui/seletComponent";
 import { SkeletonLoading } from "@/app/ui/skeletons";
-import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import Image from "next/image";
-import Link from "next/link";
 import { useParams, useRouter } from "next/navigation"
 
 import React, { SetStateAction, useEffect, useRef, useState, useTransition } from "react";
@@ -22,7 +20,7 @@ import React, { SetStateAction, useEffect, useRef, useState, useTransition } fro
 export default function AddList() {
 
     let params = useParams().preorderCard;
-
+    const [crateLength, setCrateLength] = useState(0)
     let title = (params as string).replace(/_/g, " ");
     const router = useRouter()
     let [preorderData, setPreorderData] = useState<Preorder>({

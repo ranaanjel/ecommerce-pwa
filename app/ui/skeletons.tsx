@@ -1,6 +1,22 @@
 import { useState } from "react"
 
-export function SkeletonLoading() {
+export function SkeletonLoading({type}:{type?:"crate"}) {
+
+
+    if(type == "crate" ){
+        
+    const [skeletonValue,] = useState([0, 0, 0])
+
+    return <div className="flex flex-col gap-4 p-4">
+        {
+            skeletonValue.map((_, index) => {
+
+                return <SkeletonCardHorizontal key={index} />
+            })
+        }
+    </div>
+    }
+
     const [skeletonValue,] = useState([0, 0, 0, 0])
 
     return <div className="grid grid-cols-2 gap-2">
@@ -34,3 +50,10 @@ function SkeletonCard() {
     </div>
 }
 
+function SkeletonCardHorizontal() {
+    return <div className="animate-pulse bg-white h-30 w-[100%] flex flex-col gap-4 p-8">
+        <div className="w-full h-20 bg-gray-200"> </div>
+        <div className="w-full h-5 bg-gray-200">
+            </div>
+    </div>
+}

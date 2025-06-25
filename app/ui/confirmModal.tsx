@@ -3,18 +3,20 @@ import { Itemlist } from "../lib/placeholder-data";
 import { useRouter } from "next/navigation";
 import { localPreorder } from "../lib/utils";
 
-export function ConfirmModal({ setOpenModal, setItems, itemDelete, wholeList, preorderName }: {
+export function ConfirmModal({onclick, type, setOpenModal, setItems, itemDelete, wholeList, preorderName }: {
+    type:"preorder"| "crate",
     setOpenModal: Dispatch<SetStateAction<boolean>>,
-    setItems: Dispatch<SetStateAction<Itemlist[]>>,
-    itemDelete: string,
+    setItems?: Dispatch<SetStateAction<Itemlist[]>>,
+    itemDelete?: string,
     wholeList?: boolean,
-    preorderName:string
+    preorderName?:string,
+    onclick? : () => void;
 }) {
 
     let router = useRouter()
-    console.log(wholeList)
+if(type == "preorder" && setItems &&itemDelete && preorderName) {
 
-    if (wholeList) {
+    if (wholeList ) {
         return <div onClick={function (eobj: React.MouseEvent<HTMLDivElement>) {
             let classValue = (eobj.target as HTMLElement).className;
             if (classValue.includes("confirmModal")) {
@@ -102,6 +104,74 @@ export function ConfirmModal({ setOpenModal, setItems, itemDelete, wholeList, pr
 
                         return prev
                     })
+
+                    setOpenModal(false)
+
+                }} className="rounded-sm border-white border py-2 px-4 cursor-pointer">
+                    Yes
+                </div>
+                <div onClick={() => {
+
+                    console.log("closing")
+
+                    setOpenModal(false)
+                }} className="bg-white rounded-sm text-logo px-4 py-2 cursor-pointer">
+                    No
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+    if (type == "crate" && onclick) {
+      
+        return <div onClick={function (eobj: React.MouseEvent<HTMLDivElement>) {
+        let classValue = (eobj.target as HTMLElement).className;
+        if (classValue.includes("confirmModal")) {
+            setOpenModal(m => !m)
+        }}} className="confirmModal top-0 h-screen overflow-hidden bg-gray-400/50 w-screen absolute flex justify-center items-center z-10">
+        <div className="text-white bg-logo p-4 rounded-md gap-2 flex flex-col">
+            <div className="text-md">
+                Are You Confirm ?
+            </div>
+            <div className="flex justify-between">
+                <div onClick={function () {
+
+                    setOpenModal(false)
+                    onclick?.();
+
+                }} className="rounded-sm border-white border py-2 px-4 cursor-pointer">
+                    Yes
+                </div>
+                <div onClick={() => {
+
+                    console.log("closing")
+
+                    setOpenModal(false)
+                }} className="bg-white rounded-sm text-logo px-4 py-2 cursor-pointer">
+                    No
+                </div>
+            </div>
+        </div>
+    </div> 
+    }
+
+
+
+    return  <div onClick={function (eobj: React.MouseEvent<HTMLDivElement>) {
+        let classValue = (eobj.target as HTMLElement).className;
+        if (classValue.includes("confirmModal")) {
+            setOpenModal(m => !m)
+        }
+
+
+    }} className="confirmModal top-0 h-screen overflow-hidden bg-gray-400/50 w-screen absolute flex justify-center items-center z-10">
+        <div className="text-white bg-logo p-4 rounded-md gap-2 flex flex-col">
+            <div className="text-md">
+                Are You Confirm ?
+            </div>
+            <div className="flex justify-between">
+                <div onClick={function () {
 
                     setOpenModal(false)
 

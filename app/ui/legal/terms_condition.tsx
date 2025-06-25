@@ -4,7 +4,7 @@ import { SetStateAction } from "react";
 export function TermsCondition({modal} : {modal:React.Dispatch<SetStateAction<boolean>>}) {
 
     return <div onClick={function (eVobj) {
-            let className = (eVobj.target as HTMLElement).className as string;
+            let className = String((eVobj.target as HTMLElement).className) ;
             if(className.includes("non-main")) {
                 modal(false)
             } 
