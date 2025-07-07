@@ -12,7 +12,7 @@ import { Dispatch, SetStateAction, useContext, useEffect, useRef, useState } fro
 
 
 interface ExtraList extends Itemlist {
-    cardType: "category" | "dashboard" | "item" | "preorder" | "preorder-search",
+    cardType: "category" | "dashboard" | "item" | "preorder" | "preorder-search"|"similar",
     currentData?: any,
     setOpenModal?: Dispatch<SetStateAction<boolean>>,
     setItemDelete?: Dispatch<SetStateAction<string>>,
@@ -65,7 +65,10 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
 
     if (cardType == "category") {
-        return <div className="bg-white relative h-76 w-[100%] rounded-lg flex flex-col " aria-disabled={outOfStock || comingSoon}>
+
+       
+ 
+        return <div className={"bg-white relative h-76 w-[100%] rounded-lg flex flex-col "} aria-disabled={outOfStock || comingSoon}>
             <div className="border-b border-gray-200 text-center flex justify-center w-full h-1/3 py-2 items-center ">
                 <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className="w-full h-full object-contain" />
             </div>
@@ -134,8 +137,15 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
         if (outOfStock || comingSoon) {
             return <div></div>
         }
+         let border = ""
+        console.log(window.location.pathname.includes("/item/"), location.pathname)
+        if(window.location.pathname.includes("/item/")) {
 
-        return <div className="bg-white relative mt-2 h-82 min-w-[52%] w-[52%] max-w-[52%] rounded-lg flex flex-col">
+            border = " border border-gray-200"
+        }
+
+
+        return <div className={"bg-white relative mt-2 h-82 min-w-[52%] w-[52%] max-w-[52%] rounded-lg flex flex-col "+ border}>
             <div className="border-b border-gray-200 text-center flex justify-center w-full min-h-[150px] items-center ">
                 <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className="w-[100px] h-[100px] object-contain" />
             </div>
@@ -879,9 +889,9 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
             </div>
             <div className="py-6 px-8 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <div className="text-2xl font-medium">{name}</div>
-                    <div className="flex justify-between items-center">
-                        <div className="text-lg text-gray-400 capitalize">
+                    <div className="text-xl font-medium">{name}</div>
+                    <div className="flex justify-between text-md items-center">
+                        <div className=" text-gray-400 capitalize">
                             {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
                         </div>
                         <div className="text-lg text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ?  quant * conversionRate + " " + secondaryUnit : ""} </div>
@@ -893,7 +903,7 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
                         </div>
                     {/* //button */}
                     <div className="flex w-1/2 justify-end">
-                    <Button originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} offers={offers} maxOrder={limitValueOrder} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={setQuantity} discountPrice={discountPrice} category={category!} unit={unit} />
+                    <Button  originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} offers={offers} maxOrder={limitValueOrder} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={setQuantity} discountPrice={discountPrice} category={category!} unit={unit} />
                 </div>
                     </div>
                     <div className="text-md text-green-500">
@@ -1022,7 +1032,7 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
                                                                                 let comingsoon = m.comingSoon;
                                                                                 let category = m.category;
 
-                                                                                return <ItemCard   category={category} cardType="dashboard" outOfStock={outofstock} comingSoon={comingsoon} key={index} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
+                                                                                return <ItemCard  category={category} cardType="dashboard" outOfStock={outofstock} comingSoon={comingsoon} key={index} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
                                                                         })
                                                                 }
                                                         </div>
