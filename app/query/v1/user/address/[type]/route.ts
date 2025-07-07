@@ -24,9 +24,7 @@ export async function GET(request:NextRequest, {params}:{params:Promise<{type:st
    } else if(value =="default") {
 
     let user = userAll.find(function (value) {
-
         return value._id == userId;
-
     })
     let address = user?.address.find(function (value) {
         return value.default;

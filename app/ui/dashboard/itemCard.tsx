@@ -1,8 +1,9 @@
 "use client"
-import { CrateContext } from "@/app/layout";
+import { CrateContext } from "../rootLayoutClient";
 import { crateItemInterface, crateItemInterfaceEach } from "@/app/lib/definitions";
-import { Itemlist } from "@/app/lib/placeholder-data";
+import { category, Itemlist } from "@/app/lib/placeholder-data";
 import { localCrate, localPreorder } from "@/app/lib/utils";
+import axios from "axios";
 import { BadgeIndianRupee, Check, Trash2Icon } from "lucide-react"
 import Image from "next/image";
 import Link from "next/link";
@@ -16,6 +17,14 @@ interface ExtraList extends Itemlist {
     setItemDelete?: Dispatch<SetStateAction<string>>,
     preorderName?: string,
     setCurrentTotal?: Dispatch<SetStateAction<number>>,
+    productInfo?: {
+        type: category,
+        shellLife: string,
+        storageTemperature?: string,
+        container?: string
+    },
+    disclaimer?:string,
+    limitValueOrder?:number
 
 }
 
@@ -312,9 +321,9 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
         if (localStorage.getItem(localCrate)) {
             setTotalLength(Array.from(Object.keys(JSON.parse(localStorage.getItem(localCrate) as string))).length)
-        }
-
+        }else {
         setTotalLength(0)
+        }
 
     }, [])
 
@@ -325,7 +334,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
 }
 
-function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData, inList, preorderName, skip, imageURL, buttonURL }: { type?: "preorder-list" | "crateList", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: any, inList?: boolean, fullItem?: Itemlist, preorderName?: string, setCurrentTotal?: React.Dispatch<SetStateAction<number>>, skip: boolean, imageURL: string, buttonURL: string }) {
+function Button({ parentInputRef, setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData, inList, preorderName, skip, imageURL, buttonURL, maxOrder}: { type?: "preorder-list" | "crateList", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: any, inList?: boolean, fullItem?: Itemlist, preorderName?: string, setCurrentTotal?: React.Dispatch<SetStateAction<number>>, skip: boolean, imageURL: string, buttonURL: string , parentInputRef?:React.RefObject<HTMLInputElement | null>, maxOrder?:number}) {
     //managing the cart value in the localstorage for multi page state management?.
     let existingData;
     let [quantity, setQuantity] = useState(0)
@@ -430,18 +439,25 @@ function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, se
         } else return;
     }
 
-    function increase() {
+   async function increase() {
+
+        let data = await limitSurpass(itemname,quant+quantity, maxOrder || 100)  || false;
+
+        if(data) {
+            return
+        }
+
         setQuantity(prev => {
             //setItemQuantity(prev+quant)
             //console.log("quantity - prev ------", prev)
-            return prev + quant;
+            return prev + primarySize;
         })
         // //console.log(quantity)
         //quant is the primary value and quantity is the current quantity.
-        setItemQuantity(quant + quantity)
-        saveInLocal(quant + quantity)
+        setItemQuantity(primarySize + quantity)
+        saveInLocal(primarySize + quantity)
         if (inputRef.current) {
-            inputRef.current.value = String(quantity + quant);
+            inputRef.current.value = String(quantity + primarySize);
         }
 
 
@@ -455,7 +471,7 @@ function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, se
     }
     function decrease() {    
         
-        let difference = quantity - quant;
+        let difference = quantity - primarySize;
 
         if(difference <= 0) {
             difference = 0;
@@ -465,7 +481,7 @@ function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, se
         }else {
              setQuantity(prev => {
                 //console.log(" ---- decreasing the value", prev)
-            return prev - quant;
+            return prev - primarySize;
         } ) }  
 
         if (difference > 0) {
@@ -474,7 +490,7 @@ function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, se
 
         saveInLocal(difference)
          if (inputRef.current) {
-                    inputRef.current.value = String(quantity - quant);
+                    inputRef.current.value = String(quantity - primarySize);
              }
 
         if (localStorage.getItem(localCrate)) {
@@ -545,12 +561,18 @@ function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, se
                 decrease();
             }
             
-        }} className="w-3/10 p-1 text-center">-</div>
+        }} className="w-3/10 p-1 text-center select-none">-</div>
         <input ref={inputRef} defaultValue={quantity} type="phone" onChange={(obj) => {
 
             clearInterval(clearValue);
-            clearValue = window.setTimeout(function () {
+            clearValue = window.setTimeout(async function () {
                 let data = obj.target.value;
+                let limit = await limitSurpass(itemname, Number(data), maxOrder || 100)
+                if (limit && inputRef.current) {
+                     inputRef.current.value = "1"
+                    changeValue(1)
+                    return;
+                }
                 if (data.match(/[A-z]/)) {
                     data = "1"
                 }
@@ -571,9 +593,12 @@ function Button({ setCurrentTotal, fullItem, type, quant, itemname, category, se
                     inputRef.current.value = data
                     changeValue(Number(data))
                 }
+
             }, 500);
         }} className="w-4/10 text-center bg-white p-1" />
-        <div onClick={increase} className="p-1 plus w-3/10 text-center">+</div>
+        <div onClick={function() {
+            increase()
+        }} className="p-1 plus w-3/10 text-center">+</div>
     </div>
 
 }
@@ -629,7 +654,7 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
         
         
     }} className="bg-white relative mt-2 w-full px-4 flex items-start justify-between">
-        <div className=" flex justify-center w-[50px] -h-[50px] items-center ">
+        <div className=" flex justify-center items-center ">
             <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={itemname} className="w-[50px] h-[50px] object-contain" />
         </div>
         <div className="py-2 px-4 w-2/5 flex flex-col justify-between text-black ">
@@ -659,9 +684,15 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
                         if(list) {
                         prev = prev.filter(value => value[0] != category);
                         list = list?.filter(value => value.itemname != itemname)
+                        if(list.length > 0) {
                             prev.push([category, list])
                         }
-                        let newValue = prev;
+                        }
+                        let newValue = [...prev];
+
+                        if(newValue.length == 0) {
+                            window.location.reload();
+                        }
                         // //console.log(newValue)
                         return newValue;
                     })
@@ -679,10 +710,125 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
                 </div>
             </div>
 
-
         </div>
 
     </div>
 
 
 }
+
+export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData,limitValueOrder, setOpenModal, setItemDelete, preorderName }: ExtraList) {
+
+
+    let [quant, setQuantity] = useState(quantity);
+    let [discountPrice, setDiscountPrice] = useState(discountValue);
+
+
+    const parentRefInput = useRef<HTMLInputElement>(null)
+    return <div className="bg-white relative w-full rounded-lg flex flex-col ">
+            <div className="border-b border-gray-200 text-center flex justify-center w-full h-64 py-2 items-start bg-[#ebfefe]">
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className=" border-black w-[200px] h-[200px] object-cover " />
+            </div>
+            <div className="py-6 px-8 flex-1 flex flex-col justify-between text-black">
+                <div>
+                    <div className="text-2xl font-medium">{name}</div>
+                    <div className="flex justify-between items-center">
+                        <div className="text-lg text-gray-400 capitalize">
+                            {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
+                        </div>
+                        <div className="text-lg text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ? secondarySize * quant * conversionRate + " " + secondaryUnit : ""} </div>
+                    </div>
+
+                    <div className="text-lg mt-4 justify-between flex">
+                        <div>
+                            ₹  {discountPrice * quant}  <span className=" line-through text-gray-400 ">{mrp ? " " + mrp * quant : ""} </span>
+                        </div>
+                    {/* //button */}
+                    <div className="flex w-1/2 justify-end">
+                    <Button maxOrder={limitValueOrder} parentInputRef={parentRefInput} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={setQuantity} discountPrice={discountPrice} category={category!} unit={unit} />
+                </div>
+                    </div>
+                    <div className="text-md text-green-500">
+                        {/* //saving  */}
+                        {savingAmount && mrp && (mrp - discountPrice) != 0 ? "saving ₹ " + (mrp - discountPrice) * quant : ""}
+                    </div>
+                    <div className="text-md text-logo mt-4">
+                        {/* //offers making sure there is only one super saver*/}
+                        {
+                            offers.map((m, index) => {
+
+                                if (m.superSaver) {
+                                    return <div key={index} className="relative ">
+                                        
+                                        
+                                        <div className="bg-logo rounded-t-2xl text-[10px] text-white w-2/3 justify-center items-center gap-1 flex "><BadgeIndianRupee className="size-3 text-white " /> 
+                                        super saver</div>
+
+                                        <div onClick={function() {
+                                    setQuantity(Number(m.quantity))
+                                     if (parentRefInput.current) {
+                                        parentRefInput.current.value = String(m.quantity);
+                                    }
+                                    setDiscountPrice(m.price)
+                                    // changing the price value as well
+                                }} className="bg-[#ebf3f3] border-primary/70  rounded flex justify-between border py-2 px-4">
+                                            <div >
+                                            ₹ {m.price} for {m.quantity + " " + m.unit}
+                                        </div>
+                                         <div  >
+                                        Add {m.quantity + " " + m.unit}
+                                    </div>
+                                        </div>
+                                        
+                                    </div>
+                                }
+                                return <div key={index} onClick={function() {
+                                    setQuantity(Number(m.quantity))
+                                    if (parentRefInput.current) {
+                                        parentRefInput.current.value = String(m.quantity);
+                                    }
+                                    setDiscountPrice(m.price)
+                                }} className="bg-[#ebf3f3] border-primary/70 my-1 rounded flex justify-between border py-2 px-4">
+                                    <div  >
+                                        ₹ {m.price} for {m.quantity + " " + m.unit}
+                                    </div>
+                                     <div  >
+                                        Add {m.quantity + " " + m.unit}
+                                    </div>
+                                    </div>
+                            })
+                        }
+                    </div>
+                </div>
+               
+            </div>
+            <div  className="fixed bottom-0 bg-gray-400/50 w-full h-2 self-end block">
+            </div>
+        </div>
+}
+
+
+async function limitSurpass(item:string, currentValue:number, limitOrder?:number) {
+    //checking if the item increase above the limit or not 
+
+    //for faster sending with item value
+    //crate button
+    // general item list button
+    if(limitOrder) {
+        if(limitOrder < currentValue) {
+            return true;
+        }
+    } else {
+         let limit = await axios.get("/query/v1/items/limit/"+ item)
+
+    if(limit.data.result < currentValue) {
+        return true;
+    }
+    }
+   
+    return false;
+}
+
+//TODO
+//making sure getting the latest price from the db -- on the db call
+// making the limit is passed instead of the call.

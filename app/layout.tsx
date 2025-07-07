@@ -1,10 +1,21 @@
-"use client"
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+export const viewport: Viewport = {
+  themeColor: "white",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false
+}
+
+// export const metadata:Metadata = {
+//   title:"Quickcrats",
+//   description:"Quickcrats | Ecommerce"
+// }
+
 import { Geist, Geist_Mono } from "next/font/google";
-import { Inter, Lusitana, DM_Sans } from "next/font/google";
+import { Inter, DM_Sans } from "next/font/google";
 import "./globals.css";
-import FallbackUIDesktop from "./ui/fallback-desktop";
-import { createContext, useState } from "react";
+import { RootChild } from "./ui/rootLayoutClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,13 +23,13 @@ const geistSans = Geist({
 });
 
 const inter = Inter({
-  subsets:[ "latin" ], 
-  weight:["200", "300","500","800"]
+  subsets: ["latin"],
+  weight: ["200", "300", "500", "800"]
 })
 
 export const dm_sans = DM_Sans({
-  subsets:[ "latin" ], 
-  weight:["200", "500","800"]
+  subsets: ["latin"],
+  weight: ["200", "500", "800"]
 })
 
 const geistMono = Geist_Mono({
@@ -26,34 +37,27 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const metadata: Metadata = {
-  title: "Quikcrats",
-  description: "Quikcrats | Ecommerce",
-};
-export const CrateContext = createContext<{
-  crateLength: number;
-  setCrateLength: React.Dispatch<React.SetStateAction<number>>;
-} | undefined>(undefined);
 
-export default function RootLayout({
+
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
 
-  const [crateLength, setCrateLength] = useState(0);
-  
   return (
     <html lang="en">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+      </head>
+
       <body
         className={`${dm_sans.className} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none select-none`}
       >
-        <FallbackUIDesktop>
-          <CrateContext.Provider value={{crateLength, setCrateLength}} >
+        <RootChild>
           {children}
-          </CrateContext.Provider>
-        </FallbackUIDesktop>
+        </RootChild>
       </body>
     </html>
-  );
+  )
 }

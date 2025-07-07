@@ -7,7 +7,7 @@ export default function manifest(): MetadataRoute.Manifest {
         "name": "Quikcrats",
         "short_name": "Quikcrats",
         "description": "a pwa ecommerce website for restaurants, food vendors and retailers",
-        "start_url": "/",
+        "start_url": "/dashboard/",
         "background_color": "#56abfd",
         "theme_color": "#56abfd",
         "display": "standalone",

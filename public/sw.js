@@ -7,7 +7,7 @@ self.addEventListener("push", async function (event) {
             body:data.body,
             // icon:data.icon || "/favicon-96x96.png",
             //badge:"",
-            vibrate:[100,50,100],
+            vibrate:[100,50,100,10,50,10,100],
             data : {
                 dateOfArrival :Date.now(),
                 primaryKey:"4",

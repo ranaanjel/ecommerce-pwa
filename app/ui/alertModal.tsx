@@ -1,5 +1,4 @@
 import { Dispatch, SetStateAction } from "react"
-import { Itemlist } from "../lib/placeholder-data";
 
 export function AlertModal({ setOpenModal,alertValue}: {
     setOpenModal: Dispatch<SetStateAction<boolean>>,

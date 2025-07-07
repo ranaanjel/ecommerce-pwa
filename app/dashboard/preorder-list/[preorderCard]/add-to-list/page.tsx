@@ -320,7 +320,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
 
     }
 
-    return <div className="h-screen overflow-scroll flex justify-evenly flex-col" >
+    return <div className="h-screen bg-white overflow-scroll flex justify-evenly flex-col" >
 
         <div className="px-6"  >
             <div className="flex gap-2 items-center">

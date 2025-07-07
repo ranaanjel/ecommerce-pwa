@@ -241,7 +241,7 @@ export default function SearchPage() {
     list = modifiedItemList; 
 
 
-    return <div className="relative h-screen overflow-hidden w-full bg-[#ebf6f6]/50">
+    return <div className="text-black relative h-screen overflow-hidden w-full bg-white">
         <TopBar>
             <div className="select-none w-full flex justify-between items-center relative gap-3">
                 <div className="flex flex-start items-center mb-2 flex-1">
@@ -257,7 +257,7 @@ export default function SearchPage() {
         </TopBar>
         <BottomBar />
         {
-            searchEnabled ? <div className="h-screen">
+            searchEnabled ? <div className="h-screen bg-white">
 
                 {
                     searchProxy ? <div>
@@ -301,12 +301,11 @@ export default function SearchPage() {
                         }
                     </div>
                 }
-            </div> : <div className="p-4">
+            </div> : <div className="p-4 bg-white">
                 <RecentSearch searchInput={searchRef} />
                 <CategoiesLine />
             </div>
         }
-
 
     </div>
 }

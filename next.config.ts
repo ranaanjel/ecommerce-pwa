@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   /* config options here */
   
   reactStrictMode:false,
-  allowedDevOrigins:["192.168.1.9"],
+  allowedDevOrigins:["192.168.1.10"],
    async headers() {
     return [{
       source:"/(.*)",
@@ -19,7 +19,7 @@ const nextConfig: NextConfig = {
         }
       ]
     },
-{
+    {
       source:"/sw.js",
       headers:[
         { key:"Content-Type", value:"application/javascript; charset-utf-8",

@@ -124,6 +124,18 @@ p {
     transform:rotateY(360deg) rotateX(80deg);
   }
   }
+
+  --animate-slide : slide 400ms forwards;
+
+  @keyframes slide {
+    0% {
+        transform: translateX(200px)
+    }
+    100% {
+        transform : translateX(0)
+    }
+    
+  }
  
 }
 
@@ -153,3 +165,7 @@ input[type="number"] {
 .hide {
   display: none;
 }
+
+/* .toggle {
+  height: 0px;
+} */

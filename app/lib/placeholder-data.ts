@@ -1012,6 +1012,7 @@ export interface Itemlist {
   comingSoon?: boolean, // same goes as above - outofstock
   currentQuantity?: number; // incase of preorder card having it
   regexDescription?:string ; //includes the name, category, type, brand, alias names
+  maxOrder?:number; // as per the item and primary size to be setting
 }
 interface Offer {
   price: number,

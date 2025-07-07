@@ -45,10 +45,14 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
                     setCenter({ lat: latitude, lng: longitude })
                     reverseGeoCode((latitude).toFixed(6), (longitude).toFixed(6))
                 }, async () => {
+                    //in case of failure
+                    alert("hello world")
                     const data = await axios.get(window.location.origin + "/query/ipapi");
                     const latitude = data.data.lat
                     const longitude = data.data.lng;
+                    
                     console.log(latitude, longitude)
+
                     setCenter({ lat: (latitude), lng: (longitude) })
                 }, {
                     enableHighAccuracy: true,
@@ -120,8 +124,10 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
             const res = await axios.get(url + `/query/google-map?lat=${lat}&lng=${lng}`);
             const result = res.data;
             console.log(result, "--------------------------------");
+
             if (result.status) {
                 setAddress(result.formatted_address);
+                console.log(result.formatted_address)
                 setCurrentAddress(m => result.formatted_address)
             } else {
                 setAddress("no address found");
@@ -134,20 +140,6 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
         }
     }
 
-    // const onPlaceChanged = function () {
-    //     const place = autoCompleteRef.current?.getPlace();
-
-    //     if (place?.geometry) {
-    //         const lat = place.geometry.location?.lat()!;
-    //         const lng = place.geometry.location?.lng()!;
-    //         const formatted = place.formatted_address || place.name;
-    //         console.log(formatted)
-    //         setCenter({ lat, lng }   );
-    //         setAddress(formatted!)
-    //         mapRef.current?.panTo({ lat, lng });
-    //     }
-    // }
-
     if (!isLoaded) {
         return <div>
             <MapSkeleton2 />
@@ -156,16 +148,7 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
 
     return <div>
 
-        {/* <div>
-            <Autocomplete onLoad={function (m) {
-                autoCompleteRef.current = m;
-            }} onPlaceChanged={onPlaceChanged}>
-                <input type="text" placeholder="search for a place" className="w-full h-[40px] text-xl py-2 rounded border border-gray-300 shadow-xs" />
-            </Autocomplete>
-        </div> */}
-
         {
-
             !loadingMap ? <GoogleMap mapContainerStyle={containerStyle} onUnmount={onUnmount} onLoad={onLoad}
                 onDragEnd={onDragEnd}
                 center={center} zoom={15} options={{
@@ -180,20 +163,6 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
 
             </GoogleMap> : <MapSkeleton2 />
         }
-
-        {/* <div style={{ marginTop: "1rem" }}>
-            <h3>Selected Address:</h3>
-            <p>{address || "Move the map or search a location..."}</p>
-            <button
-                onClick={() =>
-                    console.log(`Confirmed:\n${address}\n(${center.lat}, ${center.lng})`)
-                }
-            >
-                Confirm Location
-            </button>
-        </div>
-
-        <CustomAutocomplete setCenter={setCenter} /> */}
     </div>
 }
 
@@ -208,6 +177,7 @@ export function CustomAutocomplete({ setCenter, inputRef, callBack , centerRef, 
     useEffect(() => {
         if (!window.google) return
         autocompleteService.current = new window.google.maps.places.AutocompleteService()
+        inputRef?.current?.focus();
     }, [])
 
     const fetchPredictions = (value: string) => {
@@ -365,7 +335,7 @@ const MapSkeleton = () => {
 
 const MapSkeleton2 = () => {
     return (
-        <div className="mx-auto w-full bg-gray-200 h-screen rounded-md p-4">
+        <div className="mx-auto w-full bg-gray-200 h-screen animate-pulse rounded-md p-4">
             <div className="flex animate-pulse space-x-4">
                 <Image placeholder="blur" blurDataURL="/blur.jpg" src="/map-image.jpg" alt="fallback-map" height="700" width="400" />
             </div>

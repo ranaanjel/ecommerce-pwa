@@ -1,9 +1,14 @@
-"use client";
 
-import { useState, useEffect } from "react";
+import { Metadata } from "next";
 import { NotificationManager } from "./ui/notificationManager/notificationManager";
-import FallbackUIDesktop from "./ui/fallback-desktop";
 
+
+export async function generateMetadata():Promise<Metadata> {
+  return {
+    title:"Quikcrats",
+    description:"Quikcrats | Ecommerce"
+  }
+}
 
 export default function Home() {
 

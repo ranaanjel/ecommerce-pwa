@@ -1,4 +1,3 @@
-"use client"
 
 import Login from "@/app/ui/pre-auth/login";
 

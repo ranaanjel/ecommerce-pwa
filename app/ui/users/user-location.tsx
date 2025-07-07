@@ -29,7 +29,6 @@ export default function UserLocation({ userId }: UserLocationProps) {
   const centerRef = useRef<HTMLDivElement | null>(null)
   const params = useSearchParams();
 
-
   //checking the userId by the middleware instead of the useEffect here.
 
   useEffect(function () {
@@ -43,10 +42,8 @@ export default function UserLocation({ userId }: UserLocationProps) {
     //in case the 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(function (position) {
-
-        // console.log(position.coords.latitude, position.coords.longitude)
+        //  alert(position.coords.latitude +" "+position.coords.longitude)
         setGeoAllowed(true);
-
       }, function (error) {
         console.log(error)
       })
@@ -55,7 +52,7 @@ export default function UserLocation({ userId }: UserLocationProps) {
     }
 
 
-  })
+  },[])
 
   const handleConfirm = () => {
     // Navigate to the next page in the flow
@@ -110,14 +107,13 @@ export default function UserLocation({ userId }: UserLocationProps) {
         {/* Map placeholder - in production this would be integrated with a mapping API */}
         <div className="w-full h-7/10 bg-gray-200">
           {
-            geoAllowed ? <LocationPickerMap getLocation={locationRef} mapValue={setMap} setCurrentAddress={setAddress
-            } /> : <Image
+            geoAllowed ? <LocationPickerMap getLocation={locationRef} mapValue={setMap} setCurrentAddress={setAddress} /> : <Image
               src="/map-image.jpg"
               alt="Map"
               width={"626"}
               height={"626"}
               priority
-              className="object-contain"
+              className="h-[626px] w-[626px] object-contain animate-pulse"
             />
           }
 
@@ -125,21 +121,19 @@ export default function UserLocation({ userId }: UserLocationProps) {
         <div className="absolute bottom-0 w-full bg-white rounded-t-[20px] p-8 pb-4">
           <div ref={centerRef} onClick={
             function () {
-
               console.log(locationRef.current?.())
-
             }
           } className="border-2 cursor-pointer p-2 bg-white border-gray-400  absolute z-9 right-[0%] top-[-30%] translate-x-[-50%] rounded-lg">
             <CurrentGPS />
           </div>
           <div className="relative mb-6">
-            <div className="w-full h-[43px] rounded-[5px] border border-[#B4B4B4] bg-white flex items-center px-2">
-              <div>
+            <div onClick={function () {
+                setSearchPlaces(true)
+              }} className="w-full h-[43px] rounded-[5px] border border-[#B4B4B4] bg-white flex items-center px-2">
+              <div >
                 <MagnifyingGlassIcon className="text-[#B4b4b4] size-6" />
               </div>
-              <input type="text" placeholder="search for a place" className="border-none focus:outline-none p-2" onFocus={function () {
-                setSearchPlaces(true)
-              }} />
+              <div className="border-none focus:outline-none p-2 text-gray-400" >search for a place</div>
             </div>
           </div>
           <div className="mb-6">

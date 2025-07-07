@@ -8,7 +8,7 @@ export function BottomBar() {
 
         let pathName = usePathname();
 
-        return <div className="h-18 bg-white shadow-sm w-full z-8 fixed bottom-0" >
+        return <div className="h-18 bg-white shadow-sm w-full z-10 fixed bottom-0" >
                 <div className="flex h-16 w-full">
                         {
                                 bottomLink.map((m, index) => {

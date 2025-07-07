@@ -31,6 +31,7 @@ export function SearchBar() {
             <div className="absolute left-[40%] top-(--search-margin) animate-wiggle" >{
                 items.length > 0 && items.map(m => (<div onClick={function () {
                     console.log("hello")
+                    inputRef.current?.click();
                     // if (inputRef.current) {
 
                     //     inputRef.current.value = m;

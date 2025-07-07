@@ -43,7 +43,7 @@ export default function AddressDetails({
 
 
     console.log({
-      userId,address,
+      userId,address,addressValue,
       shopDetails,pincode,
       deliveryInstructions,
       receiver, tag,
@@ -60,14 +60,28 @@ export default function AddressDetails({
     if(params.get("callback")) {
       
       let searchValue = "restaurantName="+params.get("restaurantName") + "&restaurantType="+params.get("restaurantType") +"&deliveryTiming="+ params.get("deliveryTiming") +"&shopDetails="+shopDetails  +"&pincode="+pincode +"&tag="+tag +"&receiver="+receiver +"&instruction="+ deliveryInstructions+"&address=" + addressValue +"&type="+"return"+"&default="+params.get("default") ;
-      
       //checking on the tag if exist or not in the database.
       //either modify or new value is created -- the routine is the same.
 
       //TODO ; pushing to the database and then 
       // waiting for the database callback and then only going to their
       //error throwing in case of the value is not valid  -- not deliverying and other things from the backend.
-      
+
+      //making the data is updated before 
+
+      if(!params.get("callback")?.includes("/dashboard/crate")) {
+        //i.e from account/address/userid --> fetching the latest and newest value  
+        
+        if(params.get("type") == ("create")) {
+          const callback = params.get("callback");
+          if (callback) {
+            router.push(callback.split("/").slice(0, callback.split("/").length - 2).join("/"));
+          }
+          return;
+        }
+        router.push(params.get("callback")!)
+        return
+      }
       router.push("/dashboard/crate?"+searchValue);
     }
     //coming soon if not available.
@@ -78,13 +92,12 @@ export default function AddressDetails({
     }
   };
 
+
   const handleChangeAddress = () => {
     
 
     if(params.get("type") == "modified") {
-
        let searchValue = "restaurantName="+params.get("restaurantName") + "&restaurantType="+params.get("restaurantType") +"&deliveryTiming="+ params.get("deliveryTiming") +"&shopDetails="+shopDetails  +"&pincode="+pincode +"&tag="+tag +"&receiver="+receiver +"&instruction="+ deliveryInstructions+"&address=" + addressValue +"&type="+"modified"+"&default="+params.get("default") + "&callback="+ params.get("callback") ;
-
 
       router.push(`/users/${userId}/address?`+searchValue);
     } else if (params.get("type") == "create") {
@@ -112,7 +125,7 @@ let searchValue = "restaurantName="+params.get("restaurantName") + "&restaurantT
 
     // in the search params defining the creating or modifying value.
     if (params.get("type")) {
-      if(params.get("type") == "modify") {
+      if(params.get("type") == "modified") {
           setTag(decodeURI(params.get("tag") || ""))
           setPincode(decodeURI(params.get("pincode") || ""))
           setShopDetails(decodeURI(params.get("shopDetails") || ""))

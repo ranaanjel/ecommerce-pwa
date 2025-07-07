@@ -1,8 +1,7 @@
 "use client"
-import { CrateContext } from "@/app/layout";
-import { unit } from "@/app/lib/placeholder-data";
+import { CrateContext } from "@/app/ui/rootLayoutClient";
 import { UserAddress } from "@/app/lib/user-placeholder";
-import { localCrate, localId } from "@/app/lib/utils";
+import { localCrate, localId, localOrderId } from "@/app/lib/utils";
 import { GenericButton, SwipeButton } from "@/app/ui/button";
 import { ConfirmModal } from "@/app/ui/confirmModal";
 import { BackButton } from "@/app/ui/dashboard/BackButton";
@@ -11,7 +10,7 @@ import { TopBar } from "@/app/ui/dashboard/topBar";
 import { SkeletonLoading } from "@/app/ui/skeletons";
 import { Cross1Icon, Pencil2Icon } from "@radix-ui/react-icons";
 import axios from "axios";
-import { CameraIcon, ChevronDown, ChevronRight, ChevronsRight, MapPinCheck, MapPinCheckIcon, MapPinPlus, MessageSquareIcon, MessageSquareTextIcon, PackageCheckIcon, PhoneCallIcon, SquarePlus, Trash2Icon, UserRoundCheckIcon } from "lucide-react";
+import { CameraIcon, ChevronDown, ChevronRight, MapPinCheck, MapPinCheckIcon, MapPinPlus, MessageSquareTextIcon, MessageSquareWarningIcon, PhoneCallIcon, SquarePlus, Trash2Icon, UserRoundCheckIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { SetStateAction, useContext, useEffect, useRef, useState } from "react";
@@ -26,32 +25,63 @@ export default function Page() {
     const crateContext = useContext(CrateContext);
     const length = crateContext?.crateLength ?? 0;
     const setLength = crateContext?.setCrateLength ?? (() => { });
+
+    // 
+
     const [totalPrice, setTotalPrice] = useState(0)
     const [openConfirm, setConfirm] = useState(false);
-    const [list, setList] = useState<Record<string, crateItemInterface>>({})
+    const [_, setList] = useState<Record<string, crateItemInterface>>({})
     const [userId, setUserId] = useState("");
+    const [orderId, setOrderId] = useState("");
     const [instructionModal, setInstructionModal] = useState(false)
     const [instruction, setInstruction] = useState<string[]>([])
     const [address, setAddress] = useState("");
     const [addressModal, setAddressModal] = useState(false);
-    const [details, setDetails] = useState<UserAddress>({ restaurantName: "", restaurantType: "", deliveryTiming: "", shopDetails: "", address, pincode: "", receiver: "manager", tag: "", instruction: [], default: false })
-
+    const [accordionOpen, setAccordionOpen] = useState<boolean[]>([]);
+    // const [accordingIndex, setAccordingIndex] = useState<number[]>([]);
+    const [details, setDetails] = useState<UserAddress>({ restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver: "manager", tag: "", instruction: [], default: false })
+    const eachCategoryRef = useRef<HTMLDivElement[]>([])
+    const [disable, setDisable] = useState(false); // in case of period
     const [saving, setSaving] = useState(0);
     const [crateList, setCrateList] = useState<[string, crateItemInterface][]>([]);
+    const [startPeriod, setStartPeriod] = useState(0)
+    const [endPeriod, setEndPeriod] = useState(0)
 
     const router = useRouter();
     const params = useSearchParams();
+    let clearTime: ReturnType<typeof setTimeout> | undefined = undefined;
 
     useEffect(function () {
 
         if (localStorage.getItem(localId)) {
             let userId = localStorage.getItem(localId);
+
+            if (localStorage.getItem(localOrderId)) {
+                setOrderId(localStorage.getItem(localOrderId) ?? "")
+            }
+
+            // getting start and end period 
+            const url = location.origin + "/query/v1/order/timing";
+            axios.get(url).then(m => {
+                let data = m.data.result;
+
+                // getting the data and setting it
+                console.log(data)
+                setStartPeriod(data[0])
+                setEndPeriod(data[1])
+            }).catch(err => console.log(err))
+
+
+
             setUserId(userId ?? "")
-
             if (params.get("type") == "return") {
-
                 let restaurantName = params.get("restaurantName") || "";
-                let restaurantType = params.get("restaurantType") || "";
+                let restaurantTypeParam = params.get("restaurantType");
+                let restaurantType = restaurantTypeParam
+                    ? Array.isArray(restaurantTypeParam)
+                        ? restaurantTypeParam
+                        : [restaurantTypeParam]
+                    : [""];
                 let deliveryTiming = params.get("deliveryTiming") || "";
                 let shopDetails = params.get("shopDetails") || "";
                 let address = params.get("address") || "";
@@ -61,12 +91,10 @@ export default function Page() {
                 let tag = params.get("tag") || "";
                 let instruction = params.get("instruction")?.split(",") || [];
                 let defaultValue = params.get("default") === "true";
-
                 setDetails(() => {
                     let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue ?? false }
                     return value;
                 })
-
                 setAddress(address)
                 setInstruction(prev => {
                     if (!prev) {
@@ -75,12 +103,62 @@ export default function Page() {
 
                     return [...prev, ...instruction]
                 })
-                //  window.location.search = ""
-                // this should progressed to the database and on starting the fetching i should get the additional address with the name / tag.
+            } else if (params.get("type") == "edit") {
+                let address = params.get("address") || "";
+                let instruction = params.get("instruction")?.split(",") || [];
+                let receiverParam = params.get("receiver");
+                let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
+                let tag = params.get("tag") || "";
+                setDetails(() => {
+                    let value: UserAddress = { restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver, tag, instruction, default: true }
+                    return value;
+                })
+                setAddress(address)
+                setInstruction(prev => {
+                    if (!prev) {
+                        return [...instruction]
+                    }
+
+                    return [...prev, ...instruction]
+                })
+                if (localStorage.getItem(localOrderId)) {
+                    setOrderId(localStorage.getItem(localOrderId) ?? "")
+                    clearTimeout(clearTime);
+                    clearTime = setTimeout(function () {
+                        setOrderId("")
+                        localStorage.setItem(localOrderId, "")
+                        localStorage.setItem(localCrate, "{}")
+                        location.reload();
+                    }, 1000 * 60 * 10)
+                } else {
+                    router.push("/dashboard");
+                }
+
+            } else if (params.get("type") == "repeat") {
+
+
+                let address = params.get("address") || "";
+                let instruction = params.get("instruction")?.split(",") || [];
+                let receiverParam = params.get("receiver");
+                let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
+                let tag = params.get("tag") || "";
+                setDetails(() => {
+                    let value: UserAddress = { restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver, tag, instruction, default: true }
+                    return value;
+                })
+                setAddress(address)
+                setInstruction(prev => {
+                    if (!prev) {
+                        return [...instruction]
+                    }
+
+                    return [...prev, ...instruction]
+                })
 
             } else {
                 let url = window.location.origin + "/query/v1/user/address/default?userId=" + userId;
                 // console.log(url)
+                //gettnig the defaults values address in case of no type 
                 axios.get(url).then(function (m) {
                     let data = m.data.result;
 
@@ -114,12 +192,15 @@ export default function Page() {
 
             }
 
-
         } else {
             router.push("/login")
         }
         //fetching the address, user name, instruction , shop details.
 
+        // window.addEventListener("beforeunload", function (e) {
+        //     e.preventDefault();
+        //     e.returnValue = "Are you sure you want to leave ?"
+        // })
 
         if (localStorage.getItem(localCrate)) {
             let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
@@ -150,14 +231,18 @@ export default function Page() {
 
             // console.log(totalValue, fullDiscount)
 
-            console.log(listValue)
             setList(() => {
                 return listValue
             })
             setCrateList(() => {
-                let value = Array.from(Object.entries(listValue)) 
+                let value = Array.from(Object.entries(listValue))
                 return value;
             })
+
+            // setAccordionOpen(prev => {
+            //     return Array.from(Object.entries(listValue)).map(m => false)
+            // })
+
 
             setTotalPrice(totalValue);
             setSaving(fullDiscount);
@@ -165,14 +250,9 @@ export default function Page() {
 
         }
 
-
-
-
-
-
     }, [])
 
-    return <div className="overflow-hidden h-screen  bg-[#ebf6f6]">
+    return <div className="overflow-hidden h-screen bg-[#ebf6f6] text-black">
         <TopBar>
             <div className="select-none w-full flex justify-between items-center relative ">
                 <div className="flex flex-start items-center mb-2">
@@ -188,6 +268,7 @@ export default function Page() {
                     length > 0 && <div onClick={function () {
                         setConfirm(true)
 
+
                     }} className="flex items-center gap-2 cursor-pointer">
                         <div className="font-medium bg-logo h-[35px] w-[35px] flex justify-center items-center  rounded-full text-2xl">
                             <Trash2Icon className="text-white size-5" />
@@ -197,48 +278,123 @@ export default function Page() {
             </div>
         </TopBar>
         {/* <BottomBar></BottomBar> */}
+
+
         {
             length > 0 ? <div>
-                <div className="h-screen overflow-scroll bg-[#ebf6f6] pb-30 ">
+                <div className="h-screen overflow-scroll bg-[#ebf6f6] pb-32 ">
+
+                    {
+                        startPeriod != endPeriod && <CountDownComponent setDisableButton={setDisable} startPeriod={startPeriod} endPeriod={endPeriod}></CountDownComponent>
+
+                    }
+
+                    {
+                        orderId.length > 0 && <div className="flex justify-between items-center border-gray-200 border rounded bg-white py-2 px-4 mt-4 mx-6">
+                            <div className="flex justify-center items-center w-[20%] ">
+                                <MessageSquareWarningIcon className="size-8 text-yellow-400"></MessageSquareWarningIcon>
+                            </div>
+                            <div className="w-[80%] flex flex-col gap-1 items-start justify-start text-gray-600 ">
+                                <div className="w-[95%] ">
+                                    currently editing order : <span className="uppercase text-xs text-yellow-600">{" #" + orderId}</span>
+                                </div>
+                                <div className="text-xs  w-[95%] text-justify  underline rounded-sm text-red-400 ">
+                                    upon not completing modification in 10 mins it will discard automatically
+                                </div>
+                            </div>
+                        </div>
+                    }
                     {crateList.length > 0 ? <div className="p-6">
-                            <div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
-                                Saved &nbsp; <span className="text-green-500">{" ₹ " + `${saving}` + " "}</span> &nbsp; with free delivery
+                        <div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
+                            Saved &nbsp; <span className="text-green-500">{" ₹ " + `${saving}` + " "}</span> &nbsp; with free delivery
+                        </div>
+                        <div className="bg-white h-auto p-4 flex justify-between gap-4">
+                            <div className="flex flex-col overflow-hidden">
+
+                                <div className=""> Delivering to </div>
+                                <div className="h-5  overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-gray-600 underline">{address}</div>
                             </div>
-                            <div className="bg-white h-auto p-4 flex justify-between ">
-                                <div className="flex flex-col overflow-hidden">
+                            <div className="flex text-primary" onClick={function () {
 
-                                    <div className=""> Delivering to </div>
-                                    <div className="h-5 w-3/4 overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-gray-600 underline">{address}</div>
+                                setAddressModal(true)
+
+                            }}>
+                                <div className="self-center">
+                                    change
                                 </div>
-                                <div className="flex text-primary" onClick={function () {
-
-                                    setAddressModal(true)
-
-                                }}>
-                                    <div className="self-center">
-                                        change
-                                    </div>
-                                    <div className="self-center">
-                                        <ChevronDown></ChevronDown>
-                                    </div>
+                                <div className="self-center">
+                                    <ChevronDown></ChevronDown>
                                 </div>
                             </div>
-                            <div className="bg-white  border-gray-200 py-2">
+                        </div>
+                        <div className="bg-white border-gray-200 py-2">
 
-                                {crateList.map((m, index) => {
+                            {crateList.map((m, index) => {
 
-                                    return <div className="px-4 border border-gray-100 py-2" key={index}>
+                                return <div className="px-4 border border-gray-100 py-2 " key={index}>
 
-                                        <div onClick={function () {
-                                            //toggle the cart
+                                    <div onClick={function () {
 
-                                        }} className="flex text-logo justify-between">
-                                            <div>{m[0].replace(/-|_/g," , ").split(" , ").toReversed().join(" , ").replace(" , ", " & ").split(" ").toReversed().join(" ")}</div>
-                                            <div>
-                                                {<ChevronDown></ChevronDown>}
-                                            </div>
+                                        if (eachCategoryRef.current) {
+                                            let height = (eachCategoryRef.current[index].style.height);
+                                            console.log(height)
+
+                                            if (height == "auto" || isNaN(Number(height)) || height == "") {
+
+                                                eachCategoryRef.current[index].style.height = String((eachCategoryRef.current[index].scrollHeight)) + "px";
+                                                setAccordionOpen(prev => {
+                                                    const updated = [...prev];
+                                                    updated[index] = true;
+                                                    return updated;
+                                                })
+                                                clearTimeout(clearTime)
+                                                clearTime = setTimeout(function () {
+
+                                                    eachCategoryRef.current[index].style.height = 0 + "px";
+
+                                                }, 0)
+
+                                                setAccordionOpen(prev => {
+                                                    const updated = [...prev];
+                                                    updated[index] = true;
+                                                    return updated;
+                                                })
+                                            }
+
+                                            if ((height == "0px")) {
+                                                eachCategoryRef.current[index].style.height = String((eachCategoryRef.current[index].scrollHeight)) + "px";
+                                                setAccordionOpen(prev => {
+                                                    const updated = [...prev];
+                                                    updated[index] = false;
+                                                    return updated;
+                                                })
+
+                                                clearTimeout(clearTime);
+                                                clearTime = setTimeout(function () {
+                                                    eachCategoryRef.current[index].style.height = "auto";
+
+                                                }, 500)
+
+                                            }
+                                            // else {
+
+                                            // }
+                                        }
+
+                                    }} className="flex text-logo justify-between ">
+                                        <div>{m[0].replace(/-|_/g, " , ").split(" , ").toReversed().join(" , ").replace(" , ", " & ").split(" ").toReversed().join(" ")} <span>{" (" + m[1].length + ") "}</span></div>
+                                        <div>
+                                            {!accordionOpen[index] ? <ChevronDown></ChevronDown> : <ChevronRight></ChevronRight>}
                                         </div>
+                                    </div>
 
+                                    <div ref={function (ref) {
+
+                                        if (ref) {
+                                            eachCategoryRef.current[index] = ref;
+                                        }
+
+                                    }} className="h-auto overflow-y-scroll transition-all duration-300 ease-in-out  ">
                                         {m[1].map((value, index) => {
                                             let itemname = value.itemname;
                                             let quant = value.quant;
@@ -251,46 +407,46 @@ export default function Page() {
                                             let imageURL = value.imageURL;
                                             let buttonURL = value.buttonURL;
 
-
-                                            return <div key={index}>
-
-                                                    <CrateItemCard setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}  
-                                                    ></CrateItemCard>
-
+                                            return <div key={index} >
+                                                <CrateItemCard setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}
+                                                ></CrateItemCard>
                                             </div>
 
                                         })}
-
                                     </div>
-                                })}
-                            </div>
 
-                            <div className="bg-white h-15 flex justify-between items-center border border-gray-200 px-4">
-                                <div>Missed Something ?</div>
-                                <GenericButton text="Add More Items" onclick={function () {
-                                    router.push("/dashboard/category")
-                                }} ></GenericButton>
-                            </div>
-                            <div onClick={function () { setInstructionModal(true) }} className="mt-4 cursor-pointer border border-gray-200 bg-white h-16 items-center flex px-4 justify-between">
-                                <div >
-                                    Delivery Instruction
                                 </div>
-                                <ChevronRight></ChevronRight>
-                            </div>
+                            })}
+                        </div>
 
-                        </div> : <SkeletonLoading type="crate"></SkeletonLoading>
+                        <div className="bg-white h-15 flex justify-between items-center border border-gray-200 px-4">
+                            <div>Missed Something ?</div>
+                            <GenericButton text="Add More Items" onclick={function () {
+                                router.push("/dashboard/category")
+                            }} ></GenericButton>
+                        </div>
+                        <div onClick={function () { setInstructionModal(true) }} className="mt-4 cursor-pointer border border-gray-200 bg-white h-16 items-center flex px-4 justify-between">
+                            <div >
+                                Delivery Instruction
+                            </div>
+                            <ChevronRight></ChevronRight>
+                        </div>
+
+                    </div> : <SkeletonLoading type="crate"></SkeletonLoading>
                     }
 
                 </div>
                 {/* //TODO making sure the instruction are updated in the user next when checking the instruction we default value. */}
-                <CrateBottom num={length} totalPrice={totalPrice} />
+                <CrateBottom disable={disable} totalPrice={totalPrice} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} crateList={crateList} num={length} />
             </div> : <EmptyCrate></EmptyCrate>
         }
         {
             openConfirm && <ConfirmModal onclick={function () {
                 if (localStorage.getItem(localCrate)) {
                     localStorage.setItem(localCrate, "{}")
+                    localStorage.setItem(localOrderId, "")
                 }
+
                 window.location.reload();
 
             }} type="crate" setOpenModal={setConfirm}></ConfirmModal>
@@ -331,7 +487,17 @@ function EmptyCrate() {
 }
 
 
-function CrateBottom({ num, totalPrice }: { num: number, totalPrice: number }) {
+function CrateBottom({ disable, num, totalPrice, userId, orderId, instruction, details, saving, crateList }: {
+    num: number;
+    totalPrice: number;
+    userId: string;
+    orderId: string;
+    instruction: string[];
+    details: UserAddress;
+    saving: number;
+    crateList: [string, crateItemInterface][];
+    disable: boolean
+}) {
 
     return <div className="h-18 bg-white select-none shadow-sm w-full z-8 fixed bottom-0">
         <div className="h-16 flex justify-between py-2 px-4">
@@ -345,7 +511,7 @@ function CrateBottom({ num, totalPrice }: { num: number, totalPrice: number }) {
             </div>
 
             {/* //swipe to confirm */}
-            <SwipeButton from="Swipe To Confirm" to="Delivery Confirmed">
+            <SwipeButton disable={disable} totalPrice={totalPrice} crateList={crateList} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} from="Swipe To Confirm" to="Delivery Confirmed">
             </SwipeButton>
 
         </div>
@@ -356,13 +522,13 @@ function CrateBottom({ num, totalPrice }: { num: number, totalPrice: number }) {
 
 }
 
-function CrateItem() {
+// function CrateItem() {
 
 
-    return <div>
+//     return <div>
 
-    </div>
-}
+//     </div>
+// }
 
 function InstructionModal({ instructionValue, clickHandle, setInstruction, setInstructionModal }: {
     setInstruction: React.Dispatch<SetStateAction<string[]>>, setInstructionModal: React.Dispatch<SetStateAction<boolean>>,
@@ -606,6 +772,145 @@ function AddressModal({ userId, details, setDetails, onclick, setAddress, setAdd
     </div>
 }
 
+function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { startPeriod: number, endPeriod: number, setDisableButton?: React.Dispatch<SetStateAction<boolean>> }) {
+    //rate updates before 5 pm
+    //evening 5 pm to 2 am 
+
+    if (startPeriod == endPeriod) {
+        console.log("developer at issue")
+        return null;
+    }
+
+    const [currentTimeLeft, setCurrentTimeleft] = useState<Date>(new Date());
+    const [diffHour, setDiffHour] = useState("XX")
+    const [diffMin, setDiffMin] = useState("XX")
+    const [diffSec, setDiffSec] = useState("XX")
+    const [noOrder, setNoOrder] = useState(true)
+    const [tomorrow, setTomorrow] = useState("");
+    let clearTime: string | number | NodeJS.Timeout | undefined = undefined;
+
+    // based on the countdown making the swipe button disbale
+    //count down to create and updating 
+
+    function intervalCall() {
+        let curr = new Date();
+        let currentHour = (curr).getHours();
+        let currentMin = curr.getMinutes();
+        let currentSec = curr.getSeconds();
+
+
+        if (endPeriod < startPeriod) {
+            if (currentHour < startPeriod && currentHour > endPeriod) {
+                clearInterval(clearTime)
+                setNoOrder(true)
+                if (setDisableButton) { setDisableButton(true) }
+                return;
+            }
+            // i.e in case of 24 hr , 1 am , 2 am so on i.e next day
+            // let endPeriodTime = new Date(currentYear, currentMonth, currentDate+1, endPeriod);
+            let hourDifference = 24 - currentHour + endPeriod - 1;
+            let minDifference = 60 - currentMin;
+            let secDifference = 60 - currentSec;
+            setDiffHour(String(hourDifference).padStart(2, "0"))
+            setDiffMin(String(minDifference).padStart(2, "0"))
+            setDiffSec(String(secDifference).padStart(2, "0"))
+
+        } else {
+
+            if (currentHour < startPeriod) {
+                setNoOrder(true)
+                if (setDisableButton) { setDisableButton(true) }
+                clearInterval(clearTime)
+                return;
+            }
+            // let endPeriodTime = new Date(currentYear, currentMonth, currentDate, endPeriod);
+            let hourDifference = endPeriod - currentHour - 1;
+            let minDifference = 60 - currentMin;
+            let secDifference = 60 - currentSec;
+
+            setDiffHour(String(hourDifference).padStart(2, "0"))
+            setDiffMin(String(minDifference).padStart(2, "0"))
+            setDiffSec(String(secDifference).padStart(2, "0"))
+        }
+    }
+
+    useEffect(function () {
+
+        //everything inside the setInterval
+
+        
+
+        let currentYear = currentTimeLeft.getFullYear();
+        let currentMonth = currentTimeLeft.getMonth();
+        let currentDate = currentTimeLeft.getDate();
+        let tomDate = new Date(currentYear, currentMonth, currentDate + 1);
+        // console.log(tomDate.toDateString())
+        setTomorrow(tomDate.toDateString())
+
+        clearTime = setInterval(function () {
+            intervalCall();
+        }, 1000)
+        setNoOrder(false);
+        // not introducing the grace period right now
+        return function () {
+            clearInterval(clearTime)
+        }
+    }, [])
+
+    console.log(startPeriod, endPeriod)
+
+    if (noOrder) {
+        return <div className="flex items-center justify-between select-none bg-logo text-white rounded  py-2 px-4 my-2 mx-6 border border-gray-200"  >
+            <div className="flex flex-col font-extralight">
+                <div className="text-xl">
+                    Order for tomorrow
+                </div>
+                <div>
+                    <span className="text-sm">{tomorrow}</span>
+                </div>
+            </div>
+            <div className="flex flex-col font-extralight">
+                <div className="text-xl">
+                    Timing between
+                </div>
+                <div>
+                    <span className="text-sm">
+                    {startPeriod >= 12 ? startPeriod - 12 + " pm" : startPeriod + " am"} : {endPeriod < startPeriod ? endPeriod + " am" : endPeriod == 24 ? "12 midnight":endPeriod-12 + " pm"} 
+                    </span>
+                </div>
+            </div>
+        </div>
+    }
+
+
+    return <div className="flex items-center justify-between gap-2 select-none bg-logo text-white rounded  py-2 px-4 my-2 mx-6 border border-gray-200"  >
+        <div className="flex flex-col font-extralight">
+            <div className="text-xl">
+                Order Tomorrow
+            </div>
+            <div>
+                Time Left
+            </div>
+        </div>
+        <div className="flex-1 w-[60%] text-center justify-center flex text-4xl font-thin">
+            <div className="w-2/10">
+                {diffHour}
+            </div>
+            <div className="w-1/10 ">
+                :
+            </div>
+            <div className="w-2/10">
+                {diffMin}
+            </div>
+            <div className="w-1/10">
+                :
+            </div>
+            <div className="w-2/10">
+                {diffSec}
+            </div>
+        </div>
+    </div>
+}
 
 //DONE
 //making sure localstorage adding is updating the cart component as well
@@ -624,7 +929,9 @@ function AddressModal({ userId, details, setDetails, onclick, setAddress, setAdd
 // purchasing them
 //working on the crate list
 //categorizing based on the crates
-
+//limiting the order - no - 4 per user until they are resolved.
+//limiting a user can order a item value -- maximum value of order any thing --  bulk order calling options.
+//period order before 1 am all the orders - no more order taking once the period is passed.
 
 
 
