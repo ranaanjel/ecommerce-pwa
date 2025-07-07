@@ -11,7 +11,7 @@ export default async function Page({ params }: { params: Promise<{ itemName: str
     value = value.replace(/_|-|,/g," ")
 
 
-    return <div className="h-screen overflow-hidden">
+    return <div className="h-screen overflow-hidden text-black">
 
         <TopBar>
             <div className="select-none w-full flex justify-between items-center relative">

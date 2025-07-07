@@ -166,7 +166,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                             let unit = m.unit;
                             let brand = m.brand;
                             let secondaryUnit = m.secondaryUnit;
-                            let conversion = m.conversionRate
+                            let conversion = m.conversionRate || 0;
                             let outofstock = m.outOfStock
                             let comingSoon = m.comingSoon
                             let category = m.category ?? "all";

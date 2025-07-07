@@ -67,7 +67,7 @@ export function AccountBody() {
 function RestaurantInfo({restaurantDetails}:{restaurantDetails:{name:string, contact:string, representatitve:string}}) {
 
     return <div className="flex px-8 py-4 gap-4 items-center w-full">
-        <div className=" rounded-full bg-primary w-[20%] ">
+        <div className=" rounded-full bg-logo/80 w-[20%] ">
             {/* <UserCircle className="size-16 text-logo"></UserCircle> */}
             <Image src={"/usercircle.png"} alt="user" height={75} width={75} className=""></Image>
         </div>

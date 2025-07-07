@@ -406,9 +406,10 @@ export default function Page() {
                                             let primarySize = value.primarySize;
                                             let imageURL = value.imageURL;
                                             let buttonURL = value.buttonURL;
+                                            let offers = value.offers;
 
                                             return <div key={index} >
-                                                <CrateItemCard setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}
+                                                <CrateItemCard offers={offers} setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}
                                                 ></CrateItemCard>
                                             </div>
 
@@ -892,7 +893,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
                 Time Left
             </div>
         </div>
-        <div className="flex-1 w-[60%] text-center justify-center flex text-4xl font-thin">
+        <div className="whitespace-nowrap min-w-[200px]  flex-1 w-[60%] text-center justify-center flex text-4xl font-thin">
             <div className="w-2/10">
                 {diffHour}
             </div>

@@ -6,7 +6,8 @@ export async function GET(request:NextRequest, {params}:{params:Promise<{itemNam
     let itemname = (await params).itemName ;
     
     let itemObj = AllItems.find(value => {
-        return value.name.toLocaleLowerCase() == itemname.toLocaleLowerCase();
+        return value.name.toLocaleLowerCase().includes(itemname.toLocaleLowerCase());
+
     })
     //TODO confused in case - to do the pagination i.e sending the value in offset
     // getting the limit from the database call

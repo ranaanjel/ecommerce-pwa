@@ -7,7 +7,7 @@ import { TopBar } from "@/app/ui/dashboard/topBar";
 export default function Page() {
 
 
-    return <div className="h-screen overflow-hidden select-none">
+    return <div className="h-screen overflow-hidden select-none text-black">
 
         <TopBar>
             <div className="select-none w-full flex justify-between items-center relative ">

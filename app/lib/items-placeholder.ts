@@ -13,6 +13,9 @@ export interface hardItemList extends Itemlist {
     }
 }
 
+//making the the unit secondary and primary is used only in the item nothing extra
+// carton - having a different item inits own
+
 const vegetableList: hardItemList[] = [
     {
         name: "Tomato",
@@ -215,7 +218,8 @@ const vegetableList: hardItemList[] = [
         type: { all: "all", vegetable: "indian vegetable" },
         outOfStock: false,
         category: "vegetable",
-        maxOrder: 100 , disclaimer: "The product may not be simlar to picture, the used picture is rather for general reference.",
+        maxOrder: 100 , 
+        disclaimer: "The product may not be simlar to picture, the used picture is rather for general reference.",
     productInformation: {
         type: "vegetable",
         shellLife: "1 - 2 days",
@@ -300,7 +304,6 @@ const vegetableList: hardItemList[] = [
         storageTemperature: "20-35 ˚C",
         container: "polythene"
     }
-
     },
     {
         // difference between the secondary and primary size i.e conversion
@@ -312,17 +315,18 @@ const vegetableList: hardItemList[] = [
         secondarySize: 200,
         mrp: 60,
         discountValue: 42,
-        savingAmount: 18,
-        offers: [{ price: 35, quantity: 5, unit: unit.kg }, { price: 250, quantity: "1", unit: unit.bag, type: "bag" }],
+        savingAmount: 0,
+        offers: [{ price: 35, quantity: 5, unit: unit.pkt }, { price: 32, quantity: "10", unit: unit.pkt }],
         unit: unit.pkt,
         brand: "generic",
         secondaryUnit: unit.gm,
         conversionRate: 200,
         type: { all: "all", vegetable: "exotic vegetables" },
         outOfStock: false,
-        currentQuantity: 2,
+        currentQuantity: 2,//hapeends in the preorder only
         category: "vegetable",
-        maxOrder: 100,     disclaimer: "The product may not be simlar to picture, the used picture is rather for general reference.",
+        maxOrder: 100,     
+        disclaimer: "The product may not be simlar to picture, the used picture is rather for general reference.",
     productInformation: {
         type: "vegetable",
         shellLife: "1 - 2 days",
@@ -344,7 +348,7 @@ const vegetableList: hardItemList[] = [
         offers: [{ price: 24, quantity: 8, unit: unit.kg }, { price: 50, quantity: 7, unit: unit.kg },],
         unit: unit.kg,
         brand: "generic",
-        secondaryUnit: unit.none,
+        secondaryUnit: unit.gm,
         type: { all: "all", vegetable: "exotic vegetables" },
         outOfStock: false,
         category: "vegetable",
@@ -446,10 +450,10 @@ const rationOilList: hardItemList[] = [
         quantity: 2.5,
         primarySize: 2.5,
         secondarySize: 0,
-        mrp: 44,
-        discountValue: 10,
-        savingAmount: 34,
-        offers: [{ price: 33, quantity: 20, unit: unit.kg, superSaver: true }],
+        mrp: 46,
+        discountValue: 34,
+        savingAmount: 0,
+        offers: [{ price: 32, quantity: 20, unit: unit.kg, superSaver: true }],
         unit: unit.kg,
         brand: "India Gate",
         secondaryUnit: unit.none,

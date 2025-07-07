@@ -10,13 +10,11 @@ import { SearchBarComponent } from "@/app/ui/dashboard/searchBar";
 import { TopBar } from "@/app/ui/dashboard/topBar";
 import { FilterModal, filterProps } from "@/app/ui/filterModal";
 import { SkeletonLoading } from "@/app/ui/skeletons";
-import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import axios from "axios";
-import { clear } from "console";
 import { HistoryIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { ChangeEventHandler, useRef, useState } from "react";
+import {  useRef, useState } from "react";
 
 
 export default function SearchPage() {
@@ -258,7 +256,6 @@ export default function SearchPage() {
         <BottomBar />
         {
             searchEnabled ? <div className="h-screen bg-white">
-
                 {
                     searchProxy ? <div>
                         <SearchList list={list}></SearchList>

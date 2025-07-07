@@ -5,14 +5,18 @@ import { SkeletonLoading } from "../skeletons"
 import { hardItemList } from "@/app/lib/items-placeholder";
 import { ItemCard, ItemCardComponent } from "./itemCard";
 import axios from "axios";
+import { useParams } from "next/navigation";
 
 export function ItemComponentBody({itemname}:{itemname:string}) {
     const [item, setItem] = useState<hardItemList[]>([]);
     const [loading, setLoading] = useState(true);
-    // getting the information regarding the item -- i.e all
+    // getting the information regarding the item -- i.e 
+    // all
+
+    const params = useParams();
     useEffect(function() {
         //getting the information regarding it and similar type 5 items - and see all caraousel 
-
+        console.log(itemname)
         axios.get("/query/v1/items/info/"+ itemname).then(m => {
             let data = m.data.result;
             setItem([data])
@@ -22,8 +26,7 @@ export function ItemComponentBody({itemname}:{itemname:string}) {
 
     },[])
 
-    return <div className="h-screen overflow-y-scroll">
-
+    return <div className="h-full   w-full overflow-y-scroll pb-16 bg-white">
          {loading ? <SkeletonLoading type="item" /> : ""}
             {item && item.map((m: hardItemList, index: number) => {
                 let name = m.name;
@@ -34,7 +37,7 @@ export function ItemComponentBody({itemname}:{itemname:string}) {
                 let secondarySize = m.secondarySize;
                 let mrp = m.mrp;
                 let discountPrice = m.discountValue;
-                let savingAmount = m.savingAmount;
+                let savingAmount = mrp - discountPrice;
                 let offers = m.offers;
                 let unit = m.unit;
                 let brand = m.brand;
@@ -44,7 +47,7 @@ export function ItemComponentBody({itemname}:{itemname:string}) {
                 let comingSoon = m.comingSoon
                 let category = m.category;
                 let disclaimer = m.disclaimer || "";
-                let productInfo = m.productInformation || {type:category, shellLife:"", storageTemperature:"", container:""};
+                let productInfo = {"Type":m.productInformation?.type || category, "Shell Life":m.productInformation?.shellLife || "vegetables : 1 - 2 days or see label", "Storage Temperature":m.productInformation?.storageTemperature || "","Container":m.productInformation?.container || ""} 
                 let limit = m.maxOrder ;
 
                 

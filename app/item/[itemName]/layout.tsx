@@ -11,7 +11,7 @@ export default function Layout({children} :{
     children:React.ReactNode
 }) {
 
-    return <div>
+    return <div className="overscroll-none ">
         {children}
     </div>
 

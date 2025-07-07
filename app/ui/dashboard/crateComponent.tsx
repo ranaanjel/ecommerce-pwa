@@ -22,7 +22,7 @@ export function CrateComponent() {
         localStorage.setItem(localCrate, "{}")
     }
 
-    let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
+    let localObject = JSON.parse(localStorage.getItem(localCrate) as string) || {};
     const crate = Array.from(Object.keys(localObject));
 
       useEffect(function () {

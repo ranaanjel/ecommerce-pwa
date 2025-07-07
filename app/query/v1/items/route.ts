@@ -44,7 +44,7 @@ export async function GET(request:NextRequest) {
         }
         if(!categoryList.includes(category!)) {
 
-        categoryList.push(category!)
+        categoryList.push(category?.replace(/-|_/g," ")!)
         }
     }
 
