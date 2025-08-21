@@ -60,7 +60,7 @@ export function ProfileUpdateBody({userId}:{userId:string}){
             console.log(error)
         })
 
-    },[])
+    },[userId])
 
     return <div className="h-screen px-8 py-6 text-black overflow-scroll">
             <div className="flex justify-center m-auto rounded-full bg-primary w-[20%] ">

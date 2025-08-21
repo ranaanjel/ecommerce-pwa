@@ -28,7 +28,6 @@ export enum unit {
   carton = "carton",
   no = "no",
   none = ""
-
 }
 
 export const colorPalette = [
@@ -950,7 +949,6 @@ export const categoryList = [
   }
 ]
 
-
 //making the type are strict for no other values to give -- write now loosely adding the types.
 
 let vegetableType: vegetableCategoryType[] = ["indian vegetable", "tomato , potato & onion", "leafy vegetables", "exotic vegetables", "staff vegetables"]
@@ -964,7 +962,7 @@ let riceFloursType: (riceFlourCategoryType)[] = ["rice", "staff rice and flours"
 
 type riceFlourCategoryType = "rice" | "staff rice and flours" | "flours" | "maida" | "corn starch";
 type vegetableCategoryType = "indian vegetable" | "tomato , potato & onion" | "leafy vegetables" | "exotic vegetables" | "staff vegetables";
-type dairyCategoryType = "milk & milk powder" | "cheese" | "curd" | "margarine" | "cream" | "paneer" | "ghee" | "butter"
+type dairyCategoryType = "milk & milk powder" | "cheese" | "curd" | "margarine" | "cream" | "paneer" | "ghee" | "butter";
 type rationPulsesOilCategoryTypes = "sunflower oil" | "mustard oil" | "soyabean oil" | "palm oil" | "vanaspati & others" | "rajma, urad & other dal" | "toor, kabuli & channa dal" | "millets & seeds" | "cotton seed oil"
 type masalaCategoryType = "salt & sugar" | "grounded spices" | "chilli, turmeric & coriander powder" | "whole spices" | "magaz" | "mouth freshner and papad"
 type packagingMaterialsCategoryType = "cutlery & tissues" | "reusable containers" | "tapes, silverfoil & kitchen wraps" | "carry bags" | "trays" | "disposable tableware" | "foldable pouches"
@@ -1027,8 +1025,8 @@ export interface CategoryItemInformation {
   buttonURL: string,
   list: Itemlist[],
   bgcolor: string,
-  shortDescription: string;
-  type: allType
+  shortDescription: string,
+  type: allType,
 }
 
 // quantity to default primary size equal   -- i.e minimum quanity to order == minimum quantity to set 
@@ -1052,7 +1050,6 @@ const vegetableList: Itemlist[] = [
     type: { all: "all", vegetable: "tomato , potato & onion" },
     outOfStock: false,
     category:"vegetable"
-
   },
   {
     name: "Potato",
@@ -2215,7 +2212,7 @@ export const brandValueCategoryWise = {
   dairy: ["generic", "amul", "go", "good rich", "nutralite", "delight", "mother dairy", "ananda", "patanjali"],
   "masala_salt": ["generic", "mk", "mdh", "everest", "catch", "rajesh", "goldiee", "tata", "kbm"],
   "packaging-materials": ["generic", "Ecopack", "Hotpack", "Pactiv", "Paper Boat Packaging", "Biogreen", "Packman Packaging"],
-  "rice_flours": ["Generic", "India Gate", "Daawat", "Fortune", "Aashirvaad", "Tata Sampann", "Kohinoor", "Delhi mills", "Rajdhani", "AS"],
+  "rice_flours": ["generic", "India Gate", "Daawat", "Fortune", "Aashirvaa  d", "Tata Sampann", "Kohinoor", "Delhi mills", "Rajdhani", "AS"],
   "cleaning_consumables": ["generic", "harpic", "lifeboy", "vim", "NIP"],
   "confectionary_sauces": ["generic", "funfoods", "veeba", "golden crown", "rajdhani", "kissan", "tops", "yumsie", "freshy+", "amul"],
   "ration_pulses_oil": ["generic", "fortune", "aashirvaad", "wilmar", "raag gold", "mahakosh", "vibhor", "vanaspati"],

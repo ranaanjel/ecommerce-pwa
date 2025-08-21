@@ -13,7 +13,7 @@ import axios from "axios";
 import { CameraIcon, ChevronDown, ChevronRight, MapPinCheck, MapPinCheckIcon, MapPinPlus, MessageSquareTextIcon, MessageSquareWarningIcon, PhoneCallIcon, SquarePlus, Trash2Icon, UserRoundCheckIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import React, { SetStateAction, useContext, useEffect, useRef, useState } from "react";
+import React, { SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { crateItemInterface } from "../../lib/definitions";
 import { CrateItemCard } from "@/app/ui/dashboard/itemCard";
 
@@ -24,7 +24,7 @@ export default function Page() {
     // project - each item with id for faster information retrieving
     const crateContext = useContext(CrateContext);
     const length = crateContext?.crateLength ?? 0;
-    const setLength = crateContext?.setCrateLength ?? (() => { });
+    const setLength = useMemo(()=>crateContext?.setCrateLength ?? (() => { }),[crateContext?.setCrateLength]);
 
     // 
 
@@ -49,7 +49,7 @@ export default function Page() {
 
     const router = useRouter();
     const params = useSearchParams();
-    let clearTime: ReturnType<typeof setTimeout> | undefined = undefined;
+    let clearTime = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
     useEffect(function () {
 
@@ -123,8 +123,8 @@ export default function Page() {
                 })
                 if (localStorage.getItem(localOrderId)) {
                     setOrderId(localStorage.getItem(localOrderId) ?? "")
-                    clearTimeout(clearTime);
-                    clearTime = setTimeout(function () {
+                    clearTimeout(clearTime.current);
+                    clearTime.current = setTimeout(function () {
                         setOrderId("")
                         localStorage.setItem(localOrderId, "")
                         localStorage.setItem(localCrate, "{}")
@@ -250,7 +250,7 @@ export default function Page() {
 
         }
 
-    }, [])
+    }, [params, router, setLength])
 
     return <div className="overflow-hidden h-screen bg-[#ebf6f6] text-black">
         <TopBar>
@@ -347,8 +347,8 @@ export default function Page() {
                                                     updated[index] = true;
                                                     return updated;
                                                 })
-                                                clearTimeout(clearTime)
-                                                clearTime = setTimeout(function () {
+                                                clearTimeout(clearTime.current)
+                                                clearTime.current = setTimeout(function () {
 
                                                     eachCategoryRef.current[index].style.height = 0 + "px";
 
@@ -369,8 +369,8 @@ export default function Page() {
                                                     return updated;
                                                 })
 
-                                                clearTimeout(clearTime);
-                                                clearTime = setTimeout(function () {
+                                                clearTimeout(clearTime.current);
+                                                clearTime.current = setTimeout(function () {
                                                     eachCategoryRef.current[index].style.height = "auto";
 
                                                 }, 500)
@@ -639,7 +639,7 @@ function AddressModal({ userId, details, setDetails, onclick, setAddress, setAdd
         }).catch(err => console.log(err))
 
 
-    }, [])
+    }, [userId])
 
     return <div onClick={function (ev: React.MouseEvent<HTMLDivElement>) {
         if (String((ev.target as HTMLElement).className).includes("modal")) {
@@ -777,23 +777,18 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
     //rate updates before 5 pm
     //evening 5 pm to 2 am 
 
-    if (startPeriod == endPeriod) {
-        console.log("developer at issue")
-        return null;
-    }
-
-    const [currentTimeLeft, setCurrentTimeleft] = useState<Date>(new Date());
+    const [currentTimeLeft, _] = useState<Date>(new Date());
     const [diffHour, setDiffHour] = useState("XX")
     const [diffMin, setDiffMin] = useState("XX")
     const [diffSec, setDiffSec] = useState("XX")
     const [noOrder, setNoOrder] = useState(true)
     const [tomorrow, setTomorrow] = useState("");
-    let clearTime: string | number | NodeJS.Timeout | undefined = undefined;
+    let clearTime: React.RefObject<string | number | NodeJS.Timeout | undefined> = useRef(undefined);
 
     // based on the countdown making the swipe button disbale
     //count down to create and updating 
 
-    function intervalCall() {
+    let intervalCall = useCallback(function intervalCall() {
         let curr = new Date();
         let currentHour = (curr).getHours();
         let currentMin = curr.getMinutes();
@@ -802,7 +797,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
 
         if (endPeriod < startPeriod) {
             if (currentHour < startPeriod && currentHour > endPeriod) {
-                clearInterval(clearTime)
+                clearInterval(clearTime.current)
                 setNoOrder(true)
                 if (setDisableButton) { setDisableButton(true) }
                 return;
@@ -821,7 +816,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
             if (currentHour < startPeriod) {
                 setNoOrder(true)
                 if (setDisableButton) { setDisableButton(true) }
-                clearInterval(clearTime)
+                clearInterval(clearTime.current)
                 return;
             }
             // let endPeriodTime = new Date(currentYear, currentMonth, currentDate, endPeriod);
@@ -833,7 +828,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
             setDiffMin(String(minDifference).padStart(2, "0"))
             setDiffSec(String(secDifference).padStart(2, "0"))
         }
-    }
+    },[endPeriod, setDisableButton, startPeriod])
 
     useEffect(function () {
 
@@ -848,17 +843,22 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
         // console.log(tomDate.toDateString())
         setTomorrow(tomDate.toDateString())
 
-        clearTime = setInterval(function () {
+        clearTime.current = setInterval(function () {
             intervalCall();
         }, 1000)
         setNoOrder(false);
         // not introducing the grace period right now
         return function () {
-            clearInterval(clearTime)
+            clearInterval(clearTime.current)
         }
-    }, [])
+    }, [currentTimeLeft, intervalCall])
 
     console.log(startPeriod, endPeriod)
+
+    if (startPeriod == endPeriod) {
+        console.log("developer at issue")
+        return null;
+    }
 
     if (noOrder) {
         return <div className="flex items-center justify-between select-none bg-logo text-white rounded  py-2 px-4 my-2 mx-6 border border-gray-200"  >

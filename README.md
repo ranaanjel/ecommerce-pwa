@@ -17,6 +17,11 @@ bun dev
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 - [ ] Having one login only i.e via oauth or otp - no password based signin -- providing the user with the jwt on the signup itself.
+- [ ] nextauth -
 - [ ] quick icon sign similar to chat to agent hovering box i.e for their current pre-order card list and cart - 2 value
+- [ ] lastest data and udpating the localstorage always i.e deleting the localstorage always and storing the cart value in the database for the fresh data.
+- [ ] connecting the backend to frontend
 
 - making sure for the preorder card and reorder, edit -- fetching the latest prices based always.
+- [ ]  one user one session could be multiple providers but requires - making sure if the user logins from different phone, previous session is not longer validated 
+- [  ] return back and forth for the return items -- raise the issue with the previous bills.

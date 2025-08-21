@@ -15,7 +15,7 @@ import axios from "axios";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation"
 
-import React, { SetStateAction, useEffect, useRef, useState, useTransition } from "react";
+import React, { SetStateAction, useCallback, useEffect, useRef, useState, useTransition } from "react";
 
 export default function AddList() {
 
@@ -60,7 +60,7 @@ export default function AddList() {
             }
         })
 
-    }, [])
+    }, [params, preorderData.title, router])
 
 
     return <div className="text-black bg-[ebf6f6] overflow-hidden h-screen">
@@ -118,9 +118,9 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
     const [isStarting, startTransition] = useTransition();
     const footerRef = useRef<HTMLDivElement>(null)
     const lastURL = useRef("https://localhost:3000");
-    let localOffset = offset;
+    let localOffset = useRef(offset);
     let url = window.location.origin;
-    let debounceClear: ReturnType<typeof setTimeout> | undefined = undefined;
+    let debounceClear: React.RefObject<ReturnType<typeof setTimeout> | undefined> = useRef(undefined)
     let [fetching, setFetching] = useState(false);
     let [gettingValue, setGettingValue] = useState(true)
 
@@ -131,7 +131,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
         if (category == "all") {
             let fetchURL = url + "/query/v1/category/allItem?offset="
             lastURL.current = fetchURL;
-            localOffset = 0;
+            localOffset.current = 0;
 
         } else {
             category = category.replace(/-|_|&|,|\s/g, "").toLowerCase();
@@ -160,7 +160,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
 
     // }
 
-    async function fetchData(observer: IntersectionObserver) {
+    let fetchData = useCallback(async function fetchData(observer: IntersectionObserver) {
 
         // console.log("fetching the data", localOffset)
         //getting the what was the last url we used for the fetch
@@ -192,8 +192,8 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
             setOffset(0);
 
         } else {
-            console.log( localOffset, lastURL.current + localOffset)
-            let value = await axios(lastURL.current + localOffset)
+            console.log( localOffset.current, lastURL.current + localOffset.current)
+            let value = await axios(lastURL.current + localOffset.current)
             list = value.data.result;
 
             if (!list) {
@@ -216,7 +216,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
             })
 
             setOffset(m => {
-                localOffset = m + 8;
+                localOffset.current = m + 8;
                 return m + 8
             })
 
@@ -230,7 +230,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
             return;
         }
 
-    }
+    },[footerRef])
 
     useEffect(function () {
         //getting all the items initially 
@@ -257,8 +257,8 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
             entry.forEach(m => {
                 if (m.isIntersecting) {
                     //debouncing
-                    clearTimeout(debounceClear)
-                    debounceClear = setTimeout(function () {
+                    clearTimeout(debounceClear.current)
+                    debounceClear.current = setTimeout(function () {
                         fetchData(observer)
                     }, 800)
                 }
@@ -268,27 +268,27 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
         if (footerRef.current) {
             observer.observe(footerRef.current)
         }
-
+        let currentFoot = footerRef.current;
         return () => {
-            if (footerRef.current) {
-                observer.unobserve(footerRef.current);
+            if (currentFoot) {
+                observer.unobserve(currentFoot);
             }
             //localStorage.clear();
             //TODO : later not clearing up - setting a time for clear up and then on the reload using the data to fill the button value as well.
         };
 
-    }, [currentValue, searchValue])
+    }, [currentValue, searchValue,fetchData])
 
     function InputHandler() {
 
         if (searchRef.current) {
             let value = searchRef.current.value;
 
-            clearInterval(debounceClear);
+            clearInterval(debounceClear.current);
             if (value.length > 0) {
                 // setList([])
                 // setOffset(0)
-                debounceClear = setTimeout(function () {
+                debounceClear.current = setTimeout(function () {
                     let fetchURL = url + '/query/v1/items/?searchValue=' + value.trim();
 
 
@@ -302,7 +302,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
                 }, 800)
 
             } else {
-                debounceClear = setTimeout(function () {
+                debounceClear.current = setTimeout(function () {
                     let fetchURL = url + '/query/v1/category/allItem/?offset=';
                     lastURL.current = fetchURL
                     setList([])
@@ -372,13 +372,13 @@ function ItemNotFound({ searchValue }: { searchValue: React.RefObject<HTMLInputE
 
     return <div className="px-4 flex flex-col gap-3 h-screen">
         <div className="font-thin text-sm">
-            Showing results for "<span className="font-semibold">{value}</span>"
+            Showing results for &quot;<span className="font-semibold">{value}</span>&quot;
         </div>
         <div className="my-2 w-4/5 text-4xl text-gray-200 font-extrabold ">
-            did't find what you were looking for ? <Image src="/sorry.webp" width={75} height={75} alt="sorry" className="inline" />
+            did&apos;t find what you were looking for ? <Image src="/sorry.webp" width={75} height={75} alt="sorry" className="inline" />
         </div>
         <div className="text-sm text-gray-300">
-            suggest something & we 'll look into it
+            suggest something & we&apos;ll look into it
         </div>
         <a href="tel:8287470325" className="border border-gray-300 text-logo py-2 px-4 self-start rounded-sm bg-white">Suggest a product</a>
 

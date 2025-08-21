@@ -12,7 +12,6 @@ export interface hardItemList extends Itemlist {
         container?: string
     }
 }
-
 //making the the unit secondary and primary is used only in the item nothing extra
 // carton - having a different item inits own
 
@@ -1179,7 +1178,4 @@ const confectionaryList: hardItemList[] = [
 
     }
 ]
-
-
 export const AllItems: Itemlist[] = [...vegetableList, ...rationOilList, ...dairyList, ...packagingList, ...masalaList, ...riceFlourList, ...cleaningList, ...confectionaryList]
-

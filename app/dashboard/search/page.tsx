@@ -423,13 +423,13 @@ function ItemNotFound({ searchValue }: { searchValue: React.RefObject<HTMLInputE
 
     return <div className="px-4 flex flex-col gap-3">
         <div className="font-thin text-sm">
-            Showing results for "<span className="font-semibold">{value}</span>"
+            Showing results for &quot;<span className="font-semibold">{value}</span>&quot;
         </div>
         <div className="my-2 w-4/5 text-4xl text-gray-200 font-extrabold ">
-            did't find what you were looking for ? <Image src="/sorry.webp" width={75} height={75} alt="sorry" className="inline" />
+            did&apos;t find what you were looking for ? <Image src="/sorry.webp" width={75} height={75} alt="sorry" className="inline" />
         </div>
         <div className="text-sm text-gray-300">
-            suggest something & we 'll look into it
+            suggest something & we&apos;ll look into it
         </div>
         <a href="tel:8287470325" className="border border-gray-300 text-logo py-2 px-4 self-start rounded-sm bg-white">Suggest a product</a>
 

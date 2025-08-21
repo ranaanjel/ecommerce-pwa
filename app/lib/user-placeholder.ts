@@ -20,7 +20,6 @@ export interface user {
     deliveryTiming?: string,// referencing from the profile
     additionalNo?: string;// referencing from the profile
   }
-
 }
 //just getting the user name -- later update in the profile setting or via admin application
 
@@ -124,7 +123,6 @@ export interface OrderCollection {
   saving: string,
   orderList: crateItemInterface, //otherwise storing the value
   orderCreationTiming?: number // Date.now() - string format for sorting in case of the mongodb does not do based on the adding
-
 
 }
 

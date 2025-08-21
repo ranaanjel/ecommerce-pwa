@@ -12,7 +12,6 @@ export function BottomBar() {
                 <div className="flex h-16 w-full">
                         {
                                 bottomLink.map((m, index) => {
-                                        let router = useRouter();
                                         let icon = m.svg;
                                         let name = m.name;
                                         let url = m.url

@@ -6,12 +6,10 @@ export function SkeletonLoading({type}:{type?:"crate"|"item"}) {
 
     if(type == "crate" ){
         
-    const [skeletonValue,] = useState([0, 0, 0])
 
     return <div className="flex flex-col gap-4 p-4">
         {
-            skeletonValue.map((_, index) => {
-
+          [0, 0, 0].map((_, index) => {
                 return <SkeletonCardHorizontal key={index} />
             })
         }
@@ -20,11 +18,10 @@ export function SkeletonLoading({type}:{type?:"crate"|"item"}) {
 
      if(type == "item" ){
         
-    const [skeletonValue,] = useState([0])
 
     return <div className="">
         {
-            skeletonValue.map((_, index) => {
+            [0].map((_, index) => {
 
                 return <SkeletonCardItem key={index} />
             })
@@ -32,11 +29,10 @@ export function SkeletonLoading({type}:{type?:"crate"|"item"}) {
     </div>
     }
 
-    const [skeletonValue,] = useState([0, 0, 0, 0])
 
     return <div className="grid grid-cols-2 gap-2">
         {
-            skeletonValue.map((_, index) => {
+            [0,0,0,0].map((_, index) => {
 
                 return <SkeletonCard key={index} />
             })

@@ -16,7 +16,7 @@ export function ItemComponentBody({itemname}:{itemname:string}) {
     const params = useParams();
     useEffect(function() {
         //getting the information regarding it and similar type 5 items - and see all caraousel 
-        console.log(itemname)
+        // console.log(itemname)
         axios.get("/query/v1/items/info/"+ itemname).then(m => {
             let data = m.data.result;
             setItem([data])
@@ -24,7 +24,7 @@ export function ItemComponentBody({itemname}:{itemname:string}) {
         })
 
 
-    },[])
+    },[itemname])
 
     return <div className="h-full   w-full overflow-y-scroll pb-16 bg-white">
          {loading ? <SkeletonLoading type="item" /> : ""}

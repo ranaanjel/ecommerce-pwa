@@ -1,6 +1,6 @@
 "use client"
 
-import React, { ReactElement, useEffect, useState } from "react"
+import React, { ReactElement, useCallback, useEffect, useState } from "react"
 import Image from "next/image";
 
 export default function FallbackUIDesktop({children}: {children: React.ReactNode}) {
@@ -8,18 +8,18 @@ export default function FallbackUIDesktop({children}: {children: React.ReactNode
     const [isMobile, setIsMobile] = useState(false);
     const [loading, setLoading] = useState(true);
 
-    const checkDevice = () => {
+    const checkDevice = useCallback(() => {
         let ua = window.navigator.userAgent;
         let isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
         let pattern = /(android|iphone|phone|blackberry|opera mini|ipod|iemobile)/i;
         let smallDevice = window.innerWidth < 768;
         return (pattern.test(ua) && isTouchDevice) || smallDevice;
-    }
+    },[])
     
     
-    function handleResize() {
+    let handleResize = useCallback(function () {
         setIsMobile(checkDevice());
-    }
+    },[checkDevice])
 
     useEffect(function ()  {
         setIsMobile(checkDevice());
@@ -27,7 +27,7 @@ export default function FallbackUIDesktop({children}: {children: React.ReactNode
         window.addEventListener("resize", handleResize)
         return () => window.removeEventListener("resize", handleResize);
 
-    },[])
+    },[handleResize, checkDevice])
 
     // console.log("checking")
 

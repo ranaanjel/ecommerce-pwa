@@ -11,7 +11,6 @@ webpush.setVapidDetails(
 
 let subcriptionUser: PushSubscription | null = null;
 
-
 export async function subscribeUser(subscription: PushSubscription
     | null
 ) {

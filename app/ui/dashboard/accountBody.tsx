@@ -38,7 +38,7 @@ export function AccountBody() {
         }else {
             router.push("/dashboard")
         }
-    },[])
+    },[router])
 
     return <div className="bg-[#ebfefe] h-screen overflow-scroll pb-32 select-none">
         {

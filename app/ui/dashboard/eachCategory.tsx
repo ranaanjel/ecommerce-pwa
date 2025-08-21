@@ -5,7 +5,7 @@ import { ChevronRightIcon } from "@radix-ui/react-icons";
 import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useEffect, useTransition, Suspense, lazy, SetStateAction, useRef } from "react"
+import { useState, useEffect, useTransition, Suspense, lazy, SetStateAction, useRef, useCallback } from "react"
 import { ItemCard } from "./itemCard";
 
 
@@ -15,49 +15,20 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
         const [isPending, startTransition] = useTransition();
         const [isLoading, SetLoading] = useState(false);
         const [itemList, setItemList] = useState<any[]>([])
-        let dataOffset = 0;
+        let dataOffset = useRef<number>(0);
         console.log("running twice")
-        let deDounceClear: any;
+        let deDounceClear:React.RefObject<any>=useRef(undefined)
 
-        useEffect(function () {
-                console.log("category component running")
-                let observer = new IntersectionObserver((entry) => {
-                        console.log(entry.length)
-                        entry.forEach(m => {
-                                if (m.isIntersecting) {
-                                        console.log(offMargin)
-                                        //debouncing
-                                        clearTimeout(deDounceClear)
-                                        deDounceClear = setTimeout(function () {
-                                                fetchData()
-                                        }, 800)
-                                }
-                        })
-                }, { threshold: [0.5] })
 
-                if (footerRef.current) {
-                        observer.observe(footerRef.current)
-                }
-
-                return () => {
-                        if (footerRef.current) {
-                                observer.unobserve(footerRef.current);
-                        }
-                        //localStorage.clear();
-                        //TODO : later not clearing up - setting a time for clear up and then on the reload using the data to fill the button value as well.
-                };
-
-        }, [])
-
-        async function fetchData() {
+        let fetchData = useCallback(async function () {
                 SetLoading(true)
                 let url = window.location.origin;
                 console.log("fetching the data")
-                let result = (await axios(url + "/query/v1/category?offset=" + dataOffset)).data.data;
+                let result = (await axios(url + "/query/v1/category?offset=" + dataOffset.current)).data.data;
 
                 if (result.length > 0) {
                         setOffMargin(prev => {
-                                dataOffset = prev + 2;
+                                dataOffset.current = prev + 2;
                                 return prev + 2;
                         })
                         //calling the async function here and startTransition to be inside that.    
@@ -78,7 +49,41 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
                 }, 700)
 
                 console.log(result)
-        }
+        },[dataOffset ])
+
+        useEffect(function () {
+                console.log("category component running")
+                let observer = new IntersectionObserver((entry) => {
+                        console.log(entry.length)
+                        entry.forEach(m => {
+                                if (m.isIntersecting) {
+                                        console.log(offMargin)
+                                        //debouncing
+                                        clearTimeout(deDounceClear.current)
+                                        deDounceClear.current = setTimeout(function () {
+                                                fetchData()
+                                        }, 800)
+                                }
+                        })
+                }, { threshold: [0.5] })
+
+                if (footerRef.current) {
+                        observer.observe(footerRef.current)
+                }
+                let variableCurrent = footerRef.current;
+
+
+                return () => {
+                        if (variableCurrent) {
+                                observer.unobserve(variableCurrent);
+                        }
+                        //localStorage.clear();
+                        //TODO : later not clearing up - setting a time for clear up and then on the reload using the data to fill the button value as well.
+                };
+
+        }, [fetchData, footerRef, offMargin])
+
+        
 
         return <div>
                 <div className="adding_data">

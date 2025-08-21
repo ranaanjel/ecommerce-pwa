@@ -25,7 +25,6 @@ export function PreorderCard({title, description, imageURL, buttonURL, list, bgB
            list.length > 0 ? list.filter(m => !m.outOfStock).slice(0,2).map((item:Itemlist, index) => {
                 let imageURL = item.imageURL;
                 let itemName = item.name;
-
                 
 
                 let mrp = String(item.mrp);
@@ -57,7 +56,11 @@ function ProductItem({ imageURL,itemName, mrp, discountPrice, totalDiscountPrice
   return (
     <section className="flex flex-row gap-2 px-3.5 py-2.5 leading-none  items-center justify-between">
       <div className="flex gap-2 ">
-        <img
+        <Image
+          width={100}
+        height={100}
+        placeholder="blur"
+        blurDataURL="/blur.jpg"
         src={imageURL}
         alt={itemName}
         className="object-contain shrink-0 aspect-square w-[25px]"
@@ -136,12 +139,16 @@ let bodyClass = "flex text-black relative px-3 py-4 h-[35%] w-full overflow-hidd
       <div className="relative justify-start z-5 flex flex-col w-[60%] ">
         <h2 className="self-start text-xl font-semibold leading-5">
             {title}
-        </h2>
+        </h2> 
         <p className="mt-1.5 text-sm font-medium ">
             {description}
         </p>
       </div>
-      <img
+      <Image
+        width={100}
+        height={100}
+        placeholder="blur"
+        blurDataURL="/blur.jpg"
         src={imageURL}
         alt={title}
         className="absolute z-2 top-[50%] translate-y-[-50%] right-[-5px] object-contain w-[100px]"

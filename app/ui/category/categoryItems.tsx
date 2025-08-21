@@ -2,7 +2,7 @@
 import { Itemlist, category as CategoryType } from "@/app/lib/placeholder-data";
 import axios from "axios"
 import Image from "next/image";
-import { SetStateAction, useEffect, useState } from "react"
+import { SetStateAction, useCallback, useEffect, useRef, useState } from "react"
 import { ItemCard } from "../dashboard/itemCard";
 import { filterProps } from "../filterModal";
 
@@ -12,16 +12,41 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
     const [fetchLoad, setFetchLoad] = useState(false);
     let [list, setList] = useState<Itemlist[]>([]);
 
-    let marginValue = 0;
-    let debounceValue: string | number | NodeJS.Timeout | undefined = undefined;
+    let marginValue = useRef<number>(0);
+    let debounceValue: React.RefObject<string | number | NodeJS.Timeout | undefined>= useRef<string | number | NodeJS.Timeout | undefined>(undefined);
 
+    let fetchData = useCallback( async function fetchData(observer: IntersectionObserver | undefined) {
+        setFetchLoad(true);
+        let url = window.location.origin + "/query/v1/categoryItem/" + category + "?offset=" + marginValue.current;
+        let data = await axios.get(url)
+        // console.log(data)
+
+        if (data.data.result.length == 0) {
+            if (footerRef.current && observer) observer.unobserve(footerRef.current);
+        }
+
+        marginValue.current = marginValue.current + 8;
+
+        setList((prev) => {
+            if (!prev) {
+                return [...data.data.result]
+            }
+
+
+            return [...prev, ...data.data.result]
+        })
+        setLoading(false);
+        setFetchLoad(false);
+
+        // console.log(data.data.result, marginValue )
+    },[marginValue, category, footerRef])
     useEffect(function () {
         fetchData(undefined);
         let observer = new IntersectionObserver(function (entries) {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
-                    clearTimeout(debounceValue)
-                    debounceValue = setTimeout(function () {
+                    clearTimeout(debounceValue.current)
+                    debounceValue.current = setTimeout(function () {
                         fetchData(observer);
                     }, 700)
                 }
@@ -31,11 +56,12 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
         if (footerRef.current) {
             observer.observe(footerRef.current)
         }
+        let currentFooter = footerRef.current;
 
         return function () {
-            if (footerRef.current) observer.unobserve(footerRef.current);
+            if (currentFooter) observer.unobserve(currentFooter);
         }
-    }, [])
+    }, [fetchData, fetchLoad, footerRef])
 
 
     //running on the scroll to the bottom;
@@ -112,31 +138,7 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
     list = modifiedItemList;
 
 
-    async function fetchData(observer: IntersectionObserver | undefined) {
-        setFetchLoad(true);
-        let url = window.location.origin + "/query/v1/categoryItem/" + category + "?offset=" + marginValue;
-        let data = await axios.get(url)
-        // console.log(data)
-
-        if (data.data.result.length == 0) {
-            if (footerRef.current && observer) observer.unobserve(footerRef.current);
-        }
-
-        marginValue = marginValue + 8;
-
-        setList((prev) => {
-            if (!prev) {
-                return [...data.data.result]
-            }
-
-
-            return [...prev, ...data.data.result]
-        })
-        setLoading(false);
-        setFetchLoad(false);
-
-        // console.log(data.data.result, marginValue )
-    }
+   
 
     return <div className="p-2 mb-6 min-h-screen" >
         {loading ? <SkeletonLoading /> : ""}

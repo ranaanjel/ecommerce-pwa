@@ -6,7 +6,7 @@ import { SearchBar } from "../ui/dashboard/searchBar";
 import CaraouselBanner from "../ui/dashboard/carouselBanner";
 import PreOrder from "../ui/dashboard/preorderListCard";
 import { Categories } from "../ui/dashboard/categoryCard";
-import { dm_sans } from "../layout";
+import { dm_sans } from "@/app/ui/font";
 import { BottomBar } from "../ui/dashboard/bottomBar";
 import { EachCategory } from "../ui/dashboard/eachCategory";
 import { Footer } from "../ui/dashboard/footer";

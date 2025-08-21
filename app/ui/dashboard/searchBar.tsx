@@ -38,7 +38,7 @@ export function SearchBar() {
                     //     setItems([])
                     // }
                     setItems([])
-                }} key={m} className="whitespace-nowrap text-gray-600 my-3 select-none">" {m} "</div>))
+                }} key={m} className="whitespace-nowrap text-gray-600 my-3 select-none">&quot; {m} &quot;</div>))
             }</div>
         </div>
     </div>

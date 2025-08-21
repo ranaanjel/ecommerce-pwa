@@ -18,7 +18,7 @@ export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<Set
            setList(data.data.result)
            setLoading(false)
         })
-    },[])
+    },[type])
 
     return <div className=" flex flex-col gap-6 flex-start py-4 items-center justify-start h-[92%] overflow-scroll typebar">
                 <div className="flex flex-col items-center" onClick={function (){

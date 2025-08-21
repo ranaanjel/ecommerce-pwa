@@ -82,7 +82,7 @@ export function OrderPageBody() {
             router.push("/login")
         }
 
-    }, [])
+    }, [router])
     function editFunction() {
         // TODO time period 2 hours from creation time - then only allow
 

@@ -40,7 +40,7 @@ export function AddressBody({userId}:{userId:string}){
         }).catch(err => console.log(err))
 
 
-    }, [])
+    }, [userId])
 
     return <div onClick={() =>{}} className="modal bg-[#ebf6f6] h-screen flex flex-col overflow-scroll ">
 

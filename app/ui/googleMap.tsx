@@ -25,7 +25,7 @@ const libraries: Libraries = ["places"]
 export default function LocationPickerMap({ setCurrentAddress, mapValue, getLocation }: { getLocation: any, mapValue: React.Dispatch<SetStateAction<google.maps.Map | null>>, setCurrentAddress: React.Dispatch<SetStateAction<string>> }) {
 
     const [center, setCenter] = useState<{ lat: number, lng: number }>(defaultCenter);
-    const [address, setAddress] = useState("");
+    const [_, setAddress] = useState("");
     const mapRef = useRef<google.maps.Map | null>(null);
     const [loadingMap, setLoadingMap] = useState(false);
     const autoCompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
@@ -35,7 +35,29 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
         googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAP_KEY!,
         libraries
     })
+    const reverseGeoCode = useCallback(async (lat: string, lng: string) => {
+        try {
 
+            let url = CURRENT_URL && window.location.origin;
+            console.log(url)
+
+            const res = await axios.get(url + `/query/google-map?lat=${lat}&lng=${lng}`);
+            const result = res.data;
+            console.log(result, "--------------------------------");
+
+            if (result.status) {
+                setAddress(result.formatted_address);
+                setCurrentAddress(m => result.formatted_address)
+            } else {
+                setAddress("no address found");
+            }
+        } catch (err) {
+
+            console.error("reverse geocode failed", err);
+            setAddress("Error fetching address");
+
+        }
+    },[setCurrentAddress])
     useEffect(function () {
         const fetchUserLocation = async () => {
             //getting the center for the map here
@@ -66,7 +88,7 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
 
         }
         fetchUserLocation();
-    }, [])
+    }, [reverseGeoCode])
 
     const onLoad = useCallback((map: any) => {
         mapRef.current = map;
@@ -76,7 +98,7 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
         // bounds.extend(center);  
         // map.fitBounds(bounds, { top: 200, bottom: 200, left: 200, right: 200 });
         map.setZoom(19);
-    }, [])
+    }, [mapValue])
     const onUnmount = useCallback(() => {
         mapRef.current = null;
     }, [])
@@ -96,7 +118,7 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
             }
 
         }
-    }, [])
+    }, [reverseGeoCode])
 
     const getCurrentLocation = function () {
         setLoadingMap(true)
@@ -115,30 +137,6 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
     }
     getLocation.current = getCurrentLocation;
 
-    const reverseGeoCode = async (lat: string, lng: string) => {
-        try {
-
-            let url = CURRENT_URL && window.location.origin;
-            console.log(url)
-
-            const res = await axios.get(url + `/query/google-map?lat=${lat}&lng=${lng}`);
-            const result = res.data;
-            console.log(result, "--------------------------------");
-
-            if (result.status) {
-                setAddress(result.formatted_address);
-                console.log(result.formatted_address)
-                setCurrentAddress(m => result.formatted_address)
-            } else {
-                setAddress("no address found");
-            }
-        } catch (err) {
-
-            console.error("reverse geocode failed", err);
-            setAddress("Error fetching address");
-
-        }
-    }
 
     if (!isLoaded) {
         return <div>
@@ -178,7 +176,7 @@ export function CustomAutocomplete({ setCenter, inputRef, callBack , centerRef, 
         if (!window.google) return
         autocompleteService.current = new window.google.maps.places.AutocompleteService()
         inputRef?.current?.focus();
-    }, [])
+    }, [inputRef])
 
     const fetchPredictions = (value: string) => {
         if (!value) {

@@ -1,7 +1,7 @@
 "use client"
 import axios from "axios";
 import { useEffect, useState } from "react"
-import { SkeletonPreOrderCard } from "../page";
+import { SkeletonPreOrderCard } from "@/app/ui/skeletonPreOrderCard";
 import { Itemlist, Preorder, unit } from "@/app/lib/placeholder-data";
 import { useParams, useRouter } from "next/navigation";
 import { ChevronLeftIcon, MagicWandIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
@@ -72,7 +72,7 @@ export default function Page() {
         }).catch(err => {
             console.log("error")
         })
-    }, [])
+    }, [params, router])
 
     return <div>
         {

@@ -27,7 +27,7 @@ const inter = Inter({
   weight: ["200", "300", "500", "800"]
 })
 
-export const dm_sans = DM_Sans({
+const dm_sans = DM_Sans({
   subsets: ["latin"],
   weight: ["200", "500", "800"]
 })

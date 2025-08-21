@@ -1,5 +1,5 @@
 
-import { ChatBubbleIcon, PaperPlaneIcon } from "@radix-ui/react-icons";
+import { ChatBubbleIcon} from "@radix-ui/react-icons";
 import Image from "next/image";
 import { forwardRef, ForwardedRef } from "react";
 
@@ -27,3 +27,4 @@ export const Footer = forwardRef((prop, ref: ForwardedRef<HTMLDivElement>) => {
         </div>
     </div>
 })
+Footer.displayName = "Footer"

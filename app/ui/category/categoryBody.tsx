@@ -39,7 +39,7 @@ export function CategoryBody({ categoryType }: { categoryType: string }) {
                // console.log(originalFilter, typeOption, brandOption)
 
             })
-    }, [])
+    }, [categoryType])
 
     let [originalFilter, setOriginalFilter] = useState<filterProps[]>([
         {
