@@ -1,6 +1,6 @@
 
 import { Metadata } from "next";
-import { NotificationManager } from "./ui/notificationManager/notificationManager";
+import { NotificationManager } from "./(protected)/ui/notificationManager/notificationManager";
 
 
 export async function generateMetadata():Promise<Metadata> {

@@ -16,8 +16,9 @@ export const metadata:Metadata = {
 import { Geist, Geist_Mono } from "next/font/google";
 import { Inter, DM_Sans } from "next/font/google";
 import "./globals.css";
-import { RootChild } from "./ui/rootLayoutClient";
+import { RootChild } from "./(protected)/ui/rootLayoutClient";
 import { RegisterServiceWorker } from "./registerService";
+import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -57,9 +58,11 @@ export default async function RootLayout({
         className={`${dm_sans.className} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none select-none`}
       >
         <RegisterServiceWorker></RegisterServiceWorker>
+        {/* <SessionProvider> */}
         <RootChild>
           {children}
         </RootChild>
+        {/* </SessionProvider> */}
       </body>
     </html>
   )

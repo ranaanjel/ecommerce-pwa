@@ -1,5 +1,5 @@
 
-import Login from "@/app/ui/pre-auth/login";
+import Login from "@/app/(protected)/ui/pre-auth/login";
 
 export default function Page() {
     return <div>
