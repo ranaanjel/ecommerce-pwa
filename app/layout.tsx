@@ -18,7 +18,6 @@ import { Inter, DM_Sans } from "next/font/google";
 import "./globals.css";
 import { RootChild } from "./(protected)/ui/rootLayoutClient";
 import { RegisterServiceWorker } from "./registerService";
-import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,16 +52,11 @@ export default async function RootLayout({
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
-
-      <body
-        className={`${dm_sans.className} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none select-none`}
-      >
+      <body className={`${dm_sans.className} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none select-none`}>
         <RegisterServiceWorker></RegisterServiceWorker>
-        {/* <SessionProvider> */}
         <RootChild>
           {children}
         </RootChild>
-        {/* </SessionProvider> */}
       </body>
     </html>
   )

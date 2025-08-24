@@ -21,8 +21,12 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 - [ ] connecting the backend to frontend
 
 - making sure for the preorder card and reorder, edit -- fetching the latest prices based always.
-- [ ] nextauth -
-- [ ] rate-limiting and making multiple provide - connecting once logged in.
-- [ ] Having one credential  - oauth only -- since the email or otp requires registration smtp and TRAI registration. only providing once we have provided full data.
-- [ ]  one user one session could be multiple providers but requires - making sure if the user logins from different phone, previous session is not longer validated 
+- [x] nextauth -
+- [x] Having one credential  - oauth only -- since the email or otp requires registration smtp and TRAI registration. only providing once we have provided full data.
+- [x]  one user one session could be multiple providers but requires - making sure if the user logins from different phone, previous session is not longer validated 
+
 - [  ] return back and forth for the return items -- raise the issue with the previous bills.
+
+
+V2 
+- [ ] rate-limiting and making multiple provide - connecting once logged in.
