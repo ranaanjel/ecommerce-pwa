@@ -5,6 +5,7 @@ import { Inter, DM_Sans } from "next/font/google";
 import "@/app/globals.css";
 import FallbackUIDesktop from "@/app/(protected)/ui/fallback-desktop";
 import { SessionProvider } from "next-auth/react";
+import { UserInfo } from "../ui/userInfoDb";
 const inter = Inter({
   subsets:[ "latin" ], 
   weight:["200", "300","500","800"]
@@ -31,9 +32,11 @@ export default function RootLayout({
 }>) {
   return (
         <SessionProvider>
+          <UserInfo>
         <FallbackUIDesktop>
           {children}
         </FallbackUIDesktop>
+        </UserInfo>
         </SessionProvider> 
 
   );

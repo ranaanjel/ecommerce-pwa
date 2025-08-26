@@ -24,8 +24,7 @@ export default function Login() {
     }
     setIsError(false);
     // Handle login/signup logic here
-    console.log("Continuing with phone number:", phoneNumber);
-    router.push(`/login/${phoneNo}/verification`)
+    // router.push(`/login/${phoneNo}/verification`)
   };
 
   return (
@@ -72,10 +71,12 @@ export default function Login() {
               Login / Signup :
             </label>
             
-            <div className="my-2 w-full flex items-center h-[44px] rounded-[5px] border border-[#E1E1E1] bg-white px-4 cursor-pointer" onClick={function() {
-              signIn("google", {
+            <div className="my-2 w-full flex items-center h-[44px] rounded-[5px] border border-[#E1E1E1] bg-white px-4 cursor-pointer" onClick={ async function() {
+              let res =  signIn("google", {
               redirect:true, redirectTo:"/dashboard"
             })
+
+
             }} >
               <div className="flex justify-center w-full items-center">
                 <div className="text-gray-500 text-md">

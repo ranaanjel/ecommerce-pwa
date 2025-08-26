@@ -12,23 +12,23 @@ import { Cross1Icon, Pencil2Icon } from "@radix-ui/react-icons";
 import axios from "axios";
 import { CameraIcon, ChevronDown, ChevronRight, MapPinCheck, MapPinCheckIcon, MapPinPlus, MessageSquareTextIcon, MessageSquareWarningIcon, PhoneCallIcon, SquarePlus, Trash2Icon, UserRoundCheckIcon } from "lucide-react";
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
-import React, { SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { redirect, usePathname, useRouter, useSearchParams } from "next/navigation";
+import React, { SetStateAction, useCallback, useContext, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { crateItemInterface } from "../../lib/definitions";
 import { CrateItemCard } from "@/app/(protected)/ui/dashboard/itemCard";
+import { useSession } from "next-auth/react";
+import { DeleteAddress, InfoValue } from "@/actions/databaseCall";
 
 // type crateItemEachInterface = { category: string, discountPrice: number, itemname: string, mrp: number, quant: number, unit: unit, skip: boolean, primarySize?: string, imageURL?: string, buttonURL?: string };
 
 export default function Page() {
 
     // project - each item with id for faster information retrieving
+
+    const { data } = useSession()
     const crateContext = useContext(CrateContext);
     const length = crateContext?.crateLength ?? 0;
-    const setLength = useMemo(()=>crateContext?.setCrateLength ?? (() => { }),[crateContext?.setCrateLength]);
 
-    // 
-
-    const [totalPrice, setTotalPrice] = useState(0)
     const [openConfirm, setConfirm] = useState(false);
     const [_, setList] = useState<Record<string, crateItemInterface>>({})
     const [userId, setUserId] = useState("");
@@ -42,10 +42,14 @@ export default function Page() {
     const [details, setDetails] = useState<UserAddress>({ restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver: "manager", tag: "", instruction: [], default: false })
     const eachCategoryRef = useRef<HTMLDivElement[]>([])
     const [disable, setDisable] = useState(false); // in case of period
-    const [saving, setSaving] = useState(0);
     const [crateList, setCrateList] = useState<[string, crateItemInterface][]>([]);
     const [startPeriod, setStartPeriod] = useState(0)
     const [endPeriod, setEndPeriod] = useState(0)
+    const [isPending, startTransition] = useTransition();
+
+    const setLength = useMemo(() => crateContext?.setCrateLength ?? (() => { }), [crateContext?.setCrateLength]);
+    const [saving, setSaving] = useState(0);
+    const [totalPrice, setTotalPrice] = useState(0)
 
     const router = useRouter();
     const params = useSearchParams();
@@ -53,62 +57,67 @@ export default function Page() {
 
     useEffect(function () {
 
-        if (localStorage.getItem(localId)) {
-            let userId = localStorage.getItem(localId);
+        if (data) {
+            let userId = data.user?.id;
 
             if (localStorage.getItem(localOrderId)) {
                 setOrderId(localStorage.getItem(localOrderId) ?? "")
             }
-
             // getting start and end period 
             const url = location.origin + "/query/v1/order/timing";
             axios.get(url).then(m => {
                 let data = m.data.result;
-
-                // getting the data and setting it
-                console.log(data)
                 setStartPeriod(data[0])
                 setEndPeriod(data[1])
             }).catch(err => console.log(err))
 
+            setUserId(userId as string)
 
+            // if (params.get("type") == "return") {
+            //     let restaurantName = params.get("restaurantName") || "";
+            //     let restaurantTypeParam = params.get("restaurantType");
+            //     let restaurantType = restaurantTypeParam
+            //         ? Array.isArray(restaurantTypeParam)
+            //             ? restaurantTypeParam
+            //             : [restaurantTypeParam]
+            //         : [""];
+            //     let deliveryTiming = params.get("deliveryTiming") || "";
+            //     let shopDetails = params.get("shopDetails") || "";
+            //     let address = params.get("address") || "";
+            //     let pincode = params.get("pincode") || "";
+            //     let receiverParam = params.get("receiver");
+            //     let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
+            //     let tag = params.get("tag") || "";
+            //     let instruction = params.get("instruction")?.split(",") || [];
+            //     let defaultValue = params.get("default") === "true";
 
-            setUserId(userId ?? "")
-            if (params.get("type") == "return") {
-                let restaurantName = params.get("restaurantName") || "";
-                let restaurantTypeParam = params.get("restaurantType");
-                let restaurantType = restaurantTypeParam
-                    ? Array.isArray(restaurantTypeParam)
-                        ? restaurantTypeParam
-                        : [restaurantTypeParam]
-                    : [""];
-                let deliveryTiming = params.get("deliveryTiming") || "";
-                let shopDetails = params.get("shopDetails") || "";
+            //     //pushing to the database with the user id --creation -- already in the address-details
+            //     console.log("create--crate")
+            //     setDetails(() => {
+            //         let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue ?? false }
+            //         return value;
+            //     });
+            //     setAddress(address);
+            //     setInstruction(prev => {
+            //         if (!prev) {
+            //             return [...instruction]
+            //         }
+
+            //         return [...prev, ...instruction]
+            //     })
+            // } else 
+            if (params.get("type") == "edit") {
+
+                //from /dashboard/order
+
+                console.log("modify--crate")
                 let address = params.get("address") || "";
-                let pincode = params.get("pincode") || "";
+                let instruction = params.get("instruction")?.split(",") || [];
                 let receiverParam = params.get("receiver");
                 let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
                 let tag = params.get("tag") || "";
-                let instruction = params.get("instruction")?.split(",") || [];
-                let defaultValue = params.get("default") === "true";
-                setDetails(() => {
-                    let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue ?? false }
-                    return value;
-                })
-                setAddress(address)
-                setInstruction(prev => {
-                    if (!prev) {
-                        return [...instruction]
-                    }
 
-                    return [...prev, ...instruction]
-                })
-            } else if (params.get("type") == "edit") {
-                let address = params.get("address") || "";
-                let instruction = params.get("instruction")?.split(",") || [];
-                let receiverParam = params.get("receiver");
-                let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
-                let tag = params.get("tag") || "";
+
                 setDetails(() => {
                     let value: UserAddress = { restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver, tag, instruction, default: true }
                     return value;
@@ -121,6 +130,8 @@ export default function Page() {
 
                     return [...prev, ...instruction]
                 })
+
+                //order id for edit
                 if (localStorage.getItem(localOrderId)) {
                     setOrderId(localStorage.getItem(localOrderId) ?? "")
                     clearTimeout(clearTime.current);
@@ -137,11 +148,16 @@ export default function Page() {
             } else if (params.get("type") == "repeat") {
 
 
+                //from /dashboard/order
+
                 let address = params.get("address") || "";
                 let instruction = params.get("instruction")?.split(",") || [];
                 let receiverParam = params.get("receiver");
                 let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
                 let tag = params.get("tag") || "";
+
+                //nothing doing - simply returning data -- from order
+
                 setDetails(() => {
                     let value: UserAddress = { restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver, tag, instruction, default: true }
                     return value;
@@ -156,44 +172,34 @@ export default function Page() {
                 })
 
             } else {
-                let url = window.location.origin + "/query/v1/user/address/default?userId=" + userId;
+
                 // console.log(url)
                 //gettnig the defaults values address in case of no type 
-                axios.get(url).then(function (m) {
-                    let data = m.data.result;
+                startTransition(async function () {
 
-                    let restaurantName = data.restaurantName;
-                    let restaurantType = data.restaurantType;
-                    let deliveryTiming = data.deliveryTiming;
-                    let shopDetails = data.shopDetails;
-                    let address = data.address;
-                    let pincode = data.pincode;
-                    let receiver = data.receiver;
-                    let tag = data.tag;
-                    let instruction = data.instruction;
-                    let defaultValue = data.default;
+                    let dataReturn = await InfoValue("extra-all");
 
-                    setDetails(prev => {
-                        let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue }
+                    let { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue, deliveryAvailable } = dataReturn;
+            
+                    setDetails(() => {
+                        let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue, deliveryAvailable }
+                        // console.log(value.restaurantName)
                         return value;
+
                     })
 
-                    setAddress(data.address)
+                    setAddress(address)
 
                     setInstruction(prev => {
                         if (!prev) {
-                            return [...data.instruction]
+                            return [...(instruction)]
                         }
-
-                        return [...prev, ...data.instruction]
+                        return Array.from(new Set([...prev, ...(instruction)]))
                     })
-
-                }).catch(err => console.log(err))
+                })
 
             }
 
-        } else {
-            router.push("/login")
         }
         //fetching the address, user name, instruction , shop details.
 
@@ -203,10 +209,11 @@ export default function Page() {
         // })
 
         if (localStorage.getItem(localCrate)) {
+
             let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
             let length = Array.from(Object.keys(localObject)).length;
             // console.log(length)
-            setLength(length)
+            setLength(length);
             let totalValue = 0;
             let fullDiscount = 0;
 
@@ -216,7 +223,6 @@ export default function Page() {
             }
 
             for (var eachItem of items) {
-
                 let category = eachItem.category;
                 let currentMRP = eachItem.mrp * eachItem.quant;
                 fullDiscount += currentMRP - (eachItem.discountPrice * eachItem.quant);
@@ -229,8 +235,6 @@ export default function Page() {
                 }
             }
 
-            // console.log(totalValue, fullDiscount)
-
             setList(() => {
                 return listValue
             })
@@ -239,18 +243,12 @@ export default function Page() {
                 return value;
             })
 
-            // setAccordionOpen(prev => {
-            //     return Array.from(Object.entries(listValue)).map(m => false)
-            // })
-
-
             setTotalPrice(totalValue);
             setSaving(fullDiscount);
-            //getting the userid from the localstorage
-
+   
         }
 
-    }, [params, router, setLength])
+    }, [params, router, setLength, data])
 
     return <div className="overflow-hidden h-screen bg-[#ebf6f6] text-black">
         <TopBar>
@@ -267,7 +265,6 @@ export default function Page() {
                 {
                     length > 0 && <div onClick={function () {
                         setConfirm(true)
-
 
                     }} className="flex items-center gap-2 cursor-pointer">
                         <div className="font-medium bg-logo h-[35px] w-[35px] flex justify-center items-center  rounded-full text-2xl">
@@ -305,9 +302,11 @@ export default function Page() {
                         </div>
                     }
                     {crateList.length > 0 ? <div className="p-6">
-                        <div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
+                        {disable ? <div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
+                            No Delivery to {details.pincode}
+                        </div>:<div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
                             Saved &nbsp; <span className="text-green-500">{" ₹ " + `${saving}` + " "}</span> &nbsp; with free delivery
-                        </div>
+                        </div>}
                         <div className="bg-white h-auto p-4 flex justify-between gap-4">
                             <div className="flex flex-col overflow-hidden">
 
@@ -315,9 +314,7 @@ export default function Page() {
                                 <div className="h-5  overflow-hidden overflow-ellipsis whitespace-nowrap text-sm text-gray-600 underline">{address}</div>
                             </div>
                             <div className="flex text-primary" onClick={function () {
-
                                 setAddressModal(true)
-
                             }}>
                                 <div className="self-center">
                                     change
@@ -337,7 +334,7 @@ export default function Page() {
 
                                         if (eachCategoryRef.current) {
                                             let height = (eachCategoryRef.current[index].style.height);
-                                            console.log(height)
+                                            // console.log(height)
 
                                             if (height == "auto" || isNaN(Number(height)) || height == "") {
 
@@ -376,9 +373,6 @@ export default function Page() {
                                                 }, 500)
 
                                             }
-                                            // else {
-
-                                            // }
                                         }
 
                                     }} className="flex text-logo justify-between ">
@@ -457,7 +451,7 @@ export default function Page() {
             }} setInstruction={setInstruction} setInstructionModal={setInstructionModal}></InstructionModal>
         }
         {
-            addressModal && <AddressModal details={details} setInstruction={setInstruction} setAddressModal={setAddressModal} setDetails={setDetails} userId={userId} onclick={function () {
+            addressModal && <AddressModal disableButton={setDisable} details={details} setInstruction={setInstruction} setAddressModal={setAddressModal} setDetails={setDetails} userId={userId} onclick={function () {
                 setAddressModal(false);
             }} setAddress={setAddress} ></AddressModal>
         }
@@ -591,7 +585,7 @@ function InstructionModal({ instructionValue, clickHandle, setInstruction, setIn
 
                                     return [...prev, m.toLocaleLowerCase()];
                                 })
-                            }} className={"flex items-center px-6 h-15  cursor-pointer rounded-sm  border gap-3 " + `${activeCheck.includes(index) ? " bg-logo text-white" : "text-gray-600 border-gray-400 "}`} key={index}>
+                            }} className={"flex items-center text-sm px-6 h-15  cursor-pointer rounded-sm  border gap-3 " + `${activeCheck.includes(index) ? " bg-logo text-white" : "text-gray-600 border-gray-400 "}`} key={index}>
                                 {
                                     index == 0 && <UserRoundCheckIcon></UserRoundCheckIcon> || index == 1 && <PhoneCallIcon></PhoneCallIcon> || index == 2 && <CameraIcon></CameraIcon>
                                 }
@@ -618,25 +612,33 @@ function InstructionModal({ instructionValue, clickHandle, setInstruction, setIn
     </div>
 
 }
-function AddressModal({ userId, details, setDetails, onclick, setAddress, setAddressModal, setInstruction }: { onclick: () => void, setAddress: React.Dispatch<SetStateAction<string>>, setInstruction: React.Dispatch<SetStateAction<string[]>>, userId: string, setDetails: React.Dispatch<SetStateAction<UserAddress>>, setAddressModal: React.Dispatch<SetStateAction<boolean>>, details: UserAddress }) {
+function AddressModal({disableButton, userId, details, setDetails, onclick, setAddress, setAddressModal, setInstruction }: { onclick: () => void, setAddress: React.Dispatch<SetStateAction<string>>, setInstruction: React.Dispatch<SetStateAction<string[]>>, userId: string, setDetails: React.Dispatch<SetStateAction<UserAddress>>, setAddressModal: React.Dispatch<SetStateAction<boolean>>, details: UserAddress, disableButton:React.Dispatch<SetStateAction<boolean>> }) {
 
     let [list, setList] = useState<UserAddress[]>([])
+    let [isPending, startTransition] = useTransition();
     //list of address
-    const router = useRouter()
+    const router = useRouter();
+
+    let [restaurantName, setRestaurantName] = useState("")
+    let [restaurantType, setRestaurantType] = useState([""])
+    let [deliveryTiming, setDeliveryTiming] = useState("")
 
     useEffect(function () {
         //fetching the backend and get all the address
 
-        let url = window.location.origin + "/query/v1/user/address/all?userId=" + userId;
-        axios.get(url).then(function (m) {
+        startTransition(async function () {
+            let restaurantData = await InfoValue("full");
+            setRestaurantName(restaurantData.restaurantName);
+            let dataType = restaurantData.restaurantType as string[]
+            setRestaurantType(dataType);
+            setDeliveryTiming(restaurantData.deliveryTiming);
 
-            let result = m.data.result;
-            console.log(result)
+            let returnData = await InfoValue("allAddress");
             setList(() => {
 
-                return [...result]
+                return [...returnData]
             })
-        }).catch(err => console.log(err))
+        })
 
 
     }, [userId])
@@ -657,14 +659,10 @@ function AddressModal({ userId, details, setDetails, onclick, setAddress, setAdd
                     <MapPinCheckIcon className="relative top-0.5"> </MapPinCheckIcon>
                     Delivery Address
                 </div>
-                <div className="h-60 overflow-y-scroll w-full flex flex-col gap-3 px-6 py-8">
+                <div className="h-60 overflow-y-scroll w-full flex flex-col gap-3 px-6 py-4">
 
                     {
                         list.map((m: UserAddress, index) => {
-
-                            let restaurantName = m.restaurantName;
-                            let restaurantType = m.restaurantType;
-                            let deliveryTiming = m.deliveryTiming;
                             let shopDetails = m.shopDetails;
                             let address = m.address;
                             let pincode = m.pincode;
@@ -672,6 +670,8 @@ function AddressModal({ userId, details, setDetails, onclick, setAddress, setAdd
                             let tag = m.tag;
                             let instruction = m.instruction;
                             let defaultValue = m.default;
+                            let additionalNo = m.additionalNo;
+                            let deliveryAvailable = m.deliveryAvailable;
 
 
                             return <div onClick={function () {
@@ -679,9 +679,17 @@ function AddressModal({ userId, details, setDetails, onclick, setAddress, setAdd
                             }} className={"flex items-center px-6 h-auto rounded-sm  border gap-3 py-3 border-gray-200 text-gray-500 justify-between **"} key={index}>
                                 <div onClick={function () {
                                     setDetails(prev => {
-                                        let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue }
+                                        let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue , deliveryAvailable}
                                         return value;
                                     })
+                                    // console.log(address, deliveryAvailable)
+                                    if(!deliveryAvailable) {
+                                        disableButton(true)
+                                    }else {
+
+                                        disableButton(false)
+                                    }
+                                    
                                     setInstruction([...instruction])
                                     setAddress(address)
                                     setAddressModal(false);
@@ -698,42 +706,23 @@ function AddressModal({ userId, details, setDetails, onclick, setAddress, setAdd
                                 <div className="flex gap-2">
                                     <div onClick={function () {
 
-                                        let useSearchParams = "restaurantName=" + restaurantName + "&restaurantType=" + restaurantType + "&deliveryTiming=" + deliveryTiming + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + instruction + "&default=" + defaultValue + "&address=" + address + "&type=" + "modified" + "&callback=" + window.location.pathname;
+                                        let useSearchParams = "restaurantName=" + restaurantName + "&restaurantType=" + restaurantType + "&deliveryTiming=" + deliveryTiming + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + instruction + "&default=" + defaultValue + "&address=" + address + "&type=" + "modified" + "&callback=" + window.location.pathname+"&additionalNo=" + additionalNo;
                                         router.push("/users/" + userId + "/address_details?" + useSearchParams)
-
 
                                     }}>
                                         <Pencil2Icon className="size-4 cursor-pointer"></Pencil2Icon>
                                     </div>
-                                    <div className="" onClick={function () {
-                                        console.log("deleting")
-                                        setList(prev => {
-                                            if (prev.length == 1) {
-                                                return prev
-                                            }
-
-                                            prev = prev.filter(m => m.tag != tag)
-                                            console.log(prev)
-                                            return prev
-                                        })
-                                        setAddress(prev => {
-
-                                            if (list.length == 1) {
-                                                return prev;
-                                            }
-
-                                            let currentAddress =
-                                                "";
-                                            let i = 0;
-                                            do {
-                                                currentAddress = list[i].address;
-                                                i++;
-                                            } while (currentAddress == address)
-                                            return currentAddress;
-                                        })
+                                    <div className="" onClick={async function () {
                                         //deleteing 
                                         //TODO 
                                         // propogating to the database
+                                        if (list.length > 1) {
+                                            let dataDelete = await DeleteAddress(tag);
+                                            if (dataDelete) {
+                                                console.log("/dashboard/crate")
+                                                onclick();
+                                            }
+                                        }
 
                                     }}>
                                         <Trash2Icon className="size-4 cursor-pointer"></Trash2Icon>
@@ -794,7 +783,6 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
         let currentMin = curr.getMinutes();
         let currentSec = curr.getSeconds();
 
-
         if (endPeriod < startPeriod) {
             if (currentHour < startPeriod && currentHour > endPeriod) {
                 clearInterval(clearTime.current)
@@ -804,7 +792,14 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
             }
             // i.e in case of 24 hr , 1 am , 2 am so on i.e next day
             // let endPeriodTime = new Date(currentYear, currentMonth, currentDate+1, endPeriod);
-            let hourDifference = 24 - currentHour + endPeriod - 1;
+            let hourDifference;
+            if(currentHour < startPeriod) {
+
+             hourDifference =   endPeriod - currentHour - 1;
+            }else {
+
+             hourDifference = 24 - currentHour + endPeriod - 1;
+            }
             let minDifference = 60 - currentMin;
             let secDifference = 60 - currentSec;
             setDiffHour(String(hourDifference).padStart(2, "0"))
@@ -828,13 +823,10 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
             setDiffMin(String(minDifference).padStart(2, "0"))
             setDiffSec(String(secDifference).padStart(2, "0"))
         }
-    },[endPeriod, setDisableButton, startPeriod])
+    }, [endPeriod, setDisableButton, startPeriod])
 
     useEffect(function () {
-
         //everything inside the setInterval
-
-        
 
         let currentYear = currentTimeLeft.getFullYear();
         let currentMonth = currentTimeLeft.getMonth();
@@ -853,7 +845,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
         }
     }, [currentTimeLeft, intervalCall])
 
-    console.log(startPeriod, endPeriod)
+    // console.log(startPeriod, endPeriod)
 
     if (startPeriod == endPeriod) {
         console.log("developer at issue")
@@ -876,7 +868,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
                 </div>
                 <div>
                     <span className="text-sm">
-                    {startPeriod >= 12 ? startPeriod - 12 + " pm" : startPeriod + " am"} : {endPeriod < startPeriod ? endPeriod + " am" : endPeriod == 24 ? "12 midnight":endPeriod-12 + " pm"} 
+                        {startPeriod >= 12 ? startPeriod - 12 + " pm" : startPeriod + " am"} : {endPeriod < startPeriod ? endPeriod + " am" : endPeriod == 24 ? "12 midnight" : endPeriod - 12 + " pm"}
                     </span>
                 </div>
             </div>
@@ -886,10 +878,10 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
 
     return <div className="flex items-center justify-between gap-2 select-none bg-logo text-white rounded  py-2 px-4 my-2 mx-6 border border-gray-200"  >
         <div className="flex flex-col font-extralight">
-            <div className="text-xl">
+            <div className="text-sm">
                 Order Tomorrow
             </div>
-            <div>
+            <div className="text-xs">
                 Time Left
             </div>
         </div>

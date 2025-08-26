@@ -1,7 +1,13 @@
 import ComingSoon from "../(protected)/ui/users/comingSoon";
 
-export default function Page() {
+const revalidate = 60;
+export default async function Page() {
+    let url = process.env.BACKEND_URL!+"/api/v1/user/pincode";
+    let allData = (await (await fetch(url)).json()).place;
+
+    console.log(allData)
+
     return <div className="h-screen">
-        <ComingSoon/>
+        <ComingSoon area={allData}/>
     </div>
 }

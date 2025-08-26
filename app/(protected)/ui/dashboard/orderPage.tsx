@@ -5,7 +5,6 @@ import { localCrate, localId, localOrderId } from "@/app/(protected)/lib/utils"
 import axios from "axios";
 import { useRouter } from "next/navigation"
 import { useEffect, useRef, useState } from "react"
-import { SkeletonLoading } from "../skeletons";
 import { GenericButton } from "../button";
 import {  BanIcon, ChevronDown, RotateCcwIcon, TriangleAlertIcon } from "lucide-react";
 import clsx from "clsx";
@@ -13,9 +12,11 @@ import Image from "next/image";
 import { ConfirmModal } from "../confirmModal";
 import { AlertModal } from "../alertModal";
 import { crateItemInterfaceEach } from "@/app/(protected)/lib/definitions";
+import { useSession } from "next-auth/react";
 
 export function OrderPageBody() {
     const router = useRouter();
+    const {data, status} = useSession()
     const offset = useRef<number>(0);
     const [loading, setLoading] = useState(true);
     const [contentThere, setContentThere] = useState(true);
@@ -63,25 +64,21 @@ export function OrderPageBody() {
 
     }
 
-    useEffect(function () {
+    useEffect( function () {
         //fetching the data for the previous value all orders 30 days only. in pagination.
         // ability to add the stuffs from previous orders as well.
-        if (localStorage.getItem(localId)) {
-            let userId = localStorage.getItem(localId);
+        if (data) {
+            let userId = data.user?.id;
             let url = window.location.origin + "/query/v1/order/" + userId + "?offset=" + offset.current;
-            axios.get(url).then(m => {
+            axios.get(url).then( m => {
                 let { currentOrderData, prevOrderData } = m.data.result;
-                setUserId(userId?? "")
+                setUserId(userId ?? "")
                 setCurrOrderList(currentOrderData)
                 setPrevOrderList(prevOrderData)
                 setLoading(false)
-
             }).catch(err => console.log(err))
             offset.current = offset.current + 4;
-        } else {
-            router.push("/login")
-        }
-
+        } 
     }, [router])
     function editFunction() {
         // TODO time period 2 hours from creation time - then only allow

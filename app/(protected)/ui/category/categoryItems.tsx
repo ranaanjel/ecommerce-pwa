@@ -14,17 +14,17 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
 
     let marginValue = useRef<number>(0);
     let debounceValue: React.RefObject<string | number | NodeJS.Timeout | undefined>= useRef<string | number | NodeJS.Timeout | undefined>(undefined);
-
-    let fetchData = useCallback( async function fetchData(observer: IntersectionObserver | undefined) {
+    let observerValue = useRef<IntersectionObserver|undefined>(undefined)
+    let fetchData = useCallback( async function fetchData( footRef:HTMLElement) {
         setFetchLoad(true);
+        console.log("fetching the dataa")
         let url = window.location.origin + "/query/v1/categoryItem/" + category + "?offset=" + marginValue.current;
         let data = await axios.get(url)
-        // console.log(data)
-
-        if (data.data.result.length == 0) {
-            if (footerRef.current && observer) observer.unobserve(footerRef.current);
+   
+        console.log(data.data.result, observerValue.current) 
+        if (data.data.result.length == 0 && observerValue.current !=undefined) {
+            observerValue.current.unobserve(footRef as HTMLElement);
         }
-
         marginValue.current = marginValue.current + 8;
 
         setList((prev) => {
@@ -39,19 +39,23 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
         setFetchLoad(false);
 
         // console.log(data.data.result, marginValue )
-    },[marginValue, category, footerRef])
+    },[marginValue, category, footerRef, observerValue])
     useEffect(function () {
-        fetchData(undefined);
+        fetchData( footerRef.current as HTMLElement);
         let observer = new IntersectionObserver(function (entries) {
             entries.forEach((entry) => {
                 if (entry.isIntersecting) {
+                    console.log("intersecting")
                     clearTimeout(debounceValue.current)
                     debounceValue.current = setTimeout(function () {
-                        fetchData(observer);
+                        fetchData(footerRef.current as HTMLElement);
                     }, 700)
                 }
             })
+
         }, { threshold: [0] })
+
+        observerValue.current = observer;
 
         if (footerRef.current) {
             observer.observe(footerRef.current)
@@ -60,8 +64,9 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
 
         return function () {
             if (currentFooter) observer.unobserve(currentFooter);
+            observer.disconnect();
         }
-    }, [fetchData, fetchLoad, footerRef])
+    }, [fetchData, footerRef])
 
 
     //running on the scroll to the bottom;

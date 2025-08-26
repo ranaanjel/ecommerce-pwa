@@ -20,7 +20,7 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
         let deDounceClear:React.RefObject<any>=useRef(undefined)
 
 
-        let fetchData = useCallback(async function () {
+        let fetchData = useCallback(async function (observer:IntersectionObserver, footerRef:HTMLElement) {
                 SetLoading(true)
                 let url = window.location.origin;
                 console.log("fetching the data")
@@ -46,9 +46,11 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
                 }
                 setTimeout(function () {
                         SetLoading(false)
-                }, 700)
+                }, 1000)
 
-                console.log(result)
+                if(result.length == 0) {
+                        observer.unobserve(footerRef)
+                }
         },[dataOffset ])
 
         useEffect(function () {
@@ -61,7 +63,7 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
                                         //debouncing
                                         clearTimeout(deDounceClear.current)
                                         deDounceClear.current = setTimeout(function () {
-                                                fetchData()
+                                                fetchData(observer, footerRef.current as HTMLElement)
                                         }, 800)
                                 }
                         })

@@ -90,16 +90,27 @@ const options = {
             }
             return session;
         },
-        async signIn({ user }: { user: any }) {
+        async signIn({ user, account }: { user: any, account?:any }) {
 
             let db = (await client).db("cart");
             let session = db.collection("sessions");
-            let userObjectId = ObjectId.createFromHexString(user.id);
-            const sessionsToDelete = await session.find({ userId:userObjectId }).toArray();
-console.log("Sessions to delete:", sessionsToDelete);
+            let userObjectId;
+            console.log(user, account?.provider)
 
-           let datareturn=  await session.deleteMany({ userId: userObjectId  })
-           console.log(datareturn)
+            if(account?.provider == "credentials") {
+                 userObjectId = ObjectId.createFromHexString(user.id);
+            }else {
+                 if(user.id.includes("-")) {
+
+                 }else {
+                    userObjectId = ObjectId.createFromHexString(user.id);
+                 }
+            }
+//             const sessionsToDelete = await session.find({ userId:userObjectId }).toArray();
+// console.log("Sessions to delete:", sessionsToDelete);
+
+            const datareturn =  await session.deleteMany({ userId: userObjectId  })
+        //    console.log(datareturn)
 
             return true;
         }

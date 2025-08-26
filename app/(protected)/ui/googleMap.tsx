@@ -68,7 +68,7 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
                     reverseGeoCode((latitude).toFixed(6), (longitude).toFixed(6))
                 }, async () => {
                     //in case of failure
-                    alert("hello world")
+                    // alert("hello world")
                     const data = await axios.get(window.location.origin + "/query/ipapi");
                     const latitude = data.data.lat
                     const longitude = data.data.lng;

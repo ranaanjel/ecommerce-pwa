@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import clsx from "clsx";
 import { ChevronLeftIcon } from "@radix-ui/react-icons";
+import { InfoValue, InsertData, registerUser, UpdateUser } from "@/actions/databaseCall";
 
 interface AddressDetailsProps {
   userId: string;
@@ -20,97 +21,151 @@ export default function AddressDetails({
   const [shopDetails, setShopDetails] = useState("");
   const [pincode, setPincode] = useState("");
   const [tag, setTag] = useState("");
+  const [additionalNo, setAdditonalNo] = useState("");
   const [requiredFilled, setRequiredFilled] = useState(true);
   const [deliveryInstructions, setDeliveryInstructions] = useState("");
   const [receiver, setReceiver] = useState<"staff" | "manager" | null>(null);
-  let params = useSearchParams()
+  let params = useSearchParams();
+  let [error, setError] = useState(false);
+  let [errorMessage, setErrorMessage
+  ] = useState("");
+
+  let [errorNu, setErrorNu] = useState(false);
+  let [errorMessageNu, setErrorMessageNu
+  ] = useState("");
+  let [isPending, startTransition] = useTransition();
 
   const handleBack = () => {
     router.back();
   };
 
-  const handleSaveAddress = () => {
+  const handleSaveAddress =  async () => {
     // Here you would typically save the address details to your backend
-    if (pincode.length != 6 || shopDetails.length == 0 || receiver == null || tag.length == 0) {
+
+
+
+    if (pincode.length != 6 || shopDetails.length == 0 || receiver == null || tag.length == 0 || (!!additionalNo && additionalNo.length !=10 ) || (additionalNo.length == 10 && additionalNo.match(/[^0-9]/))) {
+
+
       setRequiredFilled(false);
+      if(additionalNo) {
+        setErrorNu(true);
+        setErrorMessageNu("Please add proper number")
+      }
       return;
     }
 
-    //checking if the tag of the address is given then updating instead of creating it.
-    // in the backend.
-
-
-    console.log({
-      userId, address, addressValue,
-      shopDetails, pincode,
-      deliveryInstructions,
-      receiver, tag,
-    }, params.get("restaurantName"), params.get("restaurantType"), params.get("deliveryTiming"), params);
-    //saving all values in the database with address type default, address tag - address 1.
-    //address 1 , address 2 and address 3 -- array storing.
-    //pushing everything to the backend about the address.
-
+    let searchValue = "restaurantName=" + params.get("restaurantName") + "&restaurantType=" + params.get("restaurantType") + "&deliveryTiming=" + params.get("deliveryTiming") + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + deliveryInstructions + "&address=" + addressValue + "&type=" + "return" + "&default=" + params.get("default") + "&additionalNo=" + additionalNo;
 
     //checking here if the address is where are delivering to or not and then providing the things.
     //pincode
-    console.log(params.get("callback"))
+    
     if (params.get("callback")) {
-
-      let searchValue = "restaurantName=" + params.get("restaurantName") + "&restaurantType=" + params.get("restaurantType") + "&deliveryTiming=" + params.get("deliveryTiming") + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + deliveryInstructions + "&address=" + addressValue + "&type=" + "return" + "&default=" + params.get("default");
+ 
       //checking on the tag if exist or not in the database.
       //either modify or new value is created -- the routine is the same.
 
       //TODO ; pushing to the database and then 
       // waiting for the database callback and then only going to their
       //error throwing in case of the value is not valid  -- not deliverying and other things from the backend.
-
-      //making the data is updated before 
+       
+      const callback = params.get("callback");
 
       if (!params.get("callback")?.includes("/dashboard/crate")) {
         //i.e from account/address/userid --> fetching the latest and newest value  
 
-        if (params.get("type") == ("create")) {
+        if (params.get("type") == "create") {
           const callback = params.get("callback");
-          if (callback) {
+          
+          let data = await InsertData("new-address", "?"+ searchValue); 
+          console.log(data)
+          if(data == "tag:already") {
+            setError(true);
+            setErrorMessage("Tag Already Exist")
+            return;
+          }
+
+          if (data&&callback) {
             router.push(callback.split("/").slice(0, callback.split("/").length - 2).join("/"));
           }
+
           return;
+        }else {
+          // modify one from the account/address
+          let data = await UpdateUser("modify-address","?"+searchValue);
+          if(data == "tag:not-exist") {
+            setError(true);
+            setErrorMessage("No Such Exist in the data")
+            return;
+          }
+          if(data) {
+            router.push(params.get("callback")!)
+          }
+          return
         }
-        router.push(params.get("callback")!)
-        return
+      }else {
+        //crate
+        if (params.get("type") == "create") {
+          
+          let data = await InsertData("new-address", "?"+ searchValue); 
+          console.log(data)
+          if(data == "tag:already") {
+            setError(true);
+            setErrorMessage("Tag Already Exist")
+            return;
+          }
+
+          if (data&&callback) {
+            router.push("/dashboard/crate");
+          }
+
+          return;
+        }else {
+          // modify one from the account/address
+          let data = await UpdateUser("modify-address","?"+searchValue);
+          if(data == "tag:not-exist") {
+            setError(true);
+            setErrorMessage("No Such Exist in the data")
+            return;
+          }
+          if(data) {
+            router.push("/dashboard/crate")
+          }
+          return
+        }
+    
       }
-      router.push("/dashboard/crate?" + searchValue);
     }
     //coming soon if not available.
     // right for directing it to the coming soon page.
     // Navigate to the next page in the flow (e.g., dashboard or confirmation)
-    else {
-      router.push(`/not-available`);
-    }
+
+   let data  = await registerUser(userId, searchValue, "address")
+    if(!data) {
+      router.push("/not-available");
+    }else {
+      router.push("/dashboard")
+    } 
   };
 
 
   const handleChangeAddress = () => {
-
-
     if (params.get("type") == "modified") {
-      let searchValue = "restaurantName=" + params.get("restaurantName") + "&restaurantType=" + params.get("restaurantType") + "&deliveryTiming=" + params.get("deliveryTiming") + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + deliveryInstructions + "&address=" + addressValue + "&type=" + "modified" + "&default=" + params.get("default") + "&callback=" + params.get("callback");
+      let searchValue = "restaurantName=" + params.get("restaurantName") + "&restaurantType=" + params.get("restaurantType") + "&deliveryTiming=" + params.get("deliveryTiming") + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + deliveryInstructions + "&address=" + addressValue + "&type=" + "modified" + "&default=" + params.get("default") +"&additionalNo="+additionalNo + "&callback=" + params.get("callback");
 
       router.push(`/users/${userId}/address?` + searchValue);
     } else if (params.get("type") == "create") {
-
-      let searchValue = "restaurantName=" + params.get("restaurantName") + "&restaurantType=" + params.get("restaurantType") + "&deliveryTiming=" + params.get("deliveryTiming") + "&type=create" + "&callback=" + params.get("callback");
-
-
+      let searchValue = "restaurantName=" + params.get("restaurantName") + "&restaurantType=" + params.get("restaurantType") + "&deliveryTiming=" + params.get("deliveryTiming") +  "&type=create" + "&callback=" + params.get("callback");
       router.push(`/users/${userId}/address?` + searchValue);
-
     } else {
-
-      router.push(`/users/${userId}/address`);
+      let searchValue = "restaurantName=" + params.get("restaurantName") + "&restaurantType=" + params.get("restaurantType") + "&deliveryTiming=" + params.get("deliveryTiming") ;
+      router.push(`/users/${userId}/address?`+searchValue);
     }
 
   };
   useEffect(function () {
+
+
     if (!params.get("restaurantName")) {
       router.push("/registration/" + userId)
     }
@@ -123,21 +178,31 @@ export default function AddressDetails({
     // in the search params defining the creating or modifying value.
     if (params.get("type")) {
       if (params.get("type") == "modified") {
-        setTag(decodeURI(params.get("tag") || ""))
-        setPincode(decodeURI(params.get("pincode") || ""))
-        setShopDetails(decodeURI(params.get("shopDetails") || ""))
-        setDeliveryInstructions(decodeURI(params.get("instruction") || ""))
-        const receiverValue = decodeURI(params.get("receiver") || "")
+
+        setTag(decodeURI(params.get("tag") || ""));
+        setPincode(decodeURI(params.get("pincode") || ""));
+        setShopDetails(decodeURI(params.get("shopDetails") || ""));
+        setDeliveryInstructions(decodeURI(params.get("instruction") || ""));
+        setAdditonalNo(decodeURI(params.get("additionalNo") || ""))
+        
+        const receiverValue = decodeURI(params.get("receiver") || "");
+
         if (receiverValue === "staff" || receiverValue === "manager") {
           setReceiver(receiverValue);
         } else {
           setReceiver("staff");
         }
+      
         setAddressValue(decodeURI(params.get("address") || "shop no 7"))
-        console.log(params.get("address"))
+        //console.log(params.get("address"))
       } else {
-        setTag("Adress n")//doing the fetch from the db
+        //create 
+
+       startTransition(async function () {
+        let returnData = await InfoValue("totalAddress");
+         setTag("Address "+(Number(returnData)+1))//doing the fetch from the db
         setAddressValue(decodeURI(params.get("address") || "shop no 7"))
+       })
         //making sure we are doing it TODO
         //TODO
       }
@@ -190,7 +255,7 @@ export default function AddressDetails({
           <div className="flex gap-2 mt-2 items-center pr-2 justify-between">
             <div className="self-start text-[#B4B4B4] text-[13px] font-normal  ml-8 w-[70%]">
               {addressValue ||
-                "Shop No. 11, DDA Market, near indraprastha world school A 2 Block, Paschim Vihar, Delhi, 110063"}
+                ""}
             </div>
             <div
               onClick={handleChangeAddress}
@@ -228,7 +293,8 @@ export default function AddressDetails({
             placeholder="Enter Pincode"
           />
           <div className="text-[#5F5B5B] text-[14px] mt-3  mb-3">
-            Tag <span className="text-red-500">*</span>:
+            Tag <span className="text-red-500">* : 
+              {error && <span>{errorMessage}</span>}</span> 
           </div>
           <input
             type="tel"
@@ -236,6 +302,18 @@ export default function AddressDetails({
             onChange={(e) => setTag(e.target.value)}
             className="rounded-[5px] bg-[rgba(223,241,255,0.61)] self-stretch  text-thin w-full h-[43px] px-3"
             placeholder="Eg : Address 1 , Shop or Home "
+          />
+
+           <div className="text-[#5F5B5B] text-[14px] mt-3  mb-3">
+            Additional No <span className="text-red-500">* : 
+              {errorNu && <span>{errorMessageNu}</span>}</span> 
+          </div>
+          <input
+            type="tel"
+            value={additionalNo}
+            onChange={(e) => setAdditonalNo(e.target.value)}
+            className="rounded-[5px] bg-[rgba(223,241,255,0.61)] self-stretch  text-thin w-full h-[43px] px-3"
+            placeholder="Eg : xxxxx-xxxxx "
           />
 
           <div className="mt-[13px]">Additional delivery instruction</div>

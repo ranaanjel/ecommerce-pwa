@@ -57,7 +57,7 @@ export default function UserLocation({ userId }: UserLocationProps) {
   const handleConfirm = () => {
     // Navigate to the next page in the flow
     // This could be a dashboard or order page
-    console.log(params.get("type"))
+    // console.log(params.get("type"))
     if (params.get("type")== 'modified') {
 
       if (address == "Address") {
@@ -66,7 +66,7 @@ export default function UserLocation({ userId }: UserLocationProps) {
 
       let searchValue = decodeURI(window.location.search)
       
-      let replaceSearch = searchValue.replace(/address=(.)*?&/, "address=" + address + "&")
+      let replaceSearch = searchValue.replace(/address=(.)*?&/, "address=" + address.replace(/&/g, ",") + "&")
       router.push(`/users/${userId}/address_details?`+ encodeURI(replaceSearch.replace("?", "&")))
 
     } else if (params.get("type") == "create"){
@@ -75,14 +75,14 @@ export default function UserLocation({ userId }: UserLocationProps) {
       }
 
       let searchValue = decodeURI(window.location.search)
-      let replaceSearch = searchValue + "&address="+address;
+      let replaceSearch = searchValue + "&address="+address.replace(/&/g, ",");
       router.push(`/users/${userId}/address_details?`+ encodeURI(replaceSearch.replace("?", "&")))
 
     }
       else {
       let pathValue = `/users/${userId}/address_details?value=`;
 
-      let searchParams = address + window.location.search.replace("?", "&");
+      let searchParams = address.replace(/&/g, ",") + window.location.search.replace("?", "&");
       // console.log(window.location.search)
       let url = encodeURI(pathValue + searchParams)
       //console.log(url)

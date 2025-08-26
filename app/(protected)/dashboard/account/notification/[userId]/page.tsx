@@ -1,14 +1,16 @@
 import { BackButton } from "@/app/(protected)/ui/dashboard/BackButton";
 import { NotificationBody } from "@/app/(protected)/ui/dashboard/notificationBody";
 import { TopBar } from "@/app/(protected)/ui/dashboard/topBar";
+import { notFound } from "next/navigation";
 
-
+//work in progress
 export default async function Page({params}:{params:Promise<{
     userId:string
 }>}) {
 
     let userData = (await params).userId;
 
+    notFound();
 
     return <div>
         <TopBar>

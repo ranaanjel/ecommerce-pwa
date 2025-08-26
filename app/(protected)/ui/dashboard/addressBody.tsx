@@ -1,21 +1,21 @@
 
 "use client"
+import { DeleteAddress, InfoValue } from "@/actions/databaseCall"
 import { UserAddress } from "@/app/(protected)/lib/user-placeholder"
 import { Pencil2Icon } from "@radix-ui/react-icons"
-import axios from "axios"
 import { MapPinCheck, MapPinCheckIcon, MapPinPlus, PinIcon, Trash2Icon } from "lucide-react"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useEffect, useState, useTransition } from "react"
 
 
-export function AddressBody({userId}:{userId:string}){
+export function AddressBody({ userId }: { userId: string }) {
 
 
     let [list, setList] = useState<UserAddress[]>([])
-    const [address, setAddress] = useState("");
     const [restaurantName, setName] = useState("");
     const [restaurantType, setType] = useState("");
     const [deliveryTiming, setTime] = useState("");
+    const [_, startTransition] = useTransition();
 
     //list of address
     const router = useRouter()
@@ -23,26 +23,22 @@ export function AddressBody({userId}:{userId:string}){
     useEffect(function () {
         //fetching the backend and get all the address
 
-        let url = window.location.origin + "/query/v1/user/address/all?userId=" + userId;
-        axios.get(url).then(function (m) {
+        startTransition(async function () {
+            let returnData = await InfoValue("full");
+            let { deliveryTiming, restaurantName, restaurantType } = returnData;
+            setName(restaurantName)
+            setType(restaurantType.join(", "))
+            setTime(deliveryTiming)
 
-            let result = m.data.result;
-            let name = result[0].restaurantName;
-            let type = result[0].restaurantType;
-            let time = result[0].deliveryTiming;
-            setName(name)
-            setType(type)
-            setTime(time)
-            setList(() => {
+            let returnAddress = await InfoValue("allAddress");
+            setList(prev => [...returnAddress]);
 
-                return [...result]
-            })
-        }).catch(err => console.log(err))
+        })
 
 
     }, [userId])
 
-    return <div onClick={() =>{}} className="modal bg-[#ebf6f6] h-screen flex flex-col overflow-scroll ">
+    return <div onClick={() => { }} className="modal bg-[#ebf6f6] h-screen flex flex-col overflow-scroll ">
 
         <div>
 
@@ -55,9 +51,7 @@ export function AddressBody({userId}:{userId:string}){
                 <div className="h-auto w-full flex flex-col gap-3 px-6 ">
                     {
                         list.map((m: UserAddress, index) => {
-                            let restaurantName = m.restaurantName;
-                            let restaurantType = m.restaurantType;
-                            let deliveryTiming = m.deliveryTiming;
+
                             let shopDetails = m.shopDetails;
                             let address = m.address;
                             let pincode = m.pincode;
@@ -65,12 +59,13 @@ export function AddressBody({userId}:{userId:string}){
                             let tag = m.tag;
                             let instruction = m.instruction;
                             let defaultValue = m.default;
+                            let additionalNo = m.additionalNo
 
                             return <div onClick={function () {
 
                             }} className={"flex items-center px-6 h-auto rounded-sm  border gap-3 py-3 border-gray-200 text-gray-500 justify-between bg-white"} key={index}>
                                 <div onClick={function () {
-                                  
+
                                 }} className="flex gap-3 items-center overflow-hidden cursor-pointer">
                                     <div>
                                         <MapPinCheck className=" size-6 h-6 w-6 object-contain"></MapPinCheck>
@@ -85,42 +80,48 @@ export function AddressBody({userId}:{userId:string}){
                                 <div className="flex gap-2">
                                     <div onClick={function () {
 
-                                        let useSearchParams = "restaurantName=" + restaurantName + "&restaurantType=" + restaurantType + "&deliveryTiming=" + deliveryTiming + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + instruction + "&default=" + defaultValue + "&address=" + address + "&type=" + "modified" + "&callback=" + window.location.pathname;
+                                        let useSearchParams = "restaurantName=" + restaurantName + "&restaurantType=" + restaurantType + "&deliveryTiming=" + deliveryTiming + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + instruction + "&default=" + defaultValue + "&address=" + address + "&type=" + "modified" + "&callback=" + window.location.pathname + "&additionalNo=" + additionalNo;
                                         router.push("/users/" + userId + "/address_details?" + useSearchParams)
 
 
                                     }}>
                                         <Pencil2Icon className="size-4 cursor-pointer"></Pencil2Icon>
                                     </div>
-                                    <div className="" onClick={function () {
-                                        console.log("deleting")
-                                        setList(prev => {
-                                            if (prev.length == 1) {
-                                                return prev
-                                            }
+                                    <div className="" onClick={async function () {
+                                        // setList(prev => {
+                                        //     if (prev.length == 1) {
+                                        //         return prev
+                                        //     }
 
-                                            prev = prev.filter(m => m.tag != tag)
-                                            console.log(prev)
-                                            return prev
-                                        })
-                                        setAddress(prev => {
+                                        //     prev = prev.filter(m => m.tag != tag)
+                                        //     return prev
+                                        // })
+                                        // setAddress(prev => {
 
-                                            if (list.length == 1) {
-                                                return prev;
-                                            }
+                                        //     if (list.length == 1) {
+                                        //         return prev;
+                                        //     }
 
-                                            let currentAddress =
-                                                "";
-                                            let i = 0;
-                                            do {
-                                                currentAddress = list[i].address;
-                                                i++;
-                                            } while (currentAddress == address)
-                                            return currentAddress;
-                                        })
+                                        //     let currentAddress =
+                                        //         "";
+                                        //     let i = 0;
+                                        //     do {
+                                        //         currentAddress = list[i].address;
+                                        //         i++;
+                                        //     } while (currentAddress == address)
+                                        //     return currentAddress;
+                                        // })
                                         //deleteing 
                                         //TODO 
                                         // propogating to the database
+
+                                        if (list.length > 1) {
+
+                                            let dataDelete = await DeleteAddress(tag)
+                                            if (dataDelete) {
+                                                router.push("/dashboard/account/");
+                                            }
+                                        }
 
                                     }}>
                                         <Trash2Icon className="size-4 cursor-pointer"></Trash2Icon>
@@ -148,8 +149,8 @@ export function AddressBody({userId}:{userId:string}){
                     <div>
                         8 am - 10 am
                     </div>
-            </div>
-            <div className="fixed bottom-0 h-5 w-full bg-gray-300">
+                </div>
+                <div className="fixed bottom-0 h-5 w-full bg-gray-300">
                 </div>
 
             </div>

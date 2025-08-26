@@ -1,5 +1,5 @@
 "use client"
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { TopBar } from "../ui/dashboard/topBar";
 import { FilledMapIcon } from "../ui/svg/filledMapIcon";
 import { SearchBar } from "../ui/dashboard/searchBar";
@@ -10,24 +10,41 @@ import { dm_sans } from "@/app/(protected)/ui/font";
 import { BottomBar } from "../ui/dashboard/bottomBar";
 import { EachCategory } from "../ui/dashboard/eachCategory";
 import { Footer } from "../ui/dashboard/footer";
+import { InfoValue } from "@/actions/databaseCall";
+import { signOut } from "next-auth/react";
 
 export default function Page() {
+    const [address, setAddress] = useState("");
+    const [isPending, startTransition] = useTransition();
 
-    const [address, setAddress] = useState("")
-
-    const footerRef = useRef<HTMLDivElement | null>(null)
+    const footerRef = useRef<HTMLDivElement | null>(null);
+    const name = useCallback(async function() {
+        let data = await InfoValue("address")
+        return data;
+    },[InfoValue])
 
     //useEffect 
     useEffect(function () {
         //fetching the address from the backend and based on the user id i.e localstorage stored and then saving in the localstorage for the future reference.
         //basic details and other things in the localstorage.
-        setAddress("paschim vihar, delhi")
+        
+        // getting address
+        startTransition(async function () {
+            let data  = await name();
+            if(!data) {
+                setTimeout(function () {
+                    signOut()
+                },1000)
+            }
+            
+            data = data.length > 25 ? data.slice(0,25)+"..." : data;
+            setAddress(data);
+        }) 
 
     }, [])
 
     //having all time - cart logo / preorder list logo to quickly go to their page in case of adding the items from navigating the places.
 
-    console.log("dashboard")
 
 
     return <div className={"bg-[#e7f8ff] min-h-screen w-full pb-18 "+dm_sans.className}>

@@ -21,6 +21,8 @@ export default function OrderId() {
         //fetchingt the data regarding the saving and otherthings.
         // simply getting the orderId and getting the data new set of data.
 
+        //getting the data from the backend -- regarding the order
+
         setTimeout(function () {
             setOrderSummary(prev => {
                 //simulating the fetching from realworld

@@ -4,6 +4,8 @@ import { useState , useEffect, useRef} from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { ChevronDownIcon, ClockIcon } from "@radix-ui/react-icons";
+import { registerUser } from "@/actions/databaseCall";
+import { signOut } from "next-auth/react";
 
 interface RegistrationDetailsProps {
   userId: string;
@@ -25,12 +27,12 @@ export default function RegistrationDetails({
   
   // useEffect for any additional initialization or validation
   useEffect(() => {
-    // You could add validation here to check if the user exists
-    // or if they're authorized to access this page
-    console.log("Registration page loaded for user:", userId);
+
+
+
   }, [userId]);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (
       !restaurantName ||
       !restaurantType ||
@@ -41,18 +43,20 @@ export default function RegistrationDetails({
       setShowError(true);
       return;
     }
-    // we have checked the user id.
-    // Here you would typically save the data to your backend -- user details - preferences to save on the backend.
-    console.log({
-      userId,
-      restaurantName,
-      deliveryTime: ``,
-    });
+    
 
     // Navigate to the next page (dashboard or additional registration steps)
     let type = restaurantType === "others" ? otherType : restaurantType;
     let searchParameter = "restaurantName="+ restaurantName + "&restaurantType="+type+"&deliveryTiming="+`${startTime}-${endTime}`;
-    // console.log(searchParameter)
+
+    
+    let returnData = await registerUser(userId, searchParameter,"registration") 
+
+    if(!returnData) {
+      signOut({redirect:true, redirectTo:"/login"})
+    }
+
+    // registering the user
     router.push("/users/"+userId+"/address?"+searchParameter);
   };
 

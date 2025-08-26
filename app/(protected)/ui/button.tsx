@@ -120,16 +120,16 @@ export function SwipeButton(
         //making sure the current order of the person is not more than 4 times -- checking the users current order when doing
         if((localStorage.getItem(localOrderId) ??  "").length   > 0) {
             let editOrder = localStorage.getItem(localOrderId);
-            //modifying the value
+            //modifying the value -- edit the order value;
             let url = window.location.origin +"/query/v1/userorder/m/"+editOrder;
 
             //getting all data from the props
-            console.log(url)
             await axios.post(url, {
                 data : "modified" // for faster work
             }) //giving the modified value of the information and then getting back the order id.
             // console.log(editOrder)
-             let orderId = editOrder
+            let orderId = editOrder;
+
             setTimeout(function () {
                 router.push("/dashboard/order/"+orderId )
                 setTimeout(function() {
@@ -150,6 +150,7 @@ export function SwipeButton(
         // after creating the order in the db
 
         let url = window.location.origin +"/query/v1/userorder/create";
+        
         axios.post(url, {
             list:[],
             userDetails:[], //includes the address of the current
@@ -184,10 +185,6 @@ export function SwipeButton(
         if (difference < 0) {
             return;
         }
-
-        // console.log(difference, targetValue.style.left, opacity);)
-
-
         if (percentage == 1) {
             function tillEnd() {
                 if (swipeRef.current) {

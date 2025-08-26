@@ -8,19 +8,13 @@ import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Suspense } from "react";
-
-const OrderPageBody = dynamic(() =>
-  import("@/app/(protected)/ui/dashboard/orderPage").then(mod => 
- mod.OrderPageBody
-  )
-)
+import { OrderPageBody } from "@/app/(protected)/ui/dashboard/orderPage";
 
 export default function Page() {
 
 
 
     return <div className="h-screen overflow-hidden text-black">
-
         <TopBar>
             <div className="select-none w-full flex justify-between items-center relative Text-black">
                 <div className="flex flex-start items-center mb-2">
@@ -43,9 +37,6 @@ export default function Page() {
        <Suspense fallback={<SkeletonLoading type="crate"></SkeletonLoading>}>
          <OrderPageBody></OrderPageBody>
        </Suspense>
-
-
-
         <BottomBar></BottomBar>
     </div>
 }

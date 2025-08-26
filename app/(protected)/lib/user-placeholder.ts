@@ -37,6 +37,7 @@ export interface UserAddress {
   pincode: string,
   tag: string,
   additionalNo?: string;// referencing from the profile
+  deliveryAvailable?:boolean;
 }
 
 export const userAll: user[] = [

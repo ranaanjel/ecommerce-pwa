@@ -3,10 +3,11 @@ import { DashIcon } from "@radix-ui/react-icons"
 import clsx from "clsx"
 import { ChevronDownIcon } from "lucide-react"
 import Image from "next/image"
-import { SetStateAction, useEffect, useState } from "react"
+import { SetStateAction, useEffect, useState, useTransition } from "react"
 import { GenericButton } from "../button"
 import axios from "axios"
 import { useRouter } from "next/navigation"
+import { InfoValue, UpdateUser } from "@/actions/databaseCall"
 
 export function ProfileUpdateBody({userId}:{userId:string}){
 
@@ -18,34 +19,43 @@ export function ProfileUpdateBody({userId}:{userId:string}){
     const [ role, setRole] = useState("") // designation 
     const [additionalNumber, setAdditionalNumber] = useState("")
     const [error, setError] = useState(false)
+    const [errorMessage, setErroMessage] = useState("* Required to fill")
     const router = useRouter()
+    const [isPending, startTransition] = useTransition();
 
 
-    function updateHandle() {
+    async function updateHandle() {
 
-        if(restaurantName.length == 0 || restaurantType.length == 0  || deliveryStart > deliveryEnd || representatitve.length == 0 || role.length == 0 ) {
+        if(restaurantName.length == 0 || restaurantType.length == 0  || deliveryStart > deliveryEnd || representatitve.length == 0 || role.length == 0 || (!!additionalNumber && additionalNumber.length != 10)) {
             setError(true)
+            return;
         }
 
         //updating the data at the backend 
         //TODO once the backend is done
+        console.log((!!additionalNumber && additionalNumber.length != 10), !!additionalNumber)
 
-        let url = location.origin + "/query/v1/user/profile/"+userId+"/update";
-        
+        let searchValue = "?restaurantName="+restaurantName+"&restaurantType="+restaurantType.join("--") +"&deliveryTiming="+deliveryStart+"-"+deliveryEnd +"&representativeName="+representatitve +"&role="+role +"&number="+additionalNumber; 
+
+
+        let success = await UpdateUser("restaurant", searchValue);
+    
+        if(!success) {
+            setError(true)
+            setErroMessage("server messsage error");
+            return;
+        }
+
+        setError(false);
         router.back();
-        setError(false)
+
     }
     useEffect(function() {
         //fetching the previous data of the user and then setting up the current value
-        let url = location.origin + "/query/v1/user/profile/"+userId+"?update=true";
-        axios.get(url).then(m => {
-            let data = m.data.result;
-            let resName = data.restaurantName;
-            let resType = data.restaurantType;
-            let representative = data.representative;
-            let deliveryTiming = data.deliveryTiming;
-            let role = data.role;
-            let additionalNo = data.additionalNo;
+        
+        startTransition(async function () {
+            let returnData = await InfoValue("full");
+            let {restaurantName:resName, restaurantType: resType, representativeName:representative, deliveryTiming, role, phone:additionalNo} =returnData;
 
             setRestaurantName(resName)
             setRestaurantType(resType)
@@ -54,10 +64,6 @@ export function ProfileUpdateBody({userId}:{userId:string}){
             setDeliveryEnd(deliveryTiming.split("-")[1])
             setRepresentative(representative)
             setAdditionalNumber(additionalNo)
-
-
-        }).catch(error => {
-            console.log(error)
         })
 
     },[userId])
@@ -70,7 +76,7 @@ export function ProfileUpdateBody({userId}:{userId:string}){
 
     <div className="my-4 flex flex-col gap-4">
         {error && <div className="text-sm text-red-600">
-           * are required to be filled 
+           {errorMessage}
             </div>}
         <InputValue inputValue={restaurantName} setInputValue={setRestaurantName} header="Restaurant Name" placeholder="Enter your Restaurant Name"></InputValue>
         <InputValue inputValue={representatitve} setInputValue={setRepresentative} header="Representative" placeholder="Representative Name"></InputValue>
@@ -108,9 +114,7 @@ export function ProfileUpdateBody({userId}:{userId:string}){
                 <SelectTime defaultValue={deliveryEnd} startTime={deliveryStart} endTime={deliveryEnd} showError={error} setTime={setDeliveryEnd}></SelectTime>
             </div>
         </div>
-
-        <InputValueNum header="Additional Number" placeholder="Extra contact no : eg : 96321-XXXXX" inputValue={additionalNumber} setInputValue={setAdditionalNumber}></InputValueNum>
-
+        <InputValueNum header="Contact Number *" placeholder="contact no : eg : 96321-XXXXX" inputValue={additionalNumber} setInputValue={setAdditionalNumber}></InputValueNum>
     </div>
 
     <div onClick={function() {

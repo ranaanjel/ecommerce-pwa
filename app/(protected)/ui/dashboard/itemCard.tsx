@@ -12,7 +12,7 @@ import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useMemo, 
 
 
 interface ExtraList extends Itemlist {
-    cardType: "category" | "dashboard" | "item" | "preorder" | "preorder-search"|"similar",
+    cardType: "category" | "dashboard" | "item" | "preorder" | "preorder-search" | "similar",
     currentData?: any,
     setOpenModal?: Dispatch<SetStateAction<boolean>>,
     setItemDelete?: Dispatch<SetStateAction<string>>,
@@ -24,18 +24,18 @@ interface ExtraList extends Itemlist {
         "Storage Temperature"?: string,
         "Container"?: string
     },
-    disclaimer?:string,
-    limitValueOrder?:number
+    disclaimer?: string,
+    limitValueOrder?: number
 
 }
 
 export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, setOpenModal, setItemDelete, preorderName }: ExtraList) {
 
-   
+
 
     // let [, setQuantity] = useState(quantity)
-    function reduceFn(state:number, action:{payload?:number}) {
-        if(action.payload) {
+    function reduceFn(state: number, action: { payload?: number }) {
+        if (action.payload) {
             return action.payload;
         }
         return state;
@@ -45,16 +45,16 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
     let [discountPrice, setDiscountPrice] = useState(discountValue)
 
-     let wholeItem = {
+    let wholeItem = {
         name, cardType, brand, mrp, imageURL, buttonURL, quantity,
         primarySize, category, secondarySize, discountPrice, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, preorderName, setOpenModal, setItemDelete,
-        discountValue 
+        discountValue
     }
 
     const crateContext = useContext(CrateContext);
-    const setTotalLength = useMemo(() =>{
+    const setTotalLength = useMemo(() => {
         return crateContext?.setCrateLength ?? (() => { })
-    },[crateContext?.setCrateLength]);
+    }, [crateContext?.setCrateLength]);
 
     useEffect(function () {
         console.log(crateContext?.crateLength)
@@ -63,12 +63,12 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
             setTotalLength(Array.from(Object.keys(JSON.parse(localStorage.getItem(localCrate) as string))).length)
             let localItem = JSON.parse(localStorage.getItem(localCrate) as string);
 
-            if(localItem[name]) {
-                dispatch({payload:localItem[name].quant})
+            if (localItem[name]) {
+                dispatch({ payload: localItem[name].quant })
             }
 
-        }else {
-        setTotalLength(0)
+        } else {
+            setTotalLength(0)
         }
 
     }, [crateContext?.crateLength, name, setTotalLength])
@@ -77,20 +77,20 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
     if (cardType == "category") {
 
-       
- 
+
+
         return <div className={"bg-white relative h-76 w-[100%] rounded-lg flex flex-col "} aria-disabled={outOfStock || comingSoon}>
             <div className="border-b border-gray-200 text-center flex justify-center w-full h-1/3 py-2 items-center ">
-                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className="w-full h-full object-contain" />
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL || "/blur.jpg"} height={150} width={150} alt={name} className="w-full h-full object-contain" />
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL} className="text-xs">{name}</Link>
+                    <Link href={buttonURL ?? ""} className="text-xs">{name}</Link>
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-400">
                             {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
                         </div>
-                        <div className="text-xs text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ?  quant * conversionRate + " " + secondaryUnit : ""} </div>
+                        <div className="text-xs text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ? quant * conversionRate + " " + secondaryUnit : ""} </div>
                     </div>
 
                     <div className="text-sm mt-1">
@@ -107,12 +107,12 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
                                 if (m.superSaver) {
                                     return <div key={index} className="relative">
                                         <div className="bg-logo rounded-t-2xl text-[10px] text-white w-2/3 justify-center items-center gap-1 flex "><BadgeIndianRupee className="size-3 text-white" /> super saver</div>
-                                        <Link href={buttonURL + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
+                                        <Link href={buttonURL ?? "" + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
                                             ₹ {m.price} for {m.quantity + " " + m.unit}
                                         </Link></div>
                                 }
                                 return <div key={index}>
-                                    <Link href={buttonURL + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
+                                    <Link href={buttonURL ?? "" + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
                                         ₹ {m.price} for {m.quantity + " " + m.unit}
                                     </Link></div>
                             })
@@ -148,22 +148,22 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
         if (outOfStock || comingSoon) {
             return <div></div>
         }
-         let border = ""
+        let border = ""
         console.log(window.location.pathname.includes("/item/"), location.pathname)
-        if(window.location.pathname.includes("/item/")) {
+        if (window.location.pathname.includes("/item/")) {
 
             border = " border border-gray-200"
         }
 
 
-        return <div className={"bg-white relative mt-2 h-82 min-w-[52%] w-[52%] max-w-[52%] rounded-lg flex flex-col "+ border}>
+        return <div className={"bg-white relative mt-2 h-82 min-w-[52%] w-[52%] max-w-[52%] rounded-lg flex flex-col " + border}>
             <div className="border-b border-gray-200 text-center flex justify-center w-full min-h-[150px] items-center ">
-                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className="w-[100px] h-[100px] object-contain" />
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL || "/blur.jpg"} height={150} width={150} alt={name} className="w-[100px] h-[100px] object-contain" />
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL}>{name}</Link>
-                    <div className="text-xs text-gray-400">{brand.toLocaleLowerCase() == "generic" ? "" : brand}  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ?  quant * conversionRate + " " + secondaryUnit : ""} </div>
+                    <Link href={buttonURL ?? ""}>{name}</Link>
+                    <div className="text-xs text-gray-400">{brand.toLocaleLowerCase() == "generic" ? "" : brand}  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ? quant * conversionRate + " " + secondaryUnit : ""} </div>
                     <div className="text-sm mt-1">
                         ₹  {discountPrice * quant}  <span className=" line-through text-gray-400 ">{mrp ? " " + mrp * quant : ""} </span>
                     </div>
@@ -176,7 +176,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
                         {
                             offers.slice(0, 2).map((m, index) => {
                                 return <div key={index}>
-                                    <Link href={buttonURL + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
+                                    <Link href={buttonURL ?? "" + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
                                         ₹ {m.price} for {m.quantity + " " + m.unit}
                                     </Link></div>
                             })
@@ -186,7 +186,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button offers={offers} originalDiscountValue={discountValue}setDiscountPrice={setDiscountPrice}imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                    <Button offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -223,16 +223,16 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
         return <div className="bg-white relative h-76 w-[100%] rounded-lg flex flex-col border border-gray-200/80" aria-disabled={outOfStock || comingSoon}>
             <div className="border-b border-gray-200 text-center flex justify-center w-full h-1/3 py-2 items-center ">
-                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className="w-full h-full object-contain" />
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL || "/blur.jpg"} height={150} width={150} alt={name} className="w-full h-full object-contain" />
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL} className="text-xs">{name}</Link>
+                    <Link href={buttonURL ?? ""} className="text-xs">{name}</Link>
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-400">
                             {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
                         </div>
-                        <div className="text-xs text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ?  quant * conversionRate + " " + secondaryUnit : ""} </div>
+                        <div className="text-xs text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ? quant * conversionRate + " " + secondaryUnit : ""} </div>
                     </div>
 
                     <div className="text-sm mt-1">
@@ -249,12 +249,12 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
                                 if (m.superSaver) {
                                     return <div key={index} className="relative">
                                         <div className="bg-logo rounded-t-2xl text-[10px] text-white w-2/3 justify-center items-center gap-1 flex "><BadgeIndianRupee className="size-3 text-white" /> super saver</div>
-                                        <Link href={buttonURL + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
+                                        <Link href={buttonURL ?? "" + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
                                             ₹ {m.price} for {m.quantity + " " + m.unit}
                                         </Link></div>
                                 }
                                 return <div key={index}>
-                                    <Link href={buttonURL + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
+                                    <Link href={buttonURL ?? "" + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
                                         ₹ {m.price} for {m.quantity + " " + m.unit}
                                     </Link></div>
                             })
@@ -264,7 +264,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button offers={offers} originalDiscountValue={discountValue}setDiscountPrice={setDiscountPrice}imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} setCurrentTotal={setCurrentTotal} preorderName={preorderName} fullItem={wholeItem} inList={checkInList} type="preorder-list" primarySize={quant} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                    <Button offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} setCurrentTotal={setCurrentTotal} preorderName={preorderName} fullItem={wholeItem} inList={checkInList} type="preorder-list" primarySize={quant} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -293,16 +293,16 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
         return <div className="bg-white relative h-76 w-[100%] rounded-lg flex flex-col " aria-disabled={outOfStock || comingSoon}>
             <div className="border-b border-gray-200 text-center flex justify-center w-full h-1/3 py-2 items-center ">
-                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className="w-full h-full object-contain" />
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL || "/blur.jpg"} height={150} width={150} alt={name} className="w-full h-full object-contain" />
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL} className="text-xs">{name}</Link>
+                    <Link href={buttonURL ?? ""} className="text-xs">{name}</Link>
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-400">
                             {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
                         </div>
-                        <div className="text-xs text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ?  quant * conversionRate+ " " + secondaryUnit : ""} </div>
+                        <div className="text-xs text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ? quant * conversionRate + " " + secondaryUnit : ""} </div>
                     </div>
 
                     <div className="text-sm mt-1">
@@ -319,12 +319,12 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
                                 if (m.superSaver) {
                                     return <div key={index} className="relative">
                                         <div className="bg-logo rounded-t-2xl text-[10px] text-white w-2/3 justify-center items-center gap-1 flex "><BadgeIndianRupee className="size-3 text-white" /> super saver</div>
-                                        <Link href={buttonURL + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
+                                        <Link href={buttonURL ?? "" + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
                                             ₹ {m.price} for {m.quantity + " " + m.unit}
                                         </Link></div>
                                 }
                                 return <div key={index}>
-                                    <Link href={buttonURL + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
+                                    <Link href={buttonURL ?? "" + "?quantity=" + m.quantity + "&price=" + m.price + "&unit=" + m.unit + `&type=${m.type ? m.type : ""}`} >
                                         ₹ {m.price} for {m.quantity + " " + m.unit}
                                     </Link></div>
                             })
@@ -361,7 +361,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
     }
 
-    
+
 
     return <div>
         items
@@ -369,7 +369,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
 
 }
 
-function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData, inList, preorderName, skip, imageURL, buttonURL, maxOrder, offers}: { type?: "preorder-list" | "crateList", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: any, inList?: boolean, fullItem?: Itemlist, preorderName?: string, setCurrentTotal?: React.Dispatch<SetStateAction<number>>, skip: boolean, imageURL: string, buttonURL: string , parentInputRef?:React.RefObject<HTMLInputElement | null>, maxOrder?:number, offers?:any, setDiscountPrice:React.Dispatch<SetStateAction<number>>, originalDiscountValue:number}) {
+function Button({ changeSaveValue, changeTotalValue, setDiscountPrice, originalDiscountValue, setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData, inList, preorderName, skip, imageURL, buttonURL, maxOrder, offers }: { type?: "preorder-list" | "crateList", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: any, inList?: boolean, fullItem?: Itemlist, preorderName?: string, setCurrentTotal?: React.Dispatch<SetStateAction<number>>, skip: boolean, imageURL: string, buttonURL: string, parentInputRef?: React.RefObject<HTMLInputElement | null>, maxOrder?: number, offers?: any, setDiscountPrice: React.Dispatch<SetStateAction<number>>, originalDiscountValue: number, changeSaveValue?:React.Dispatch<SetStateAction<number>> , changeTotalValue?:React.Dispatch<SetStateAction<number>>}) {
     //managing the cart value in the localstorage for multi page state management?.
     let existingData = useRef<any>("");
     let [quantity, setQuantity] = useState(0)
@@ -391,32 +391,30 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
     // console.log("--- preorder list inside =====", quant, quantity, primarySize, currentQuantity, itemname, "log - 1")
 
     // console.log(quantity, quant, primarySize, itemname, "log-1")
-    if(currentQuantity == 0 ) {
-        if(inputRef.current && quantity > 0) {
-        //changing the value on each render as per the quant value which is a state
-        inputRef.current.value = String(quant);
-        quantity = quant;
-        
-    } else if (quant> primarySize) {
-        quantity = quant;
+    if (currentQuantity == 0) {
+        if (inputRef.current && quantity > 0) {
+            //changing the value on each render as per the quant value which is a state
+            inputRef.current.value = String(quant);
+            quantity = quant;
+
+        } else if (quant > primarySize) {
+            quantity = quant;
+        }
     }
-    }
-   
-    // console.log("--- preorder list inside =====", quant, quantity, primarySize, currentQuantity, itemname, "log - 2")
 
     useEffect(function () {
-       
-        if (localStorage.getItem("crate") ) {
 
-        existingData.current = JSON.parse(localStorage.getItem("crate") as string);
-        if (itemname in existingData.current) {
-            setQuantity(existingData.current[itemname].quant);
-            setItemQuantity({payload:(existingData.current[itemname].quant)});
-        }else if (currentQuantity != 0) {
-            console.log("itemname ", itemname)
-            console.log("current data ", currentQuantity)
-            setItemQuantity({payload:currentQuantity});
-            setQuantity(currentQuantity);
+        if (localStorage.getItem("crate")) {
+
+            existingData.current = JSON.parse(localStorage.getItem("crate") as string);
+            if (itemname in existingData.current) {
+                setQuantity(existingData.current[itemname].quant);
+                setItemQuantity({ payload: (existingData.current[itemname].quant) });
+            } else if (currentQuantity != 0) {
+                console.log("itemname ", itemname)
+                console.log("current data ", currentQuantity)
+                setItemQuantity({ payload: currentQuantity });
+                setQuantity(currentQuantity);
             }
 
         }
@@ -437,7 +435,7 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
         imageURL,
         offers
     }
-    
+
     if (currentPreorderData) {
         currentPreorderData.push(itemData)
 
@@ -460,7 +458,7 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
                 delete localstorageObject[itemname];
             }
             // //console.log("changing", itemname)
-       }
+        }
         localStorage.setItem("crate", JSON.stringify(localstorageObject));
         //  //console.log(localStorage)
     }
@@ -492,65 +490,65 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
         } else return;
     }
 
-    function changePrice(quantityValue:number) {
+    function changePrice(quantityValue: number) {
         //increase, decrease, changevalue
         //checking the offers and getting the prices.
-        let currentPrice = originalDiscountValue ; 
+        let currentPrice = originalDiscountValue;
 
-        if(offers) {
-        //@ts-ignore
-        let listSortedOffer = Array.from(Object.values(offers)).sort((a,b) => (a.quantity - b.quantity))
-        
-        for (var x of listSortedOffer) {
+        if (offers) {
             //@ts-ignore
-            let currQuant = x.quantity ; 
-            //
-            if(quantityValue >= currQuant  ) {
-            //@ts-ignore
-            if(x.unit == unit) currentPrice = x.price
-            }else {
-                break;
+            let listSortedOffer = Array.from(Object.values(offers)).sort((a, b) => (a.quantity - b.quantity))
+
+            for (var x of listSortedOffer) {
+                //@ts-ignore
+                let currQuant = x.quantity;
+                //
+                if (quantityValue >= currQuant) {
+                    //@ts-ignore
+                    if (x.unit == unit) currentPrice = x.price
+                } else {
+                    break;
+                }
             }
-        }
-        // console.log(currentPrice, originalDiscountValue)
-           setDiscountPrice(currentPrice)
-           itemData.discountPrice = currentPrice;
+            // console.log(currentPrice, originalDiscountValue)
+            setDiscountPrice(currentPrice)
+            itemData.discountPrice = currentPrice;
         }
 
-        
+
     }
 
     // console.log(quant, quantity, primarySize, itemname)
 
-   async function increase() {
+    async function increase() {
 
         quant = Number(quant);
         quantity = Number(quantity);
 
-        if(quantity < 0) {
+        if (quantity < 0) {
             quantity = 0;
         }
 
-        let data = await limitSurpass(itemname,quant+quantity, maxOrder || 100)  || false;
+        let data = await limitSurpass(itemname, quant + quantity, maxOrder || 100) || false;
 
-        if(data) {
+        if (data) {
             return
         }
 
-        changePrice(quantity+primarySize)
-        
+        changePrice(quantity + primarySize)
+
         setQuantity(prev => {
             //setItemQuantity(prev+quant)
             console.log("quantity - prev ------", prev)
-            if(prev < 0) {
-                prev =0 ; 
+            if (prev < 0) {
+                prev = 0;
             }
 
             return prev + primarySize;
         })
         // //console.log(quantity)
         //quant is the primary value and quantity is the current quantity.
-        setItemQuantity({payload:primarySize + quantity})
+        setItemQuantity({ payload: primarySize + quantity })
         saveInLocal(primarySize + quantity)
         if (inputRef.current) {
             inputRef.current.value = String(quantity + primarySize);
@@ -564,33 +562,34 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
 
         }
     }
-    function decrease() {    
-        
+    function decrease() {
+
         let difference = quantity - primarySize;
 
 
-        console.log("decrease ----", primarySize + quantity, "quant" + quant , "quantity       " + quantity, "primarySize " + primarySize, "difference  ", difference)
+        console.log("decrease ----", primarySize + quantity, "quant" + quant, "quantity       " + quantity, "primarySize " + primarySize, "difference  ", difference)
 
-        if(difference <= 0) {
+        if (difference <= 0) {
             difference = 0;
             setQuantity(prev => {
                 return 0;
             })
-        }else {
-             setQuantity(prev => {
+        } else {
+            setQuantity(prev => {
                 //console.log(" ---- decreasing the value", prev)
-            return prev - primarySize;
-        } ) }  
-
-        if (difference > 0) {
-            setItemQuantity({payload:difference})
+                return prev - primarySize;
+            })
         }
 
-        changePrice(quantity-primarySize)
+        if (difference > 0) {
+            setItemQuantity({ payload: difference })
+        }
+
+        changePrice(quantity - primarySize)
         saveInLocal(difference)
-         if (inputRef.current) {
-                    inputRef.current.value = String(quantity - primarySize);
-             }
+        if (inputRef.current) {
+            inputRef.current.value = String(quantity - primarySize);
+        }
 
         if (localStorage.getItem(localCrate)) {
             let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
@@ -603,16 +602,16 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
 
     }
     function changeValue(value: number) {
-        
+
         changePrice(value)
-       
+
         console.log(value)
         setQuantity(prev => {
             return value
         }
         );
         if (value != 0) {
-            setItemQuantity({payload:value});
+            setItemQuantity({ payload: value });
         }
         saveInLocal(value);
     }
@@ -652,40 +651,51 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
 
     }} className={basicColor}>
         <div onClick={function () {
-            let value ;
+            let value;
             if (inputRef.current) {
-                   value = inputRef.current.value ;
-                }
-            if(type == "crateList" && Number(value) == Number(primarySize) ) {
+                value = inputRef.current.value;
+            }
+            if (type == "crateList" && Number(value) == Number(primarySize)) {
                 // do nothing
                 //console.log("end")
-            }else {     
+            } else {
+                let saveMinus = (mrp-discountPrice)*primarySize;
+                let priceMinus = discountPrice*primarySize
                 decrease();
+                if(changeSaveValue && changeTotalValue) {
+                changeSaveValue(prev => {
+                return Number(prev) - Number(saveMinus)
+             })
+             changeTotalValue(prev => {
+                return Number(prev) - Number(priceMinus)
+             })
             }
-            
+
+            }
+
         }} className="w-3/10 p-1 text-center select-none">-</div>
         <input ref={inputRef} defaultValue={quantity} type="phone" onChange={(obj) => {
 
             clearInterval(clearValue);
             clearValue = window.setTimeout(async function () {
-                let data:number = Number(obj.target.value);
+                let data: number = Number(obj.target.value);
 
                 data = (Math.abs(Number(data)))
 
                 let limit = await limitSurpass(itemname, Number(data), maxOrder || 100)
 
-                if(Number(data) < 0) {
+                if (Number(data) < 0) {
                     data = 0
                     if (inputRef.current) {
-                    //console.log(inputRef.current.value)
-                    inputRef.current.value = String(data)
-                    changeValue(Number(data))
-                }
+                        //console.log(inputRef.current.value)
+                        inputRef.current.value = String(data)
+                        changeValue(Number(data))
+                    }
                     return
                 }
 
                 if (limit && inputRef.current) {
-                     inputRef.current.value = "1"
+                    inputRef.current.value = "1"
                     changeValue(1)
                     return;
                 }
@@ -712,8 +722,18 @@ function Button({ setDiscountPrice, originalDiscountValue, setCurrentTotal, full
 
             }, 500);
         }} className="w-4/10 text-center bg-white p-1" />
-        <div onClick={function() {
+        <div onClick={function () {
+            let priceAdded = discountPrice*primarySize
+            let saveAdded = (mrp-discountPrice)*primarySize;
             increase()
+            if(changeSaveValue && changeTotalValue) {
+                changeSaveValue(prev => {
+                return Number(prev)+Number(saveAdded)
+             })
+             changeTotalValue(prev => {
+                return Number(prev)+Number(priceAdded)
+             })
+            }
         }} className="p-1 plus w-3/10 text-center">+</div>
     </div>
 
@@ -729,18 +749,17 @@ function AlreadyInList() {
 
 
 interface extraCrateList extends crateItemInterfaceEach {
-    setCrateList:React.Dispatch<SetStateAction<[string, crateItemInterface][]>>,
-    setSaving:React.Dispatch<SetStateAction<number>>,
-    setTotalPrice:React.Dispatch<SetStateAction<number>>,
-    offers:any
+    setCrateList: React.Dispatch<SetStateAction<[string, crateItemInterface][]>>,
+    setSaving: React.Dispatch<SetStateAction<number>>,
+    setTotalPrice: React.Dispatch<SetStateAction<number>>,
+    offers: any
 }
 
-export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemname, quant, category, unit, discountPrice, mrp, skip, primarySize, imageURL, buttonURL , offers}: extraCrateList) {
+export function CrateItemCard({ setSaving, setTotalPrice, setCrateList, itemname, quant, category, unit, discountPrice, mrp, skip, primarySize, imageURL, buttonURL, offers }: extraCrateList) {
 
 
-    // //console.log(primarySize, quant, itemname)
-    function reduceFn(state:string, action:{payload?:string}) {
-        if(action.payload) {
+    function reduceFn(state: string, action: { payload?: string }) {
+        if (action.payload) {
             return action.payload;
         }
         return state;
@@ -753,48 +772,50 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
     const crateContext = useContext(CrateContext);
     const setLength = crateContext?.setCrateLength ?? (() => { });
 
-   
-    useEffect(function() {
-        if(!skip) {
-        let localItem = JSON.parse(localStorage.getItem(localCrate) as string);
-            if(localItem[itemname]) {
-                dispatch({payload:localItem[itemname].quant})
+    useEffect(function () {
+        if (!skip) {
+            //getting from localstorage
+            let localItem = JSON.parse(localStorage.getItem(localCrate) as string);
+            if (localItem[itemname]) {
+                dispatch({ payload: localItem[itemname].quant })
             }
         }
     }, [itemname, skip])
 
-     if (skip) {
+    if (skip) {
         return <div></div>
     }
 
     return <div onClick={function () {
-        let save =0;
-        let price = 0;
+        // too costly for it do when the crate is huge but pattern;
 
-         if ( localStorage.getItem(localCrate)) {
-            
-            let localObject = JSON.parse(localStorage.getItem(localCrate) as string);
-            Array.from(Object.values(localObject)).forEach((m, index) =>  {
-                const item = m as crateItemInterfaceEach;
-                let totalPrice = item.quant * item.discountPrice;
-                let totalSaving = item.quant*item.mrp - totalPrice;
+        // let save =0;
+        // let price = 0;
 
-                save += totalSaving;
-                price +=totalPrice;
-            })
 
-            setSaving(save) 
-            setTotalPrice(price)
-                    
-        }
-        
+        //     let localObject = JSON.parse(localStorage.getItem(localCrate) as string);
+
+        //     Array.from(Object.values(localObject)).forEach((m, index) =>  {
+        //         const item = m as crateItemInterfaceEach;
+        //         let totalPrice = item.quant * item.discountPrice;
+        //         let totalSaving = item.quant*item.mrp - totalPrice;
+
+        //         save += totalSaving;
+        //         price +=totalPrice;
+        //     })
+
+        //     setSaving(save) 
+        //     setTotalPrice(price)
+
+        // }
+
     }} className="bg-white relative mt-2 w-full  flex items-start justify-between ">
         <div className=" flex  w-1/6 justify-center self-center items-center ">
-            <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={itemname} className="w-[50px] h-[50px] object-contain" />
+            <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL || "/blur.jpg"} height={150} width={150} alt={itemname} className="w-[50px] h-[50px] object-contain" />
         </div>
         <div className="py-2 px-4 w-2/6 flex flex-col justify-between text-black ">
             <div className="text-sm w-full whitespace-nowrap overflow-hidden overflow-ellipsis">
-                <Link href={buttonURL}>{itemname}</Link>
+                <Link href={buttonURL ?? ""}>{itemname}</Link>
             </div>
             <div className="text-xs text-gray-500">
                 {primarySize + " " + unit}
@@ -809,23 +830,23 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
         <div className="flex w-2/6   py-2 flex-col gap-2 justify-end items-end">
             {/* //button */}
             <div className="  w-full flex flex-col justify-center gap-2 items-center">
-                <Button offers={offers} originalDiscountValue={discountPrice} setDiscountPrice={setDiscountPrice} type={"crateList"}  setItemQuantity={dispatch} skip={skip} primarySize={parseFloat(primarySize)} mrp={mrp} itemname={itemname} quant={Number(quantityValue)} discountPrice={discountValue} category={category!} unit={unit} imageURL={imageURL} buttonURL={buttonURL} />
-                <div onClick={function (){
-                    setCrateList(prev=> {
-                        let list:crateItemInterface | undefined = prev.find(function (value) {
+                <Button offers={offers} originalDiscountValue={discountPrice} setDiscountPrice={setDiscountPrice} type={"crateList"} setItemQuantity={dispatch} skip={skip} primarySize={parseFloat(primarySize)} mrp={mrp} itemname={itemname} quant={Number(quantityValue)} discountPrice={discountValue} category={category!} unit={unit} imageURL={imageURL} buttonURL={buttonURL} changeSaveValue={setSaving} changeTotalValue={setTotalPrice}/>
+                <div onClick={function () {
+                    setCrateList(prev => {
+                        let list: crateItemInterface | undefined = prev.find(function (value) {
                             return value[0] == category;
-                        })?.[1] 
+                        })?.[1]
 
-                        if(list) {
-                        prev = prev.filter(value => value[0] != category);
-                        list = list?.filter(value => value.itemname != itemname)
-                        if(list.length > 0) {
-                            prev.push([category, list])
-                        }
+                        if (list) {
+                            prev = prev.filter(value => value[0] != category);
+                            list = list?.filter(value => value.itemname != itemname)
+                            if (list.length > 0) {
+                                prev.push([category, list])
+                            }
                         }
                         let newValue = [...prev];
 
-                        if(newValue.length == 0) {
+                        if (newValue.length == 0) {
                             window.location.reload();
                         }
                         // //console.log(newValue)
@@ -833,7 +854,7 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
                     })
 
                     //removing from the localstorage and propagating to the db as well.
-                    if(localStorage.getItem(localCrate)) {
+                    if (localStorage.getItem(localCrate)) {
                         let localObject = JSON.parse(localStorage.getItem(localCrate) as string);
                         delete (localObject[itemname]);
                         localStorage.setItem(localCrate, JSON.stringify(localObject))
@@ -841,8 +862,8 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
                     //db call
 
                 }}>
-                    <Trash2Icon onClick={function() {
-                        setLength(prev => prev-1)
+                    <Trash2Icon onClick={function () {
+                        setLength(prev => prev - 1)
                     }} className="text-red-500 size-4"></Trash2Icon>
                 </div>
             </div>
@@ -854,10 +875,10 @@ export function CrateItemCard({ setSaving , setTotalPrice, setCrateList, itemnam
 
 }
 
-export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData,limitValueOrder, setOpenModal, setItemDelete, preorderName }: ExtraList) {
+export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, limitValueOrder, setOpenModal, setItemDelete, preorderName }: ExtraList) {
 
-    function reduceFn(state:number, action:{payload?:number}) {
-        if(action.payload) {
+    function reduceFn(state: number, action: { payload?: number }) {
+        if (action.payload) {
             return action.payload;
         }
         return state;
@@ -870,34 +891,34 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
 
     let paramsValue = useSearchParams();
 
-    let localData = useCallback(function (discountPrice:string, quantityChange:string) {
+    let localData = useCallback(function (discountPrice: string, quantityChange: string) {
         let itemData = {
-        itemname:name,
-        quant: quantityChange,
-        category,
-        unit,
-        discountPrice,
-        mrp,
-        skip:false,
-        primarySize,
-        buttonURL,
-        imageURL,
-        offers 
-    }
+            itemname: name,
+            quant: quantityChange,
+            category,
+            unit,
+            discountPrice,
+            mrp,
+            skip: false,
+            primarySize,
+            buttonURL,
+            imageURL,
+            offers
+        }
 
-    let localObject = JSON.parse(localStorage.getItem(localCrate) as string) || {};
-    localObject[name] = itemData;
-    localStorage.setItem(localCrate, JSON.stringify(localObject))
-    
-    },[buttonURL, category, imageURL, mrp, name, offers, primarySize, unit])
+        let localObject = JSON.parse(localStorage.getItem(localCrate) as string) || {};
+        localObject[name] = itemData;
+        localStorage.setItem(localCrate, JSON.stringify(localObject))
 
-       useEffect(function() {
+    }, [buttonURL, category, imageURL, mrp, name, offers, primarySize, unit])
+
+    useEffect(function () {
         let localItem = JSON.parse(localStorage.getItem(localCrate) as string);
-            if(localItem[name]) {
-                dispatch({payload:localItem[name].quant});
-            }
+        if (localItem[name]) {
+            dispatch({ payload: localItem[name].quant });
+        }
         //getting the category item list random list - 8 values.
-        axios.get("/query/v1/items/category/"+category).then(m => {
+        axios.get("/query/v1/items/category/" + category).then(m => {
             let data = m.data.result;
             setList(data);
         })
@@ -905,168 +926,169 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
         let quantityFromOffers = (paramsValue.get("quantity"));
         //in casse the unit is different then conversion is required for the items
         let discountValueFromOffers = (paramsValue.get("price"));
-        if(quantityFromOffers && unit == paramsValue.get("unit")) {
-            dispatch({payload:Number(quantityFromOffers)})
+        if (quantityFromOffers && unit == paramsValue.get("unit")) {
+            dispatch({ payload: Number(quantityFromOffers) })
             setDiscountPrice(Number(discountValueFromOffers))
             localData(String(discountValueFromOffers), String(quantityFromOffers))
         }
     }, [unit, paramsValue, name, localData, category])
 
-    
+
 
     return <div className="bg-white relative w-full rounded-lg flex flex-col ">
-            <div className="border-b border-gray-200 text-center flex justify-center w-full h-64 py-2 items-start bg-white">
-                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} height={150} width={150} alt={name} className=" border-black w-[400px] h-[200px] object-contain " />
-            </div>
-            <div className="py-6 px-8 flex-1 flex flex-col justify-between text-black">
-                <div>
-                    <div className="text-xl font-medium">{name}</div>
-                    <div className="flex justify-between text-md items-center">
-                        <div className=" text-gray-400 capitalize">
-                            {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
-                        </div>
-                        <div className="text-lg text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ?  quant * conversionRate + " " + secondaryUnit : ""} </div>
+        <div className="border-b border-gray-200 text-center flex justify-center w-full h-64 py-2 items-start bg-white">
+            <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL || "/blur.jpg"} height={150} width={150} alt={name} className=" border-black w-[400px] h-[200px] object-contain " />
+        </div>
+        <div className="py-6 px-8 flex-1 flex flex-col justify-between text-black">
+            <div>
+                <div className="text-xl font-medium">{name}</div>
+                <div className="flex justify-between text-md items-center">
+                    <div className=" text-gray-400 capitalize">
+                        {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
                     </div>
+                    <div className="text-lg text-gray-400">  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ? quant * conversionRate + " " + secondaryUnit : ""} </div>
+                </div>
 
-                    <div className="text-lg mt-4 justify-between flex">
-                        <div>
-                            ₹  {discountPrice * quant}  <span className=" line-through text-gray-400 ">{mrp ? " " + mrp * quant : ""} </span>
-                        </div>
+                <div className="text-lg mt-4 justify-between flex">
+                    <div>
+                        ₹  {discountPrice * quant}  <span className=" line-through text-gray-400 ">{mrp ? " " + mrp * quant : ""} </span>
+                    </div>
                     {/* //button */}
                     <div className="flex w-1/2 justify-end">
-                    <Button  originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} offers={offers} maxOrder={limitValueOrder} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                        <Button originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} offers={offers} maxOrder={limitValueOrder} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                    </div>
                 </div>
-                    </div>
-                    <div className="text-md text-green-500">
-                        {/* //saving  */}
-                        {savingAmount && mrp && (mrp - discountPrice) != 0 ? "saving ₹ " + (mrp - discountPrice) * quant : ""}
-                    </div>
-                    <div className="text-md text-logo mt-4">
-                        {/* //offers making sure there is only one super saver*/}
-                        {
-                            offers.map((m, index) => {
+                <div className="text-md text-green-500">
+                    {/* //saving  */}
+                    {savingAmount && mrp && (mrp - discountPrice) != 0 ? "saving ₹ " + (mrp - discountPrice) * quant : ""}
+                </div>
+                <div className="text-md text-logo mt-4">
+                    {/* //offers making sure there is only one super saver*/}
+                    {
+                        offers.map((m, index) => {
 
-                                if (m.superSaver) {
-                                    return <div key={index} className="relative ">
-                                        
-                                        
-                                        <div className="bg-logo rounded-t-2xl text-[10px] text-white w-2/3 justify-center items-center gap-1 flex "><BadgeIndianRupee className="size-3 text-white " /> 
+                            if (m.superSaver) {
+                                return <div key={index} className="relative ">
+
+
+                                    <div className="bg-logo rounded-t-2xl text-[10px] text-white w-2/3 justify-center items-center gap-1 flex "><BadgeIndianRupee className="size-3 text-white " />
                                         super saver</div>
 
-                                        <div onClick={function() {
-                                    if(m.unit != unit) {return}
-                                    dispatch({payload:Number(m.quantity)})
-                                    setDiscountPrice(m.price)
-                                    localData(String(m.price), String(m.quantity))
-                                    // changing the price value as well
-                                }} className="bg-[#ebf3f3]  rounded flex justify-between py-2 px-4">
-                                            <div >
+                                    <div onClick={function () {
+                                        if (m.unit != unit) { return }
+                                        dispatch({ payload: Number(m.quantity) })
+                                        setDiscountPrice(m.price)
+                                        localData(String(m.price), String(m.quantity))
+                                        // changing the price value as well
+                                    }} className="bg-[#ebf3f3]  rounded flex justify-between py-2 px-4">
+                                        <div >
                                             ₹ {m.price} for {m.quantity + " " + m.unit}
                                         </div>
-                                         <div  >
-                                        Add {m.quantity + " " + m.unit}
-                                    </div>
+                                        <div  >
+                                            Add {m.quantity + " " + m.unit}
                                         </div>
-                                        
                                     </div>
-                                }
-                                return <div key={index} onClick={function() {
-                                    if(m.unit != unit) {
-                                       //requires extra effor  
-                                        return}
-                                    dispatch({payload:Number(m.quantity)})
-                                    setDiscountPrice(m.price)
-                                    localData(String(m.price), String(m.quantity))
-                                }} className="bg-[#ebf3f3] my-1 rounded flex justify-between  py-2 px-4">
-                                    <div  >
-                                        ₹ {m.price} for {m.quantity + " " + m.unit}
-                                    </div>
-                                     <div  >
-                                        Add {m.quantity + " " + m.unit}
-                                    </div>
-                                    </div>
-                            })
-                        }
-                    </div>
-                    
-                    <div>
-                        <div className="text-xl mt-4">
-                            Product Information :
-                        </div>
-                        {productInfo && Array.from(Object.entries(productInfo)).map((m, index) => {
-                            // console.log(m)
-                               if (m[0] == "Type") {
-                                    m[1] = m[1].replace(/-|_/g, 
-                                        " "
-                                    )
-                                }
-                            return <div key={index} className="flex text-sm">
 
-                             
-
-                                <div>
-                                    {m[0]}
                                 </div>
-                                <div className="font-thin">
-                                    : {m[1]}
+                            }
+                            return <div key={index} onClick={function () {
+                                if (m.unit != unit) {
+                                    //requires extra effor  
+                                    return
+                                }
+                                dispatch({ payload: Number(m.quantity) })
+                                setDiscountPrice(m.price)
+                                localData(String(m.price), String(m.quantity))
+                            }} className="bg-[#ebf3f3] my-1 rounded flex justify-between  py-2 px-4">
+                                <div  >
+                                    ₹ {m.price} for {m.quantity + " " + m.unit}
                                 </div>
-
+                                <div  >
+                                    Add {m.quantity + " " + m.unit}
+                                </div>
                             </div>
                         })
+                    }
+                </div>
+
+                <div>
+                    <div className="text-xl mt-4">
+                        Product Information :
+                    </div>
+                    {productInfo && Array.from(Object.entries(productInfo)).map((m, index) => {
+                        // console.log(m)
+                        if (m[0] == "Type") {
+                            m[1] = m[1].replace(/-|_/g,
+                                " "
+                            )
                         }
-                    </div>
-                      <div>
-                        <div className="text-xl mt-4">
-                            Disclaimer :
+                        return <div key={index} className="flex text-sm">
+
+
+
+                            <div>
+                                {m[0]}
+                            </div>
+                            <div className="font-thin">
+                                : {m[1]}
+                            </div>
+
                         </div>
-                        <div className="text-sm font-thin">
-                            {disclaimer || "The product may not look similar to picture"}
-                        </div>
+                    })
+                    }
+                </div>
+                <div>
+                    <div className="text-xl mt-4">
+                        Disclaimer :
                     </div>
-
+                    <div className="text-sm font-thin">
+                        {disclaimer || "The product may not look similar to picture"}
+                    </div>
                 </div>
-               
+
             </div>
-            
-            {/* //carousel for similar items category */}
-            {/* // TODO later on using the type to get the value */}
 
-            <div className="">
-                <div className="px-8 text-xl font-medium">
-                                    Similar Products
-                </div>
-                <div className="flex gap-2 h-88 overflow-x-scroll w-full overflow-y-hidden pl-6 pr-2 bg-[#ebfefe] rounded-2xl">
-                
-                                                                {/* card list */
-                                                                        list.slice(0,10).map((m: Itemlist, index: number) => {
-                                                                                let name = m.name;
-                                                                                let imageURL = m.imageURL;
-                                                                                let buttonURL = m.buttonURL;
-                                                                                let quantity = m.quantity;
-                                                                                let primarySize = m.primarySize;
-                                                                                let secondarySize = m.secondarySize;
-                                                                                let mrp = m.mrp;
-                                                                                let discountPrice = m.discountValue;
-                                                                                let savingAmount = m.savingAmount;
-                                                                                let offers = m.offers;
-                                                                                let unit = m.unit;
-                                                                                let brand = m.brand;
-                                                                                let secondaryUnit = m.secondaryUnit;
-                                                                                let conversion = m.conversionRate
-                                                                                let outofstock = m.outOfStock;
-                                                                                let comingsoon = m.comingSoon;
-                                                                                let category = m.category;
+        </div>
 
-                                                                                return <ItemCard  category={category} cardType="dashboard" outOfStock={outofstock} comingSoon={comingsoon} key={index} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
-                                                                        })
-                                                                }
-                                                        </div>
+        {/* //carousel for similar items category */}
+        {/* // TODO later on using the type to get the value */}
+
+        <div className="">
+            <div className="px-8 text-xl font-medium">
+                Similar Products
             </div>
-             
+            <div className="flex gap-2 h-88 overflow-x-scroll w-full overflow-y-hidden pl-6 pr-2 bg-[#ebfefe] rounded-2xl">
 
-            <div  className="fixed bottom-0 bg-gray-400/50 w-full h-2 self-end block">
+                {/* card list */
+                    list.slice(0, 10).map((m: Itemlist, index: number) => {
+                        let name = m.name;
+                        let imageURL = m.imageURL;
+                        let buttonURL = m.buttonURL;
+                        let quantity = m.quantity;
+                        let primarySize = m.primarySize;
+                        let secondarySize = m.secondarySize;
+                        let mrp = m.mrp;
+                        let discountPrice = m.discountValue;
+                        let savingAmount = m.savingAmount;
+                        let offers = m.offers;
+                        let unit = m.unit;
+                        let brand = m.brand;
+                        let secondaryUnit = m.secondaryUnit;
+                        let conversion = m.conversionRate
+                        let outofstock = m.outOfStock;
+                        let comingsoon = m.comingSoon;
+                        let category = m.category;
+
+                        return <ItemCard category={category} cardType="dashboard" outOfStock={outofstock} comingSoon={comingsoon} key={index} conversionRate={conversion} name={name} imageURL={imageURL || "/blur.jpg"} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
+                    })
+                }
             </div>
         </div>
+
+
+        <div className="fixed bottom-0 bg-gray-400/50 w-full h-2 self-end block">
+        </div>
+    </div>
 }
 
 //requires extra effort when we try to change the unit ---
@@ -1074,24 +1096,24 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
 // requires the mrp, unit change, discount value (which is there) // i can do it but it will lead to error -- only the primary and secondary size
 // instead having a separate item - for the different carton, bag and othe package thing
 
-async function limitSurpass(item:string, currentValue:number, limitOrder?:number) {
+async function limitSurpass(item: string, currentValue: number, limitOrder?: number) {
     //checking if the item increase above the limit or not 
 
     //for faster sending with item value
     //crate button
     // general item list button
-    if(limitOrder) {
-        if(limitOrder < currentValue) {
+    if (limitOrder) {
+        if (limitOrder < currentValue) {
             return true;
         }
     } else {
-         let limit = await axios.get("/query/v1/items/limit/"+ item)
+        let limit = await axios.get("/query/v1/items/limit/" + item)
 
-    if(limit.data.result < currentValue) {
-        return true;
+        if (limit.data.result < currentValue) {
+            return true;
+        }
     }
-    }
-   
+
     return false;
 }
 

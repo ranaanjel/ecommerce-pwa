@@ -6,7 +6,7 @@ export async function GET(
     // storing the data in the format of the 24 hr format
 
     return NextResponse.json({
-        result: [11,1]
+        result: [17,2]
     });
 }
 //making sure end time is not 12 am 
