@@ -11,6 +11,7 @@ import { ConfirmModal } from "@/app/(protected)/ui/confirmModal";
 import { localPreorder } from "@/app/(protected)/lib/utils";
 import { Trash2Icon } from "lucide-react";
 import { crateItemInterface } from "@/app/(protected)/lib/definitions";
+import { Crate } from "@/actions/databaseCall";
 
 export default function Page() {
     let [data, setData] = useState<Preorder>({
@@ -182,7 +183,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
         </div>
         <div className="h-21 border-t border-gray-200 bg-white fixed bottom-0 p-4 shadow-xs z-10  w-full">
             {/* //add to cart fixed on the page */}
-            <div className="flex justify-between items-center px-8 py-4 text-white bg-logo rounded-sm cursor-pointer text-xl" onClick={function () {
+            <div className="flex justify-between items-center px-8 py-4 text-white bg-logo rounded-sm cursor-pointer text-xl" onClick={ async function () {
                 // making the crate -- localstorage filled with the current list 
                 let localstorageObject;
                 if (!localStorage.getItem("crate")) {
@@ -205,8 +206,10 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                     }
 
                 }
-
-                console.log(localstorageObject)
+                //TODO --> adding only the values required --> skip, quant and itemID
+                await Crate(Array.from(Object.values(localstorageObject)))
+                
+               
                localStorage.setItem("crate", JSON.stringify(localstorageObject));
                 // console.log(localStorage.getItem("crate"))
                 // value and redirecting to the /dashboard/crates

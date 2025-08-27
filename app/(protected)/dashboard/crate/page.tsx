@@ -52,8 +52,10 @@ export default function Page() {
     const [totalPrice, setTotalPrice] = useState(0)
     const [noTime, setNoTime] = useState(false);
     const [orderPlace, setOrderPlace] = useState(false);
+    const [returnMessage, setReturnMessage] = useState("Placing your order");
 
     const [crateId, setCrateId] = useState("");
+    const [type, setType] = useState("")
 
     const router = useRouter();
     const params = useSearchParams();
@@ -77,50 +79,15 @@ export default function Page() {
 
             setUserId(userId as string)
 
-            // if (params.get("type") == "return") {
-            //     let restaurantName = params.get("restaurantName") || "";
-            //     let restaurantTypeParam = params.get("restaurantType");
-            //     let restaurantType = restaurantTypeParam
-            //         ? Array.isArray(restaurantTypeParam)
-            //             ? restaurantTypeParam
-            //             : [restaurantTypeParam]
-            //         : [""];
-            //     let deliveryTiming = params.get("deliveryTiming") || "";
-            //     let shopDetails = params.get("shopDetails") || "";
-            //     let address = params.get("address") || "";
-            //     let pincode = params.get("pincode") || "";
-            //     let receiverParam = params.get("receiver");
-            //     let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
-            //     let tag = params.get("tag") || "";
-            //     let instruction = params.get("instruction")?.split(",") || [];
-            //     let defaultValue = params.get("default") === "true";
-
-            //     //pushing to the database with the user id --creation -- already in the address-details
-            //     console.log("create--crate")
-            //     setDetails(() => {
-            //         let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue ?? false }
-            //         return value;
-            //     });
-            //     setAddress(address);
-            //     setInstruction(prev => {
-            //         if (!prev) {
-            //             return [...instruction]
-            //         }
-
-            //         return [...prev, ...instruction]
-            //     })
-            // } else 
             if (params.get("type") == "edit") {
 
                 //from /dashboard/order
-
-                console.log("modify--crate")
+                setType("edit")
                 let address = params.get("address") || "";
                 let instruction = params.get("instruction")?.split(",") || [];
                 let receiverParam = params.get("receiver");
                 let receiver: "staff" | "manager" = receiverParam === "manager" ? "manager" : "staff";
                 let tag = params.get("tag") || "";
-
 
                 setDetails(() => {
                     let value: UserAddress = { restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver, tag, instruction, default: true }
@@ -269,6 +236,8 @@ export default function Page() {
                 {
                     length > 0 && <div onClick={function () {
                         setConfirm(true)
+                        setCrateId("")
+                        localStorage.setItem(localOrderId,"")
 
                     }} className="flex items-center gap-2 cursor-pointer">
                         <div className="font-medium bg-logo h-[35px] w-[35px] flex justify-center items-center  rounded-full text-2xl">
@@ -291,13 +260,13 @@ export default function Page() {
                     }
 
                     {
-                        orderId.length > 0 && <div className="flex justify-between items-center border-gray-200 border rounded bg-white py-2 px-4 mt-4 mx-6">
+                        orderId.length > 0 && params.get("type") === "edit" && <div className="flex justify-between items-center border-gray-200 border rounded bg-white py-2 px-4 mt-4 mx-6">
                             <div className="flex justify-center items-center w-[20%] ">
                                 <MessageSquareWarningIcon className="size-8 text-yellow-400"></MessageSquareWarningIcon>
                             </div>
                             <div className="w-[80%] flex flex-col gap-1 items-start justify-start text-gray-600 ">
                                 <div className="w-[95%] ">
-                                    currently editing order : <span className="uppercase text-xs text-yellow-600">{" #" + orderId}</span>
+                                    currently editing order : <span className="uppercase text-xs text-yellow-600">{" #" + orderId.slice(0,16)}</span>
                                 </div>
                                 <div className="text-xs  w-[95%] text-justify  underline rounded-sm text-red-400 ">
                                     upon not completing modification in 10 mins it will discard automatically
@@ -436,7 +405,7 @@ export default function Page() {
 
                 </div>
                 {/* //TODO making sure the instruction are updated in the user next when checking the instruction we default value. */}
-                <CrateBottom crateId={crateId} setOrderPlace={setOrderPlace} disable={disable} totalPrice={totalPrice} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} crateList={crateList} num={length} />
+                <CrateBottom type={type} setReturnMessage={setReturnMessage} crateId={crateId} setOrderPlace={setOrderPlace} disable={disable} totalPrice={totalPrice} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} crateList={crateList} num={length} />
             </div> : <EmptyCrate></EmptyCrate>
         }
         {
@@ -459,7 +428,7 @@ export default function Page() {
                 setAddressModal(false);
             }} setAddress={setAddress} ></AddressModal>
         } {
-            orderPlace && <OrderPlace>
+            orderPlace && <OrderPlace returnMessage={returnMessage}>
 
             </OrderPlace>
         }
@@ -489,18 +458,18 @@ function EmptyCrate() {
     </div>
 }
 
-function OrderPlace() {
+function OrderPlace({returnMessage}:{returnMessage:string}) {
     
     return <div className="flex-col absolute top-0 left-0 w-screen h-screen bg-white/50 z-10 flex justify-center items-center">
             <Image unoptimized src="/order.gif" height={80} width={60} alt="order-loading"></Image>
-            <div className="text-sm font-thin bg-white">
-                Placing Your Order
+            <div className="text-sm font-thin bg-white w-1/2 p-10 text-center">
+                {returnMessage}
             </div>
     </div>
 }
 
 
-function CrateBottom({setOrderPlace,crateId, disable, num, totalPrice, userId, orderId, instruction, details, saving, crateList }: {
+function CrateBottom({type,setReturnMessage,setOrderPlace,crateId, disable, num, totalPrice, userId, orderId, instruction, details, saving, crateList }: {type:string,
     crateId:string,
     num: number;
     totalPrice: number;
@@ -512,6 +481,7 @@ function CrateBottom({setOrderPlace,crateId, disable, num, totalPrice, userId, o
     crateList: [string, crateItemInterface][];
     disable: boolean,
     setOrderPlace:React.Dispatch<SetStateAction<boolean>>
+    setReturnMessage:React.Dispatch<SetStateAction<string>>
 }) {
 
     return <div className="h-18 bg-white select-none shadow-sm w-full z-8 fixed bottom-0">
@@ -526,7 +496,7 @@ function CrateBottom({setOrderPlace,crateId, disable, num, totalPrice, userId, o
             </div>
 
             {/* //swipe to confirm */}
-            <SwipeButton crateId={crateId} setOrderPlace={setOrderPlace} disable={disable} totalPrice={totalPrice} orderId={orderId} instruction={instruction} details={details} saving={saving} from="Swipe To Confirm" to="Delivery Confirmed">
+            <SwipeButton type={type} setReturnMessage={setReturnMessage} crateId={crateId} setOrderPlace={setOrderPlace} disable={disable} totalPrice={totalPrice} orderId={orderId} instruction={instruction} details={details} saving={saving} from="Swipe To Confirm" to="Delivery Confirmed">
             </SwipeButton>
 
         </div>

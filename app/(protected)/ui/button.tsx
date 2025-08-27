@@ -45,7 +45,8 @@ export function SwipeButton(
         details,
         saving,
         disable,
-        setOrderPlace
+        setOrderPlace,
+        setReturnMessage,type
     }: {
         from: string,
         to: string,
@@ -58,6 +59,8 @@ export function SwipeButton(
         saving: number;
         disable: boolean,
         setOrderPlace: React.Dispatch<SetStateAction<boolean>>
+        setReturnMessage: React.Dispatch<SetStateAction<string>>,
+        type:string
     }
 ) {
 
@@ -122,7 +125,7 @@ export function SwipeButton(
 
         //TODO : 
         //making sure the current order of the person is not more than 4 times -- checking the users current order when doing
-        if ((localStorage.getItem(localOrderId) ?? "").length > 0) {
+        if (type=="edit") {
             let editOrder = localStorage.getItem(localOrderId);
             //modifying the value -- edit the order value;
             let url = window.location.origin + "/query/v1/userorder/m/" + editOrder;
@@ -153,6 +156,12 @@ export function SwipeButton(
                     router.push("/dashboard/crate");
                     return;
                 }
+                if(dataOrderReturn == "only allowed 4 order at a time, in case of requirement please edit your current orders or contact company"){
+                    setReturnMessage(dataOrderReturn);
+                    setTimeout(()=> {router.push("/dashboard")},2000)
+                    return;
+                }
+
                 let orderId = dataOrderReturn;
                 console.log(orderId, "------- return value");
 

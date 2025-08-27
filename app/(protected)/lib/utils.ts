@@ -5,4 +5,5 @@ export const localPreorder = "preorder-list"
 export const localCrate = "crate"
 export const localRecentSearch = "recentSearch"
 export const localId = "userId"
-export const localOrderId = "orderId"
+export const localOrderId = "crateId"
+export const timePeriod = [17,2]

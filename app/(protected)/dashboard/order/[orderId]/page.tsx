@@ -1,4 +1,5 @@
 "use client"
+import { getOrder } from "@/actions/databaseCall";
 import { GenericButton } from "@/app/(protected)/ui/button";
 import { BackButton } from "@/app/(protected)/ui/dashboard/BackButton";
 import { BottomBar } from "@/app/(protected)/ui/dashboard/bottomBar";
@@ -6,28 +7,39 @@ import { TopBar } from "@/app/(protected)/ui/dashboard/topBar";
 import { SkeletonLoading } from "@/app/(protected)/ui/skeletons";
 import { Dot, GripIcon, LayoutGrid, ScanBarcode, ScanBarcodeIcon, ShoppingBagIcon, ShoppingCart } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 
 export default function OrderId() {
 
     let params = useParams();
     let orderId = params.orderId?.slice(0,16);
+    let [isPending,startTransition ] = useTransition();
 
-    let [orderSummary, setOrderSummary] = useState<{ saving: string, restaurantName: string, address: string, createdAt: string, orderTiming: string, deliveryDate: string, instruction: string[], fetch: boolean }>({ saving: "200", restaurantName: "Khadak singh da dhaba", address: "Shop No. 11, DDA Market, near INDRAPRASTHA WORLD SCHOOL A 2 Block, Paschim Vihar Delhi, 110063", createdAt: "June 26, 2025 @ 10:02 pm", orderTiming: "10 am - 11 am", deliveryDate: "June 26, 2025", instruction: ["must call before delivery", "delivery on time"], fetch: false })
+    interface orderInterface { saving: string, restaurantName: string, address: string, createdAt: string, orderTiming: string, deliveryDate: string, instruction: string[], fetch: boolean }
+
+    let [orderSummary, setOrderSummary] = useState<orderInterface>({ saving: "200", restaurantName: "Khadak singh da dhaba", address: "Shop No. 11, DDA Market, near INDRAPRASTHA WORLD SCHOOL A 2 Block, Paschim Vihar Delhi, 110063", createdAt: "June 26, 2025 @ 10:02 pm", orderTiming: "10 am - 11 am", deliveryDate: "June 26, 2025", instruction: ["must call before delivery", "delivery on time"], fetch: false })
 
     useEffect(function () {
-        let url = window.location.origin + "/query/v1/";
-        //fetchingt the data regarding the saving and otherthings.
-        // simply getting the orderId and getting the data new set of data.
 
         //getting the data from the backend -- regarding the order
+        startTransition(async () => {
+            let returnCurrentOrder:orderInterface = await getOrder("current", params.orderId as string) as orderInterface;
+
+            console.log(returnCurrentOrder)
+            if(!returnCurrentOrder.restaurantName) {
+                return ;
+            }
+            setOrderSummary( () => {
+                //simulating the fetching from realworld
+                return returnCurrentOrder
+            })
+
+        })
+        
 
         setTimeout(function () {
-            setOrderSummary(prev => {
-                //simulating the fetching from realworld
-                return { ...prev, fetch: true }
-            })
+            
         }, 1000)
 
 

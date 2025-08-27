@@ -36,20 +36,7 @@ export default function VerificationOTP() {
     // Auto-focus next input if current input is filled
   };
 
-  // const handleKeyDown = (
-  //   index: number,
-  //   e: React.KeyboardEvent<HTMLInputElement>,
-  // ) => {
-  //   // Move to previous input on backspace if current input is empty
-  //   if (
-  //     e.key === "Backspace" &&
-  //     !otpValues[index] &&
-  //     index > 0 &&
-  //     inputRefs.current[index - 1]
-  //   ) {
-  //     inputRefs.current[index - 1]?.focus();
-  //   }
-  // };
+
 
   const handleVerify = async () => {
     if (!termsAgreed) {
@@ -69,12 +56,6 @@ export default function VerificationOTP() {
       return;
     }
 
-    // first getting checking if the user exist with the number and on verfication sending the to the dashboard
-    //TODO  -- exist or don't if don't then invitation code is required for the person
-    // if exist the user but we don't have the information about the user then 
-    // all information i.e -- only the name, restaurant and delivery, address as well 
-    // router.push("/registration/<userid>")
-    // getting the user id
   let response = await  signIn("credentials", {
       redirect:false,phone:phoneNo, password
     })

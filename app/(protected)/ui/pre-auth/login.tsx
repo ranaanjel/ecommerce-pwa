@@ -24,7 +24,7 @@ export default function Login() {
     }
     setIsError(false);
     // Handle login/signup logic here
-    // router.push(`/login/${phoneNo}/verification`)
+    router.push(`/login/${phoneNo}/verification`)
   };
 
   return (

@@ -30,7 +30,7 @@ interface ExtraList extends Itemlist {
 
 }
 
-export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, setOpenModal, setItemDelete, preorderName }: ExtraList) {
+export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, setOpenModal, setItemDelete, preorderName }: ExtraList) {
 
 
 
@@ -86,7 +86,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL ?? ""} className="text-xs">{name}</Link>
+                    <Link href={buttonURL ?? ""} className="text-xs capitalize">{name}</Link>
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-400">
                             {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
@@ -163,7 +163,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL ?? ""}>{name}</Link>
+                    <Link href={buttonURL ?? ""} className="capitalize">{name}</Link>
                     <div className="text-xs text-gray-400">{brand.toLocaleLowerCase() == "generic" ? "" : brand}  {quant + " " + unit} {secondarySize && conversionRate && secondaryUnit ? quant * conversionRate + " " + secondaryUnit : ""} </div>
                     <div className="text-sm mt-1">
                         ₹  {discountPrice * quant}  <span className=" line-through text-gray-400 ">{mrp ? " " + mrp * quant : ""} </span>
@@ -228,7 +228,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL ?? ""} className="text-xs">{name}</Link>
+                    <Link href={buttonURL ?? ""} className="text-xs capitalize">{name}</Link>
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-400">
                             {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
@@ -298,7 +298,7 @@ export function ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL
             </div>
             <div className="py-2 px-4 flex-1 flex flex-col justify-between text-black">
                 <div>
-                    <Link href={buttonURL ?? ""} className="text-xs">{name}</Link>
+                    <Link href={buttonURL ?? ""} className="text-xs capitalize">{name}</Link>
                     <div className="flex justify-between items-center">
                         <div className="text-xs text-gray-400">
                             {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}
@@ -401,10 +401,10 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
         }
     }
 
+
     useEffect(function () {
 
         if (localStorage.getItem("crate")) {
-
             existingData.current = JSON.parse(localStorage.getItem("crate") as string);
             if (itemname in existingData.current) {
                 setQuantity(existingData.current[itemname].quant);
@@ -421,7 +421,7 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
 
     }, [currentQuantity, itemname, setItemQuantity]);
 
-    let basicColor = "select-none text-primary w-[90%] bg-sky-300/40 text-sm justify-between items-center flex rounded-lg border-1 border-primary"
+    let basicColor = "select-none text-primary w-[90%] bg-sky-300/40 text-sm justify-between items-center flex rounded-lg border-2 border-primary"
     let itemData = {
         itemname,
         quant: toShow ? 0 : quantity,
@@ -435,6 +435,9 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
         imageURL,
         offers
     }
+
+    console.log(itemData)
+   
 
     if (currentPreorderData) {
         currentPreorderData.push(itemData)
@@ -461,7 +464,7 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
 
             // //console.log("changing", itemname)
         }
-        let crateReturnId: string = await Crate(localstorageObject) as string;
+        let crateReturnId: string = await Crate(Array.from(Object.values(localstorageObject))) as string;
 
         setCrateId(crateReturnId)
         localStorage.setItem("crateId", crateReturnId)
@@ -730,8 +733,6 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
             let priceAdded = discountPrice * primarySize
             let saveAdded = (mrp - discountPrice) * primarySize;
 
-
-
             increase()
             if (changeSaveValue && changeTotalValue) {
                 changeSaveValue(prev => {
@@ -767,14 +768,14 @@ interface extraCrateList extends crateItemInterfaceEach {
 export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateList, itemname, quant, category, unit, discountPrice, mrp, skip, primarySize, imageURL, buttonURL, offers }: extraCrateList) {
 
 
-    function reduceFn(state: string, action: { payload?: string }) {
+    function reduceFn(state: number, action: { payload?: number }) {
         if (action.payload) {
             return action.payload;
         }
         return state;
     }
 
-    const [quantityValue, dispatch] = useReducer(reduceFn, itemname);
+    const [quantityValue, dispatch] = useReducer(reduceFn, quant);
     const [discountValue, setDiscountPrice] = useState<number>(discountPrice);
 
 
@@ -802,7 +803,7 @@ export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateLi
             <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL || "/blur.jpg"} height={150} width={150} alt={itemname} className="w-[50px] h-[50px] object-contain" />
         </div>
         <div className="py-2 px-4 w-2/6 flex flex-col justify-between text-black ">
-            <div className="text-sm w-full whitespace-nowrap overflow-hidden overflow-ellipsis">
+            <div className="text-sm w-full whitespace-nowrap overflow-hidden overflow-ellipsis capitalize">
                 <Link href={buttonURL ?? ""}>{itemname}</Link>
             </div>
             <div className="text-xs text-gray-500">
@@ -930,7 +931,7 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
         </div>
         <div className="py-6 px-8 flex-1 flex flex-col justify-between text-black">
             <div>
-                <div className="text-xl font-medium">{name}</div>
+                <div className="text-xl font-medium capitalize">{name}</div>
                 <div className="flex justify-between text-md items-center">
                     <div className=" text-gray-400 capitalize">
                         {brand.toLocaleLowerCase() == "generic" ? "generic" : brand.toLocaleLowerCase()}

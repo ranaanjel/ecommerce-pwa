@@ -104,10 +104,10 @@ export enum deliveryState {
   // triggering the order complete automatically after the 2 hours of delivery.
 }
 export enum OrderState {
-  orderEdit = "Modified Order", //current only
-  cancelOrder = "Cancel Order",
-  orderPlace = "Order Placed", // current only
-  orderComplete = "Order Complete"
+  orderEdit = "order modified", //current only
+  cancelOrder = "order cancelled",
+  orderPlace = "order placed", // current only
+  orderComplete = "order completed"
 }
 
 export interface OrderCollection {
@@ -124,7 +124,6 @@ export interface OrderCollection {
   saving: string,
   orderList: crateItemInterface, //otherwise storing the value
   orderCreationTiming?: number // Date.now() - string format for sorting in case of the mongodb does not do based on the adding
-
 }
 
 //storing the orderList separate as well

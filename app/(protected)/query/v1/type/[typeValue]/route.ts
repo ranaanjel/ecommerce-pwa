@@ -15,7 +15,7 @@ export async function GET(request:NextRequest, {params}:{params:Promise<{typeVal
         result:{type, brand}
     })
     }
-
+    console.log(type)
     return NextResponse.json({
         result:type
     })

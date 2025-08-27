@@ -66,7 +66,7 @@ function ProductItem({ imageURL,itemName, mrp, discountPrice, totalDiscountPrice
         className="object-contain shrink-0 aspect-square w-[25px]"
       />
         <div className="flex flex-col gap-1 text-xs text-black">
-          <div className="font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis w-25  ">{itemName.toLocaleLowerCase()}</div>
+          <div className="font-semibold whitespace-nowrap overflow-hidden overflow-ellipsis w-25 lowercase">{itemName.toLocaleLowerCase()}</div>
             <span className="text-gray-500">{quantity}</span>
         </div>
       </div>
