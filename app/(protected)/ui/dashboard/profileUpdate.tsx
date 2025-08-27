@@ -37,7 +37,7 @@ export function ProfileUpdateBody({userId}:{userId:string}){
 
         let searchValue = "?restaurantName="+restaurantName+"&restaurantType="+restaurantType.join("--") +"&deliveryTiming="+deliveryStart+"-"+deliveryEnd +"&representativeName="+representatitve +"&role="+role +"&number="+additionalNumber; 
 
-
+        console.log(representatitve)
         let success = await UpdateUser("restaurant", searchValue);
     
         if(!success) {

@@ -50,6 +50,10 @@ export default function Page() {
     const setLength = useMemo(() => crateContext?.setCrateLength ?? (() => { }), [crateContext?.setCrateLength]);
     const [saving, setSaving] = useState(0);
     const [totalPrice, setTotalPrice] = useState(0)
+    const [noTime, setNoTime] = useState(false);
+    const [orderPlace, setOrderPlace] = useState(false);
+
+    const [crateId, setCrateId] = useState("");
 
     const router = useRouter();
     const params = useSearchParams();
@@ -282,7 +286,7 @@ export default function Page() {
                 <div className="h-screen overflow-scroll bg-[#ebf6f6] pb-32 ">
 
                     {
-                        startPeriod != endPeriod && <CountDownComponent setDisableButton={setDisable} startPeriod={startPeriod} endPeriod={endPeriod}></CountDownComponent>
+                        startPeriod != endPeriod && <CountDownComponent setNoTime={setNoTime} setDisableButton={setDisable} startPeriod={startPeriod} endPeriod={endPeriod}></CountDownComponent>
 
                     }
 
@@ -403,7 +407,7 @@ export default function Page() {
                                             let offers = value.offers;
 
                                             return <div key={index} >
-                                                <CrateItemCard offers={offers} setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}
+                                                <CrateItemCard setCrateId={setCrateId} offers={offers} setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}
                                                 ></CrateItemCard>
                                             </div>
 
@@ -432,7 +436,7 @@ export default function Page() {
 
                 </div>
                 {/* //TODO making sure the instruction are updated in the user next when checking the instruction we default value. */}
-                <CrateBottom disable={disable} totalPrice={totalPrice} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} crateList={crateList} num={length} />
+                <CrateBottom crateId={crateId} setOrderPlace={setOrderPlace} disable={disable} totalPrice={totalPrice} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} crateList={crateList} num={length} />
             </div> : <EmptyCrate></EmptyCrate>
         }
         {
@@ -451,9 +455,13 @@ export default function Page() {
             }} setInstruction={setInstruction} setInstructionModal={setInstructionModal}></InstructionModal>
         }
         {
-            addressModal && <AddressModal disableButton={setDisable} details={details} setInstruction={setInstruction} setAddressModal={setAddressModal} setDetails={setDetails} userId={userId} onclick={function () {
+            addressModal && <AddressModal noTime={noTime} disableButton={setDisable} details={details} setInstruction={setInstruction} setAddressModal={setAddressModal} setDetails={setDetails} userId={userId} onclick={function () {
                 setAddressModal(false);
             }} setAddress={setAddress} ></AddressModal>
+        } {
+            orderPlace && <OrderPlace>
+
+            </OrderPlace>
         }
 
     </div>
@@ -481,8 +489,19 @@ function EmptyCrate() {
     </div>
 }
 
+function OrderPlace() {
+    
+    return <div className="flex-col absolute top-0 left-0 w-screen h-screen bg-white/50 z-10 flex justify-center items-center">
+            <Image unoptimized src="/order.gif" height={80} width={60} alt="order-loading"></Image>
+            <div className="text-sm font-thin bg-white">
+                Placing Your Order
+            </div>
+    </div>
+}
 
-function CrateBottom({ disable, num, totalPrice, userId, orderId, instruction, details, saving, crateList }: {
+
+function CrateBottom({setOrderPlace,crateId, disable, num, totalPrice, userId, orderId, instruction, details, saving, crateList }: {
+    crateId:string,
     num: number;
     totalPrice: number;
     userId: string;
@@ -491,7 +510,8 @@ function CrateBottom({ disable, num, totalPrice, userId, orderId, instruction, d
     details: UserAddress;
     saving: number;
     crateList: [string, crateItemInterface][];
-    disable: boolean
+    disable: boolean,
+    setOrderPlace:React.Dispatch<SetStateAction<boolean>>
 }) {
 
     return <div className="h-18 bg-white select-none shadow-sm w-full z-8 fixed bottom-0">
@@ -506,7 +526,7 @@ function CrateBottom({ disable, num, totalPrice, userId, orderId, instruction, d
             </div>
 
             {/* //swipe to confirm */}
-            <SwipeButton disable={disable} totalPrice={totalPrice} crateList={crateList} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} from="Swipe To Confirm" to="Delivery Confirmed">
+            <SwipeButton crateId={crateId} setOrderPlace={setOrderPlace} disable={disable} totalPrice={totalPrice} orderId={orderId} instruction={instruction} details={details} saving={saving} from="Swipe To Confirm" to="Delivery Confirmed">
             </SwipeButton>
 
         </div>
@@ -612,7 +632,7 @@ function InstructionModal({ instructionValue, clickHandle, setInstruction, setIn
     </div>
 
 }
-function AddressModal({disableButton, userId, details, setDetails, onclick, setAddress, setAddressModal, setInstruction }: { onclick: () => void, setAddress: React.Dispatch<SetStateAction<string>>, setInstruction: React.Dispatch<SetStateAction<string[]>>, userId: string, setDetails: React.Dispatch<SetStateAction<UserAddress>>, setAddressModal: React.Dispatch<SetStateAction<boolean>>, details: UserAddress, disableButton:React.Dispatch<SetStateAction<boolean>> }) {
+function AddressModal({noTime,disableButton, userId, details, setDetails, onclick, setAddress, setAddressModal, setInstruction }: { onclick: () => void, setAddress: React.Dispatch<SetStateAction<string>>, setInstruction: React.Dispatch<SetStateAction<string[]>>, userId: string, setDetails: React.Dispatch<SetStateAction<UserAddress>>, setAddressModal: React.Dispatch<SetStateAction<boolean>>, details: UserAddress, disableButton:React.Dispatch<SetStateAction<boolean>>, noTime:boolean }) {
 
     let [list, setList] = useState<UserAddress[]>([])
     let [isPending, startTransition] = useTransition();
@@ -686,8 +706,9 @@ function AddressModal({disableButton, userId, details, setDetails, onclick, setA
                                     if(!deliveryAvailable) {
                                         disableButton(true)
                                     }else {
-
-                                        disableButton(false)
+                                        if(!noTime) {
+                                            disableButton(false)
+                                        }
                                     }
                                     
                                     setInstruction([...instruction])
@@ -762,7 +783,7 @@ function AddressModal({disableButton, userId, details, setDetails, onclick, setA
     </div>
 }
 
-function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { startPeriod: number, endPeriod: number, setDisableButton?: React.Dispatch<SetStateAction<boolean>> }) {
+function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButton }: {setNoTime:React.Dispatch<SetStateAction<boolean>>, startPeriod: number, endPeriod: number, setDisableButton?: React.Dispatch<SetStateAction<boolean>> }) {
     //rate updates before 5 pm
     //evening 5 pm to 2 am 
 
@@ -787,6 +808,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
             if (currentHour < startPeriod && currentHour > endPeriod) {
                 clearInterval(clearTime.current)
                 setNoOrder(true)
+                setNoTime(true)
                 if (setDisableButton) { setDisableButton(true) }
                 return;
             }
@@ -810,6 +832,7 @@ function CountDownComponent({ startPeriod, endPeriod, setDisableButton }: { star
 
             if (currentHour < startPeriod) {
                 setNoOrder(true)
+                setNoTime(true)
                 if (setDisableButton) { setDisableButton(true) }
                 clearInterval(clearTime.current)
                 return;

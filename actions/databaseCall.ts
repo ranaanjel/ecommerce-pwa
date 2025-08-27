@@ -3,6 +3,8 @@ import { auth } from "@/auth";
 import { client } from "@/db";
 import { ObjectId } from "mongodb";
 import { URL } from "url";
+import { nanoid } from "nanoid";
+import { addDays } from "date-fns";
 
 export async function UserDataInfo(userId: string) {
     let objectId = new ObjectId(userId);
@@ -104,15 +106,23 @@ export async function registerUser(userId: string, query: string, onPage: string
             "additionalNo": "",
             "deliveryAvailable": false, // using the for the crate - not able to confirm the delivery.
         })
+        let categoryPricingObjectId = await db.collection("categoryPricing").findOne({
+            default:true
+        })
+        let defaultPreOrderCard = (await db.collection("defaultpreorderlists").find({}).toArray()).map(m => m.id)
+        //creating the default preorder for the user and assigning them here.
         await consumerData.insertOne({
             "userId": objectId,
             "restaurantName": restaurantName,
             "representativeName": "representative",
             "representativeDesignation": "owner",
             "restaurantType": [restaurantType],
-            "categoryPricingId": "",
+            "categoryPricingId": categoryPricingObjectId?._id, // from the default set by admin. 
             "createdAt": new Date(),
             "updatedAt": new Date(),
+            "orderHistoryId":[],
+            "preorderCardId":defaultPreOrderCard,
+            "currentCartId":"",
         })
 
     } else if (!address || !data && onPage == "address") {
@@ -254,30 +264,30 @@ export async function InfoValue(type: string) {
             return false
         }
 
-    }else if (type == "extra-all") {
+    } else if (type == "extra-all") {
         //returning the default address 
 
-        if(returnData && returnAddress) {
-         let restaurantName = (returnData.restaurantName);
-        let restaurantType = returnData.restaurantType.join(", ");
-        let respresentativeName = returnData.representativeName;
-        let respresentativeDesignation = returnData.representativeDesignation;
+        if (returnData && returnAddress) {
+            let restaurantName = (returnData.restaurantName);
+            let restaurantType = returnData.restaurantType.join(", ");
+            let respresentativeName = returnData.representativeName;
+            let representativeDesignation = returnData.representativeDesignation;
 
-        let deliveryTiming =returnAddress.deliveryTiming;
-        let additionalNo =returnAddress.additionalNo
-        let shopDetails =returnAddress.shopDetails 
-        let pincode =returnAddress.pincode;
-        let tag = returnAddress.tag
-        let receiver =returnAddress.receiver;
-        let instruction = returnAddress.instruction
-        let address = returnAddress.address;
-        let defaultValue = true;
-        let deliveryAvailable = returnAddress.deliveryAvailable;
+            let deliveryTiming = returnAddress.deliveryTiming;
+            let additionalNo = returnAddress.additionalNo
+            let shopDetails = returnAddress.shopDetails
+            let pincode = returnAddress.pincode;
+            let tag = returnAddress.tag
+            let receiver = returnAddress.receiver;
+            let instruction = returnAddress.instruction
+            let address = returnAddress.address;
+            let defaultValue = true;
+            let deliveryAvailable = returnAddress.deliveryAvailable;
 
-        return {restaurantName, restaurantType, deliveryTiming, additionalNo, shopDetails, pincode, tag, receiver, instruction, address, default:defaultValue, deliveryAvailable}
-     }else {
-        return false;
-     }
+            return { restaurantName, restaurantType, deliveryTiming, additionalNo, shopDetails, pincode, tag, receiver, instruction, address, default: defaultValue, deliveryAvailable }
+        } else {
+            return false;
+        }
     }
     return true;
 }
@@ -296,7 +306,7 @@ export async function UpdateUser(type: string, search: string) {
     let objectId = new ObjectId(userId as string);
 
     let returnAddress = await consumerAddress.findOne({
-        userId: objectId,default:true
+        userId: objectId, default: true
     })
     let returnProfile = await consumerProfile.findOne({
         _id: objectId
@@ -308,17 +318,19 @@ export async function UpdateUser(type: string, search: string) {
     if (type == "restaurant") {
         let restaurantName = (searchParams.get("restaurantName"));
         let restaurantType: string[] = (searchParams.get("restaurantType"))?.split("--") as string[];
-        let respresentativeName = (searchParams.get("representativeName"));
-        let respresentativeDesignation = (searchParams.get("role"));
+        let representativeName = (searchParams.get("representativeName"));
+        //representativeName
+        let representativeDesignation = (searchParams.get("role"));
         let deliveryTiming = (searchParams.get("deliveryTiming"));
         let phoneNo = (searchParams.get("number"));
 
         if (returnAddress && returnProfile && returnData) {
+
             await consumerData.updateOne({
                 userId: objectId
             }, {
                 $set: {
-                    restaurantName, respresentativeDesignation, respresentativeName, restaurantType: Array.from(new Set([...restaurantType, ...returnData.restaurantType]))
+                    restaurantName, representativeDesignation, representativeName, restaurantType: Array.from(new Set([...restaurantType, ...returnData.restaurantType]))
                 }
             })
 
@@ -370,7 +382,7 @@ export async function UpdateUser(type: string, search: string) {
             }, {
                 $set: {
                     deliveryTiming, additionalNo, shopDetails,
-                    pincode, receiver, instruction, address, default: defaultValue == "true"?true:false, deliveryAvailable: deliveryReturn
+                    pincode, receiver, instruction, address, default: defaultValue == "true" ? true : false, deliveryAvailable: deliveryReturn
                 }
             })
         } else {
@@ -393,7 +405,7 @@ export async function InsertData(type: string, search: string) {
     let objectId = new ObjectId(userId as string);
 
     let returnAddress = await consumerAddress.findOne({
-        userId: objectId, default:true
+        userId: objectId, default: true
     })
     let returnProfile = await consumerProfile.findOne({
         _id: objectId
@@ -407,7 +419,7 @@ export async function InsertData(type: string, search: string) {
         let restaurantName = (searchParams.get("restaurantName"));
         let restaurantType: string[] = (searchParams.get("restaurantType"))?.split("--") as string[];
         let respresentativeName = (searchParams.get("representativeName"));
-        let respresentativeDesignation = (searchParams.get("role"));
+        let representativeDesignation = (searchParams.get("role"));
 
         let deliveryTiming = (searchParams.get("deliveryTiming"));
         let additionalNo = (searchParams.get("additionalNo"));
@@ -461,16 +473,165 @@ export async function DeleteAddress(tag: string) {
     let db = (await client).db("cart");
     let backendURL = process.env.BACKEND_URL!;
     let consumerAddress = db.collection("consumeraddresses");
-  
+
 
     let session = await auth();
     let userId = session?.user?.id;
     let objectId = new ObjectId(userId as string);
 
     await consumerAddress.deleteOne({
-        tag, userId:objectId
+        tag, userId: objectId
     })
-    
+
 
     return true;
+}
+
+export async function PlaceOrder(type: string, crateId: string, tag: string, instruction: string[], totalSave?: number, totalValue?: number) {
+
+    //save and total value can't go negative
+    //making sure the crateId when order is done - current to false and adding total value;
+
+    let db = (await client).db("cart");
+    let backendURL = process.env.BACKEND_URL!;
+    let consumerAddress = db.collection("consumeraddresses");
+    let consumerData = db.collection("consumerdatas");
+
+    let crate = db.collection("crates");
+    let order = db.collection("orders");
+
+
+
+    let session = await auth();
+    let userId = session?.user?.id;
+    let objectId = new ObjectId(userId as string);
+    let returnAddress = await consumerAddress.findOne({
+        tag, userId: objectId
+    })
+     let returnData = await consumerAddress.findOne({
+         userId: objectId
+    })
+    // console.log(instruction)
+    // creating a new order
+    if (type == "new") {
+        let currentCrate = await crate.findOne({
+            customerId: objectId, current: true
+        });
+        if (currentCrate && returnAddress) {
+             await crate.updateOne({
+                _id: currentCrate._id
+            }, {
+                $set: {
+                    current: false,
+                    totalValue,
+                    updatedAt:new Date()
+                }
+            })
+            let orderId = "ORD-" + (new Date()).getFullYear()+"-" + nanoid();
+
+            let currentTime = new Date();
+            let deliveryDate: Date | null = null;
+            let currentHour = currentTime.getHours();
+            if (currentHour <= 23) {
+                deliveryDate = addDays(currentTime, 1)
+            } else {
+                deliveryDate = new Date();
+            }
+
+            let orderObjectToPut = {
+                userAddressId: returnAddress._id,
+                "orderId": orderId,
+                "userId": objectId,
+                "createOrderTime": new Date(),
+                "deliveryStatus": "order received",
+                "orderStatus": "order placed",
+                "deliveryDate": deliveryDate as Date,
+                "totalValue": totalValue,
+                "saving": totalSave,
+                "orderList": currentCrate._id,
+            }
+                await consumerAddress.updateOne({
+                    tag, userId:objectId, _id:returnAddress._id
+                },{
+                    $set : {
+                        instruction  // hard code changing the instructions
+                    }
+                })
+            let returnOrderData = await order.insertOne(orderObjectToPut)
+            await consumerData.updateOne({
+                userId: objectId, orderHistoryId: { $exists: true, $type: "array" }
+            }, {
+                $set: {
+                    currentCartId: null,
+                    orderHistoryId: Array.isArray(returnData?.orderHistoryId)? [...returnData.orderHistoryId, returnOrderData.insertedId ]:[returnOrderData.insertedId]
+                }
+            })
+            return returnOrderData.insertedId.toString();
+
+        }  
+    }
+    // editing the place order
+
+    // cancel the order
+ 
+}
+
+export async function Crate(list: Record<string, any>) {
+    // two types -- creating , existing -- if the crate id exists
+
+    // temporary -- currently only storing 
+    let db = (await client).db("cart");
+    let backendURL = process.env.BACKEND_URL!;
+    let crateData = db.collection("crates");
+    let consumerData = db.collection("consumerdatas");
+
+
+    let session = await auth();
+    let userId = session?.user?.id;
+    let objectId = new ObjectId(userId as string);
+
+    //beware of clients side -- making logic in the frontend itself;
+
+    let returnCrate = await crateData.findOne({
+        customerId: objectId, current: true
+    })
+
+    // console.log(returnCrate, list)
+
+    // filter the data --> items an array object --> itemId, quant, skip, id(optional)
+
+    //data to add list
+    if (!returnCrate) {
+        // creating a new one 
+        let objectTopPut = {
+            customerId: objectId,
+            current: true,
+            items: list,
+            createdAt: new Date(),
+            updatedAt: new Date()
+        }
+        let returnNewCrate = await crateData.insertOne(objectTopPut);
+        await consumerData.updateOne({
+            userId:objectId
+        },{
+            $set: {
+                currentCartId:returnNewCrate.insertedId
+            }
+        })
+
+        //returning the id
+        return returnNewCrate.insertedId?.toString();
+    } else {
+        // already the current exist so simply updating the current one
+        let objectToUpdate = {
+            items: list,
+            updatedAt: new Date()
+        }
+        await crateData.updateOne({
+            current: true, customerId: objectId, _id: returnCrate._id
+        }, { $set: objectToUpdate });
+        //return the id
+
+        return returnCrate?._id.toString();
+    }
 }
