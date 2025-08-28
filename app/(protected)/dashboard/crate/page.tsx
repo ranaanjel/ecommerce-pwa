@@ -1,7 +1,7 @@
 "use client"
 import { CrateContext } from "@/app/(protected)/ui/rootLayoutClient";
 import { UserAddress } from "@/app/(protected)/lib/user-placeholder";
-import { localCrate, localId, localOrderId } from "@/app/(protected)/lib/utils";
+import { editId, localCrate, localId, localOrderId } from "@/app/(protected)/lib/utils";
 import { GenericButton, SwipeButton } from "@/app/(protected)/ui/button";
 import { ConfirmModal } from "@/app/(protected)/ui/confirmModal";
 import { BackButton } from "@/app/(protected)/ui/dashboard/BackButton";
@@ -66,8 +66,9 @@ export default function Page() {
         if (data) {
             let userId = data.user?.id;
 
-            if (localStorage.getItem(localOrderId)) {
-                setOrderId(localStorage.getItem(localOrderId) ?? "")
+            if (localStorage.getItem(editId) != "") {
+                setOrderId(localStorage.getItem(editId) ?? "")
+                setType("edit") ;
             }
             // getting start and end period 
             const url = location.origin + "/query/v1/order/timing";
@@ -103,13 +104,16 @@ export default function Page() {
                 })
 
                 //order id for edit
-                if (localStorage.getItem(localOrderId)) {
-                    setOrderId(localStorage.getItem(localOrderId) ?? "")
+                localStorage.setItem(editId, params.get("orderId") as string);
+
+                if (localStorage.getItem(editId)) {
+                    setOrderId(localStorage.getItem(editId) ?? "")
                     clearTimeout(clearTime.current);
                     clearTime.current = setTimeout(function () {
                         setOrderId("")
-                        localStorage.setItem(localOrderId, "")
+                        // localStorage.setItem(localOrderId, "") // not required crate since it is default true in db - unique value
                         localStorage.setItem(localCrate, "{}")
+                        localStorage.setItem(editId,"")
                         location.reload();
                     }, 1000 * 60 * 10)
                 } else {
@@ -117,10 +121,7 @@ export default function Page() {
                 }
 
             } else if (params.get("type") == "repeat") {
-
-
-                //from /dashboard/order
-
+                // only -- creating a new crate and then making sure we are adding to the list
                 let address = params.get("address") || "";
                 let instruction = params.get("instruction")?.split(",") || [];
                 let receiverParam = params.get("receiver");
@@ -178,12 +179,12 @@ export default function Page() {
         //     e.preventDefault();
         //     e.returnValue = "Are you sure you want to leave ?"
         // })
-
+            // data items 
         if (localStorage.getItem(localCrate)) {
 
             let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
             let length = Array.from(Object.keys(localObject)).length;
-            // console.log(length)
+     
             setLength(length);
             let totalValue = 0;
             let fullDiscount = 0;
@@ -236,8 +237,9 @@ export default function Page() {
                 {
                     length > 0 && <div onClick={function () {
                         setConfirm(true)
-                        setCrateId("")
-                        localStorage.setItem(localOrderId,"")
+                        setCrateId("");
+                        setOrderId("");
+                        localStorage.setItem(editId,"")
 
                     }} className="flex items-center gap-2 cursor-pointer">
                         <div className="font-medium bg-logo h-[35px] w-[35px] flex justify-center items-center  rounded-full text-2xl">
@@ -260,7 +262,7 @@ export default function Page() {
                     }
 
                     {
-                        orderId.length > 0 && params.get("type") === "edit" && <div className="flex justify-between items-center border-gray-200 border rounded bg-white py-2 px-4 mt-4 mx-6">
+                        orderId.length > 0 && orderId    && <div className="flex justify-between items-center border-gray-200 border rounded bg-white py-2 px-4 mt-4 mx-6">
                             <div className="flex justify-center items-center w-[20%] ">
                                 <MessageSquareWarningIcon className="size-8 text-yellow-400"></MessageSquareWarningIcon>
                             </div>
@@ -775,7 +777,7 @@ function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButto
         let currentSec = curr.getSeconds();
 
         if (endPeriod < startPeriod) {
-            if (currentHour < startPeriod && currentHour > endPeriod) {
+            if (currentHour <= startPeriod && currentHour >= endPeriod) {
                 clearInterval(clearTime.current)
                 setNoOrder(true)
                 setNoTime(true)
@@ -786,7 +788,6 @@ function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButto
             // let endPeriodTime = new Date(currentYear, currentMonth, currentDate+1, endPeriod);
             let hourDifference;
             if(currentHour < startPeriod) {
-
              hourDifference =   endPeriod - currentHour - 1;
             }else {
 

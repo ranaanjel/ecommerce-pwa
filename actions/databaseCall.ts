@@ -111,7 +111,7 @@ export async function registerUser(userId: string, query: string, onPage: string
         let categoryPricingObjectId = await db.collection("categoryPricing").findOne({
             default: true
         })
-        let defaultPreOrderCard = (await db.collection("defaultpreorderlists").find({}).toArray()).map(m => m.id)
+        let defaultPreOrderCard = (await db.collection("defaultpreorderlists").find({}).toArray()).map(m => m._id)
         //creating the default preorder for the user and assigning them here.
         await consumerData.insertOne({
             "userId": objectId,
@@ -532,7 +532,7 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
         if (currentOrderPrecheck.length >= 4) {
             return "only allowed 4 order at a time, in case of requirement please edit your current orders or contact company";
         }
-        console.log(returnData, returnAddress)
+        // console.log(returnData, returnAddress)
 
         let currentCrate = await crate.findOne({
             customerId: objectId, current: true
@@ -597,10 +597,66 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
         }else {
             return false;
         }
+    }else if(type=="modify") {
+        // get the current crate - convert to default false
+        // orders - document -- changing the status
+        // consumer data - no change we order history added4
+
+        let currentCrate = await crate.findOne({
+            customerId: objectId, current: true
+        });
+        let orderReturnValue = await order.findOne({
+                orderId:crateId
+            })
+
+        let returnAddress = await consumerAddress.findOne({
+            _id:orderReturnValue?.userAddressId
+        })
+
+        console.log(currentCrate, crateId, type, returnAddress)
+
+        if (currentCrate && returnAddress) {
+
+            await crate.updateOne({
+                _id: currentCrate._id
+            }, {
+                $set: {
+                    current: false,
+                    totalValue,
+                    updatedAt: new Date()
+                }
+            }) // changing the current crate false.
+
+           await order.updateOne({
+                orderId:crateId
+            }, {
+                $set:{
+                    orderStatus:"order modified",
+                    orderList:currentCrate._id
+                }
+            }); // creating order
+            await consumerData.updateOne({
+                userId: objectId
+            }, {
+                $set: {
+                    currentCartId: null,
+                }
+            }) // updating the consumer data with the current crate
+            await consumerAddress.updateOne({
+                tag, userId: objectId, _id: returnAddress._id
+            }, {
+                $set: {
+                    instruction  // hard code changing the instructions
+                }
+            })// updating instruction
+
+            return orderReturnValue?._id.toString();
+        }else {
+            return false;
+        }
+
     }
     // editing the place order
-
-    // cancel the order
 
 }
 //   deliveryStatus: { // by the admin
@@ -652,12 +708,14 @@ export async function Crate(list: Record<string, any>) {
             userId: objectId
         }, {
             $set: {
-                currentCartId: returnNewCrate.insertedId
+                currentCartId: returnNewCrate.insertedId // perfect
             }
         })
+        
 
         //returning the id
         return returnNewCrate.insertedId?.toString();
+
     } else {
         // already the current exist so simply updating the current one
         let objectToUpdate = {
@@ -696,12 +754,12 @@ export async function getOrder(type: string, value: string) {
         })
 
         if (!!currentOrder && !!currentData) {
-            console.log("-------------- why")
+         
             let currentAddress = await consumerAddress.findOne({
                 _id: currentOrder.userAddressId
             })
 
-            console.log(currentOrder.userAddressId, "---------------------------------")
+            // console.log(currentOrder.userAddressId, "---------------------------------")
 
             console.log(currentAddress)
             if (currentAddress) {
@@ -850,7 +908,4 @@ export async function orderModify(orderId: string) {
     //export type crateItemInterfaceEach = { category: string, discountPrice: number, itemname: string, mrp: number, quant: number, unit: unit, skip: boolean , primarySize:string, imageURL:string, buttonURL:string};
     //skip here is outofstock value -> SKIP == OUTOFSTOCK
     return { data: returnCrate.items, success: true, instruction: returnAddress.instruction, receiver: returnAddress.receiver, address: returnAddress.address, tag: returnAddress.tag }
-}
-export async function reorderModify(orderId: string) {
-
 }

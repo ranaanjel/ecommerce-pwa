@@ -13,7 +13,7 @@ import { ConfirmModal } from "../confirmModal";
 import { AlertModal } from "../alertModal";
 import { crateItemInterfaceEach } from "@/app/(protected)/lib/definitions";
 import { useSession } from "next-auth/react";
-import { getOrder, orderCancel, orderModify } from "@/actions/databaseCall";
+import { Crate, getOrder, orderCancel, orderModify } from "@/actions/databaseCall";
 
 export function OrderPageBody() {
     const router = useRouter();
@@ -117,6 +117,7 @@ export function OrderPageBody() {
                 localStorage.setItem(localCrate, JSON.stringify(localData));
                 localStorage.setItem(localOrderId, orderIdRef.current)
                 //crate page should not create it ;
+                await Crate(Array.from(Object.values(localData)))
 
                 setTimeout(function () {
                     router.push("/dashboard/crate?type=edit&orderId=" + orderIdRef.current + "&address=" + ModifyReturn.address + "&instruction=" + ModifyReturn.instruction + "&tag=" + ModifyReturn.tag + "&receiver=" + ModifyReturn.receiver);
@@ -152,25 +153,23 @@ export function OrderPageBody() {
     }
     async function reorderFunction() {
 
-        let url = window.location.origin + "/query/v1/order/" + userId + "/" + orderIdRef.current + "/repeat";
+         startTransition(async () => {
+            let ModifyReturn = await orderModify(orderIdRef.current) ; // it is same
 
-        axios.get(url).then(m => {
-
-            let { success, data } = m.data.result;
-
-            if (success) {
+               if (ModifyReturn.success) {
                 alertText.current = "Repeating Order !"
                 setOpenAlert(true)
                 let localData: { [key: string]: crateItemInterfaceEach } = {};
 
-                data.orderList.forEach((m: crateItemInterfaceEach) => {
-                    localData[m.itemname.toLocaleLowerCase()] = m;
+                ModifyReturn.data.forEach((m: crateItemInterfaceEach) => {
+                    localData[m.itemname] = m;
                 })
                 localStorage.setItem(localCrate, JSON.stringify(localData));
                 //crate page should not create it 
+                await Crate(Array.from(Object.values(localData)))
 
                 setTimeout(function () {
-                    router.push("/dashboard/crate?type=repeat&orderId=" + orderIdRef.current + "&address=" + data.address.address + "&instruction=" + data.address.instruction + "&tag=" + data.address.tag + "&receiver=" + data.address.receiver);
+                    router.push("/dashboard/crate?type=repeat&orderId=" + orderIdRef.current + "&address=" + ModifyReturn.address + "&instruction=" + ModifyReturn.instruction + "&tag=" + ModifyReturn.tag + "&receiver=" + ModifyReturn.receiver);
                 }, 500)
             } else {
 
@@ -179,6 +178,8 @@ export function OrderPageBody() {
             }
 
         })
+
+       
 
     }
     return <div className="h-screen overflow-scroll bg-[#ebf6f6] pb-36">

@@ -3,7 +3,7 @@
 import { ChevronsRight, PackageCheckIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { SetStateAction, useContext, useRef, useState, useTransition } from "react";
-import { localCrate, localOrderId } from "../lib/utils";
+import { editId, localCrate, localOrderId } from "../lib/utils";
 import { CrateContext } from "./rootLayoutClient";
 import axios from "axios";
 import { UserAddress } from "../lib/user-placeholder";
@@ -126,27 +126,33 @@ export function SwipeButton(
         //TODO : 
         //making sure the current order of the person is not more than 4 times -- checking the users current order when doing
         if (type=="edit") {
-            let editOrder = localStorage.getItem(localOrderId);
+            let editOrder = localStorage.getItem(editId) ?? "";
+
             //modifying the value -- edit the order value;
-            let url = window.location.origin + "/query/v1/userorder/m/" + editOrder;
 
             //getting all data from the props
-            await axios.post(url, {
-                data: "modified" // for faster work
-            }) //giving the modified value of the information and then getting back the order id.
-            // console.log(editOrder)
-            let orderId = editOrder;
+            console.log("swipe for modify")
+
+            let returnModifyOrder = await PlaceOrder("modify", editOrder as string, "", [""], )
+            let orderId = returnModifyOrder;
+
+            if(!orderId) {
+                return;
+            }
 
             setTimeout(function () {
                 router.push("/dashboard/order/" + orderId)
                 setTimeout(function () {
                     setCrateLength(0)
                     localStorage.setItem(localCrate, "{}")
-                    localStorage.setItem(localOrderId, "")
+                    localStorage.setItem(editId, "")
                 }, 500)
             }, 200)
 
         } else {
+
+
+            console.log("--------------- repeat || new place")
        
             startTransition(async function () {
 
