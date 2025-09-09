@@ -7,6 +7,7 @@ import { nanoid } from "nanoid";
 import { addDays } from "date-fns";
 import { OrderState } from "@/app/(protected)/lib/user-placeholder";
 import { timePeriod } from "@/app/(protected)/lib/utils";
+import { unit } from "@/app/(protected)/lib/placeholder-data";
 
 export async function UserDataInfo(userId: string) {
     let objectId = new ObjectId(userId);
@@ -108,7 +109,7 @@ export async function registerUser(userId: string, query: string, onPage: string
             "additionalNo": "",
             "deliveryAvailable": false, // using the for the crate - not able to confirm the delivery.
         })
-        let categoryPricingObjectId = await db.collection("categoryPricing").findOne({
+        let categoryPricingObjectId = await db.collection("categorypricings").findOne({
             default: true
         })
         let defaultPreOrderCard = (await db.collection("defaultpreorderlists").find({}).toArray()).map(m => m._id)
@@ -146,7 +147,6 @@ export async function registerUser(userId: string, query: string, onPage: string
         let requestURL = process.env.BACKEND_URL! + "/api/v1/user/" + pincode
         // console.log(requestURL)
         let deliveryPossible = await (await fetch(requestURL)).json();
-
 
         await consumerAddress.updateOne({ userId: objectId }, {
             $set: {
@@ -463,7 +463,6 @@ export async function InsertData(type: string, search: string) {
 
         //creating new value
 
-
     }
 
 
@@ -495,7 +494,6 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
     //making sure the crateId when order is done - current to false and adding total value;
 
     let db = (await client).db("cart");
-    let backendURL = process.env.BACKEND_URL!;
     let consumerAddress = db.collection("consumeraddresses");
     let consumerData = db.collection("consumerdatas");
 
@@ -693,13 +691,33 @@ export async function Crate(list: Record<string, any>) {
 
     // filter the data --> items an array object --> itemId, quant, skip, id(optional)
 
+    list = list.map( (m:{
+      "itemname": string,
+      "quant": number,
+      "discountPrice": number,
+      "mrp": number,
+      "skip": boolean,
+    }) => {
+        //sorting the offer based on the quantity
+
+        let mrp = m.mrp;
+        let discount = m.discountPrice;
+        return {    
+            ...m,
+            itemId:m.itemname,
+            skip:m.skip,
+            quant:m.quant,
+            price:[mrp, discount]
+        }
+    })
+
     //data to add list
     if (!returnCrate) {
         // creating a new one 
         let objectTopPut = {
             customerId: objectId,
             current: true,
-            items: list,
+            items: list,//TODO -- only the itemlist id, quant, skip, price : [mrp, discount price]
             createdAt: new Date(),
             updatedAt: new Date()
         }

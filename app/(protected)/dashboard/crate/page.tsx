@@ -389,7 +389,7 @@ export default function Page() {
                             })}
                         </div>
 
-                        <div className="bg-white h-15 flex justify-between items-center border border-gray-200 px-4">
+                        <div className="bg-white h-15 flex justify-between items-center border border-gray-200 px-4 ">
                             <div>Missed Something ?</div>
                             <GenericButton text="Add More Items" onclick={function () {
                                 router.push("/dashboard/category")
@@ -777,7 +777,8 @@ function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButto
         let currentSec = curr.getSeconds();
 
         if (endPeriod < startPeriod) {
-            if (currentHour <= startPeriod && currentHour >= endPeriod) {
+        
+            if (currentHour < startPeriod && currentHour >= endPeriod) {
                 clearInterval(clearTime.current)
                 setNoOrder(true)
                 setNoTime(true)

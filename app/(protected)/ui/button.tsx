@@ -28,7 +28,7 @@ export function GenericButton({ icon, classValue, onclick, text, refValue }: {
         </div>
     }
 
-    return <div ref={refValue} className="bg-logo text-white py-2 px-4 rounded-sm cursor-pointer" onClick={onclick}>
+    return <div ref={refValue} className="bg-logo text-white py-2 px-4 rounded-sm cursor-pointer text-sm md:text-md" onClick={onclick}>
         {text}
     </div>
 }
@@ -218,7 +218,7 @@ export function SwipeButton(
                         swipeRef.current.classList.add("swipe")
                         setDelivered(true)
                         // TODO 
-                        redirect()
+                       redirect()
 
                         // No need to removeEventListener here since React handles event binding
                     }
@@ -253,7 +253,7 @@ export function SwipeButton(
             <div ref={swipeRef} onTouchEnd={() => { }} onTouchStart={() => { }} onTouchMove={() => { }} className={"left-[5px] absolute cursor-pointer size-9 rounded-full  flex justify-center items-center animate-none bg-gray-600 transition origin-[center_right] ease-out duration-700"} >
                 <ChevronsRight className="text-white"></ChevronsRight>
             </div>
-            <div className="flex gap-6 relative z-10">
+            <div className="flex gap-6 relative z-10 items-center">
                 <PackageCheckIcon ref={deliveryRef} className="hide  text-white" />
                 <div className=" text-white" ref={fromTextRef}>
                     {from}
@@ -266,9 +266,9 @@ export function SwipeButton(
         <div ref={swipeRef} onTouchEnd={handleEnd} onTouchStart={handleFirst} onTouchMove={!delivered ? handleTouch : () => { }} className={"left-[5px] absolute cursor-pointer size-9 rounded-full  flex justify-center items-center animate-none bg-lime-600 transition origin-[center_right] ease-out duration-700"} >
             <ChevronsRight className="text-white"></ChevronsRight>
         </div>
-        <div className="flex gap-6 relative z-10">
+        <div className="flex gap-6 relative z-10 items-center justify-center    ">
             <PackageCheckIcon ref={deliveryRef} className="hide  text-white" />
-            <div className=" text-white" ref={fromTextRef}>
+            <div className="text-sm text-white" ref={fromTextRef}>
                 {from}
             </div>
         </div>

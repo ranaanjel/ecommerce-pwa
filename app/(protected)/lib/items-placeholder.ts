@@ -105,7 +105,7 @@ const vegetableList: hardItemList[] = [
         mrp: 60,
         discountValue: 42,
         savingAmount: 18,
-        offers: [{ price: 35, quantity: 5, unit: unit.kg }, { price: 250, quantity: "1", unit: unit.bag, type: "bag" }],
+        offers: [{ price: 35, quantity: 5, unit: unit.kg }, { price: 33, quantity: 10, unit: unit.kg }],
         unit: unit.kg,
         brand: "generic",
         secondaryUnit: unit.none,
