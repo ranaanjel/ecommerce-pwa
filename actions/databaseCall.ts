@@ -144,7 +144,7 @@ export async function registerUser(userId: string, query: string, onPage: string
 
         //checking the pincode; 
         //backend url --
-        let requestURL = process.env.BACKEND_URL! + "/api/v1/user/" + pincode
+        let requestURL = process.env.BACKEND_URL! + pincode
         // console.log(requestURL)
         let deliveryPossible = await (await fetch(requestURL)).json();
 
@@ -199,17 +199,12 @@ export async function InfoValue(type: string) {
     // console.log(userId)
 
     if (type == "address") {
-
         if (returnAddress) {
-
-
             return returnAddress.address;
         }
         return false
     } else if (type == "restaurant") {
         if (returnProfile && returnData) {
-
-
             return {
                 name: returnData.restaurantName, contact: returnProfile.phoneNo, representative: returnData.representativeName
             }
@@ -218,7 +213,7 @@ export async function InfoValue(type: string) {
             return false
         }
     } else if (type == "version") {
-        let url = backendURL + "/api/v1/user/version"
+        let url = backendURL + "version"
         let version = (await (await fetch(url)).json()).version;
         return version || "0.1.0";
     } else if (type == "full") {
@@ -376,7 +371,7 @@ export async function UpdateUser(type: string, search: string) {
                 return "tag:not-exist"
             }
 
-            let deliveryReturn = (await (await fetch(backendURL + "/api/v1/user/" + pincode)).json()).delivery;
+            let deliveryReturn = (await (await fetch(backendURL + "user/" + pincode)).json()).delivery;
 
 
             await consumerAddress.updateOne({
@@ -445,7 +440,7 @@ export async function InsertData(type: string, search: string) {
         }
 
         //
-        let pincodeReturn = (await (await fetch(backendURL + "/api/v1/user/" + pincode)).json()).delivery;
+        let pincodeReturn = (await (await fetch(backendURL + "user/" + pincode)).json()).delivery;
 
         await consumerAddress.insertOne({
             userId: objectId,

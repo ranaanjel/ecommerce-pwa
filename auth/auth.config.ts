@@ -96,18 +96,17 @@ const options = {
             let session = db.collection("sessions");
             let userObjectId;
             console.log(user, account?.provider)
-
+           
             if(account?.provider == "credentials") {
                  userObjectId = ObjectId.createFromHexString(user.id);
             }else {
                  if(user.id.includes("-")) {
-
                  }else {
                     userObjectId = ObjectId.createFromHexString(user.id);
                  }
             }
 //             const sessionsToDelete = await session.find({ userId:userObjectId }).toArray();
-// console.log("Sessions to delete:", sessionsToDelete);
+//             console.log("Sessions to delete:", sessionsToDelete);
 
             const datareturn =  await session.deleteMany({ userId: userObjectId  })
         //    console.log(datareturn)
@@ -120,6 +119,7 @@ const options = {
 
             try {
                 if (params.token?.credentials) {
+                    console.log("creating the session")
                     let sessionToken = randomUUID();
                     let expires = addDays(new Date(), 7);
                     if (!params.token.id) {

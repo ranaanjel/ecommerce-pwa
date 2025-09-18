@@ -17,10 +17,10 @@ export function AccountBody() {
     let { data, status } = useSession()
     let [isPending, startTransition] = useTransition()
 
-    // console.log(data)
-    // if(!data) {
-    //     redirect("/login")
-    // }
+    console.log(data)
+    if(!data) {
+        redirect("/login")
+    }
 
     const [loading, setLoading] = useState(true);
     const [modalConstruction, setModalConstruction] = useState(false);

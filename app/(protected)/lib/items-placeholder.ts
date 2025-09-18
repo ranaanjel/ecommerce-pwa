@@ -1051,7 +1051,7 @@ const cleaningList: hardItemList[] = [
         brand: "generic",
         secondaryUnit: unit.none,
         type: { all: "all", cleaning_consumables: "cleaning tools" },
-        outOfStock: false,
+        outOfStock: false,  
         category: "cleaning_consumables",
         maxOrder: 100
 
@@ -1175,7 +1175,6 @@ const confectionaryList: hardItemList[] = [
         outOfStock: false,
         category: "confectionary_sauces",
         maxOrder: 10
-
     }
 ]
 export const AllItems: Itemlist[] = [...vegetableList, ...rationOilList, ...dairyList, ...packagingList, ...masalaList, ...riceFlourList, ...cleaningList, ...confectionaryList]

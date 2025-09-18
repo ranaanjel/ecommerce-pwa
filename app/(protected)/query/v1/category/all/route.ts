@@ -1,12 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
-import { categoryInformationList } from "@/app/(protected)/lib/placeholder-data";
+import axios from "axios";
+import { auth } from "@/auth";
 //getting the itemlist for each category and information regarding that.
 
 export async function GET(request: NextRequest) {
 
     let result:string[] = []
+    let authValue= await auth();
+    let url = process.env.BACKEND_URL!+"categoryDashboard";
 
-    result = categoryInformationList.map(m => m.name)
+    let dataValue = await axios.get(url,{
+       headers:{
+        "x-user-id":authValue?.user?.id
+       } 
+    });
 
-    return NextResponse.json({result})
+    let resultFromBackend = (dataValue.data.result);
+
+    let success = dataValue.data.success;
+    // console.log(success, resultFromBackend)
+
+    if(success) {
+        let data = (resultFromBackend.map((m:any) => m.name))
+        // i am returning the category list names only
+        // console.log(data)
+        if(data.length == 0 ) {
+             return NextResponse.json({result:[]})
+         }
+    return NextResponse.json({result:data})
+         
+    }
+
+    return NextResponse.error()
 }

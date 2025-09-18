@@ -73,7 +73,7 @@ export default function SearchPage() {
                     //making call to the backend for the data 
                     let url = (window.location.origin);
 
-                    let itemsUrl = url + "/query/v1/items?searchValue=" + value;
+                    let itemsUrl = url + "/query/v1/items/?searchValue=" + value;
 
                     axios.get(itemsUrl).then(m => {
                         let { items, brandList, typeList, categoryList } = m.data.result;
@@ -377,6 +377,7 @@ function SearchList({ list }: { list: Itemlist[] }) {
 
                 {
                     list.slice(0, 6).map(((m, index) => {
+
 
                         return <div onClick={function () {
                             router.push(m.buttonURL)

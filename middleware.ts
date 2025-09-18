@@ -44,9 +44,9 @@ export default async function middleware(request: NextRequest) {
     let session = await auth();
 
     if (!session) {
+        console.log("session redirected", session)
         return NextResponse.redirect(request.nextUrl.origin + "/login")
-    }
-    
+    } 
 
     const response = NextResponse.next();
     if(isAllowedOrigin) {

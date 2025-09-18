@@ -47,12 +47,14 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
 
+  let fontValue = dm_sans.className;
+
   return (
     <html lang="en">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
-      <body className={`${dm_sans.className} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none select-none`}>
+      <body className={`${fontValue} antialiased m-0 bg-[#e7f8ff] text-black overscroll-none select-none`}>
         <RegisterServiceWorker></RegisterServiceWorker>
         <RootChild>
           {children}

@@ -146,11 +146,10 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
 
     if (cardType == "dashboard") {
 
-        if (outOfStock || comingSoon) {
-            return <div></div>
-        }
+        // if (outOfStock || comingSoon) {
+        //     return <div></div>
+        // }
         let border = ""
-        console.log(window.location.pathname.includes("/item/"), location.pathname)
         if (window.location.pathname.includes("/item/")) {
 
             border = " border border-gray-200"
@@ -193,6 +192,17 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
             <div className="bg-gray-400/50 w-full h-2 self-end block">
 
             </div>
+            {outOfStock ? <div className="absolute w-full h-full bg-gray-400/30 flex justify-center items-center">
+                <div className="bg-gray-600 p-2 rounded-sm text-white cursor-not-allowed">
+                    Out Of Stock
+                </div>
+            </div> : null}
+
+            {comingSoon ? <div className="absolute w-full h-full bg-[#EBF6FF]/50 flex justify-center items-center">
+                <div className="bg-logo p-2 rounded-sm text-white">
+                    Coming Soon
+                </div>
+            </div> : null}
         </div>
     }
 
@@ -386,9 +396,6 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
     const crateContext = useContext(CrateContext);
     const setTotalLength = crateContext?.setCrateLength ?? (() => { });
 
-
-    // console.log("--- preorder list inside =====", quant, quantity, primarySize, currentQuantity, itemname, "log - 1")
-
     // console.log(quantity, quant, primarySize, itemname, "log-1")
     if (currentQuantity == 0) {
         if (inputRef.current && quantity > 0) {
@@ -547,8 +554,9 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
             quantity = 0;
         }
 
-        let data = await limitSurpass(itemname, quant + quantity, maxOrder || 100) || false;
+        let data = await limitSurpass(itemname, quantity, maxOrder || 100) || false;
 
+        console.log(data, "adding --------", quant, quantity)
         if (data) {
             return
         }
@@ -612,7 +620,7 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
 
         changePrice(value)
 
-        console.log(value)
+        console.log(value, "----- input")
         setQuantity(prev => {
             return value
         }
@@ -691,14 +699,14 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
 
                 let limit = await limitSurpass(itemname, Number(data), maxOrder || 100)
 
-                if (Number(data) < 0) {
+                if (Number(data) <= 0) {
                     data = 0
                     if (inputRef.current) {
                         //console.log(inputRef.current.value)
-                        inputRef.current.value = String(data)
-                        changeValue(Number(data))
+                         inputRef.current.value = "1"
+                    changeValue(1)
+                    return;
                     }
-                    return
                 }
 
                 if (limit && inputRef.current) {
@@ -736,7 +744,6 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
             increase()
             if (changeSaveValue && changeTotalValue) {
                 changeSaveValue(prev => {
-
                     return Number(prev) + Number(saveAdded)
                 })
                 changeTotalValue(prev => {
@@ -1014,8 +1021,6 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
                         }
                         return <div key={index} className="flex text-sm">
 
-
-
                             <div>
                                 {m[0]}
                             </div>
@@ -1068,8 +1073,9 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
                         let outofstock = m.outOfStock;
                         let comingsoon = m.comingSoon;
                         let category = m.category;
+                        let maxOrder = m.maxOrder;
 
-                        return <ItemCard category={category} cardType="dashboard" outOfStock={outofstock} comingSoon={comingsoon} key={index} conversionRate={conversion} name={name} imageURL={imageURL || "/blur.jpg"} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
+                        return <ItemCard maxOrder={maxOrder} category={category} cardType="dashboard" outOfStock={outofstock} comingSoon={comingsoon} key={index} conversionRate={conversion} name={name} imageURL={imageURL || "/blur.jpg"} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} />
                     })
                 }
             </div>
@@ -1093,12 +1099,13 @@ async function limitSurpass(item: string, currentValue: number, limitOrder?: num
     //crate button
     // general item list button
     if (limitOrder) {
-        if (limitOrder < currentValue) {
+        if (Number(limitOrder) <= Number(currentValue)) {
             return true;
         }
     } else {
+        // console.log("fetch from backend in case of no maxorder")
         let limit = await axios.get("/query/v1/items/limit/" + item)
-
+        console.log(limit)
         if (limit.data.result < currentValue) {
             return true;
         }

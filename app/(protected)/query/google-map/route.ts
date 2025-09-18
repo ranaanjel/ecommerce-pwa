@@ -5,8 +5,7 @@ export async function GET(request:NextRequest   ) {
 
     const {searchParams} = new URL(request.url);
     const lat = searchParams.get("lat")
-    const lng = searchParams.get("lng")
-    
+    const lng = searchParams.get("lng") 
     
     //https://maps.googleapis.com/maps/api/geocode/json?latlng=37.0122,72.0690&key=${ip-blocked-key}
     let url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.GOOGLE_MAP_KEY!}`

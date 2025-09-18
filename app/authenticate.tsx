@@ -9,7 +9,7 @@ export function AuthenticateComponent({children}:{children:React.ReactNode}) {
     
     const {data : session, status } = useSession();
     if(!session) {
-        // redirect("/login")
+        redirect("/login")
     }
     return <div>{children}</div>
 }

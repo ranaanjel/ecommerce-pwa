@@ -2,7 +2,7 @@
 
 import { banner } from "@/app/(protected)/lib/placeholder-data"
 import Banner from "./Banner";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CaraouselBanner() {
 
@@ -10,6 +10,10 @@ export default function CaraouselBanner() {
 
     let [currentIndex, setCurrentIndex] = useState(0)
 
+    useEffect(function () {
+
+        //getting data from the backend banner
+    },[])
 
     return <div className="relative">
         <div className=" flex overflow-scroll w-full h-full px-2 gap-4 snap-x snap-mandatory caraousel" onScroll={function (eventObject) {

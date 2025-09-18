@@ -125,6 +125,7 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
                                                         <div className="flex gap-2 h-88 overflow-x-scroll w-full overflow-y-hidden pl-6 pr-2 ">
                                                                 {/* card list */
                                                                         list.slice(0,10).map((m: Itemlist, index: number) => {
+                                                                                
                                                                                 let name = m.name;
                                                                                 let imageURL = m.imageURL;
                                                                                 let buttonURL = m.buttonURL;

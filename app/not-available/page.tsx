@@ -2,7 +2,7 @@ import ComingSoon from "../(protected)/ui/users/comingSoon";
 
 const revalidate = 60;
 export default async function Page() {
-    let url = process.env.BACKEND_URL!+"/api/v1/user/pincode";
+    let url = process.env.BACKEND_URL!+"pincode";
     let allData = (await (await fetch(url)).json()).place;
 
     console.log(allData)

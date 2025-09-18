@@ -15,7 +15,7 @@ export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<Set
         let url = window.location.origin +"/query/v1/type/"+type;
         axios.get(url).then(data => {
            //console.log(data.data.result)
-           console.log(data.data.result, type)
+        //    console.log(data.data.result, type)
            setList(data.data.result)
            setLoading(false)
         })

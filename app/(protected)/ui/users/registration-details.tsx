@@ -1,11 +1,11 @@
 "use client";
 
-import { useState , useEffect, useRef} from "react";
+import { useState , useRef, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import clsx from "clsx";
 import { ChevronDownIcon, ClockIcon } from "@radix-ui/react-icons";
 import { registerUser } from "@/actions/databaseCall";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 interface RegistrationDetailsProps {
   userId: string;
@@ -22,15 +22,10 @@ export default function RegistrationDetails({
   const [startTime, setStartTime] = useState("10");
   const [endTime, setEndTime] = useState("11");
   const [showError, setShowError] = useState(false);
-  const otherRef = useRef<HTMLInputElement|null>(null)
-
+  const otherRef = useRef<HTMLInputElement|null>(null);
   
   // useEffect for any additional initialization or validation
-  useEffect(() => {
 
-
-
-  }, [userId]);
 
   const handleSubmit = async () => {
     if (
@@ -48,9 +43,9 @@ export default function RegistrationDetails({
     // Navigate to the next page (dashboard or additional registration steps)
     let type = restaurantType === "others" ? otherType : restaurantType;
     let searchParameter = "restaurantName="+ restaurantName + "&restaurantType="+type+"&deliveryTiming="+`${startTime}-${endTime}`;
-
     
-    let returnData = await registerUser(userId, searchParameter,"registration") 
+    let returnData = await registerUser(userId, searchParameter,"registration") ;
+    console.log(returnData)
 
     if(!returnData) {
       signOut({redirect:true, redirectTo:"/login"})

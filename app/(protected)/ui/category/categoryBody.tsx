@@ -10,7 +10,7 @@ import axios from "axios";
 
 
 export function CategoryBody({ categoryType }: { categoryType: string }) {
-
+  
     // let [currentType, setCurrentType] = useState([])
     const footerRef = useRef<HTMLDivElement>(null)
 
@@ -60,8 +60,6 @@ export function CategoryBody({ categoryType }: { categoryType: string }) {
     ])
     let [beforeFilter, setBeforeFilter] = useState<filterProps[]>(originalFilter)
 
-    let dataItemFetch = categoryType.replace(/(\s|,|-|&|_)/g, "")
-
     return <div className="h-full w-full bg-[#EBF6FF] flex pb-5 ">
         <div className="w-[16%] bg-gray-400/30">
             {/* //fixed  */}
@@ -77,7 +75,7 @@ export function CategoryBody({ categoryType }: { categoryType: string }) {
                 <FilterModal filterProps={originalFilter} setFilterProps={setOriginalFilter} beforeFilter={beforeFilter} setBeforeFilter={setBeforeFilter} />
             </div>
             <div>
-                <CategoryItems typeCategory={categoryType} filterValue={originalFilter} footerRef={footerRef} category={dataItemFetch}  />
+                <CategoryItems typeCategory={categoryType} filterValue={originalFilter} footerRef={footerRef} category={categoryType}  />
             </div>
             <div className="h-24 bg-logo w-full" ref={footerRef}>
 

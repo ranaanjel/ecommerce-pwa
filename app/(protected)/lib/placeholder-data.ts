@@ -1068,8 +1068,6 @@ const vegetableList: Itemlist[] = [
     type: { all: "all", vegetable: "tomato , potato & onion" },
     outOfStock: false,
     category:"vegetable"
-
-
   },
   {
     name: "Onion",

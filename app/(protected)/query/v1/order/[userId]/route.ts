@@ -6,71 +6,55 @@ export async function GET(
     {params}:  {
         params: Promise<{userId:string}>
 }
-): Promise<NextResponse<{ result: { currentOrderData: OrderCollection[]; prevOrderData: OrderCollection[] } }>> {
+) {
 
     let { userId } = await params;
     let offset = Number(request.nextUrl.searchParams.get("offset")) ?? 0;
 
     // fetching the order of the said user
-
-    let orderList = orderAll.filter(function (value) {
-        return value.userId == userId;
-    })
+    // let orderList = orderAll.filter(function (value) {
+    //     return value.userId == userId;
+    // })
+    // type OrderWithDeliveryTiming = typeof orderAll[number] & { deliveryTiming?: string };
     
-    //sorting new which one is new
-    //sending the current one
-    // it can be more than one
+    // // let currentOrder = orderList.filter(m => (m.orderStatus == "Modified Order" || m.orderStatus == "Order Placed"))
+    // let prevOrder = orderList.filter(m => !currentOrder.includes(m))
 
-    // to make the older are not current , automatically cancel order after 1 week of no status change from the creation
-    // i.e forgot to update the data by the admin web application.
+    // //sending the data in the four and using the button like see more to get the more data.
 
-    // this all will be the db call no not detailing the fetch much.
+    // let allList = [...currentOrder, ...prevOrder];
 
-    // Extend the type to include deliveryTiming
-    type OrderWithDeliveryTiming = typeof orderAll[number] & { deliveryTiming?: string };
-    
-    let currentOrder = orderList.filter(m => (m.orderStatus == "Modified Order" || m.orderStatus == "Order Placed"))
-    let prevOrder = orderList.filter(m => !currentOrder.includes(m))
+    // let currentData = allList.slice(offset, offset +4)
+    // console.log(currentData)
 
-    //sending the data in the four and using the button like see more to get the more data.
+    // let prevOrderData:OrderCollection[] = []
+    // let currentOrderData =   currentData.filter(m => {
 
-    let allList = [...currentOrder, ...prevOrder];
+    //     if(!(m.orderStatus == "Modified Order" || m.orderStatus == "Order Placed")) {
+    //         prevOrderData.push(m)
+    //         return false;
+    //     }
 
-    let currentData = allList.slice(offset, offset +4)
-    console.log(currentData)
+    //  return   (m.orderStatus == "Modified Order" || m.orderStatus == "Order Placed")
+    // })
 
-    let prevOrderData:OrderCollection[] = []
-    let currentOrderData =   currentData.filter(m => {
-
-        if(!(m.orderStatus == "Modified Order" || m.orderStatus == "Order Placed")) {
-            prevOrderData.push(m)
-            return false;
-        }
-
-     return   (m.orderStatus == "Modified Order" || m.orderStatus == "Order Placed")
-    })
-
-    currentOrderData = currentOrderData.map(m => {
-        let addressTag = m.addressId;
+    // currentOrderData = currentOrderData.map(m => {
+    //     let addressTag = m.addressId;
         
-        //find finding the user object and then address 
-        // even though i will directly using the db find call to get the db and directly get the address.
-        let address = userAll.find(value => value._id == userId)?.address.filter(m => m.tag == addressTag)[0]!;
+    //     //find finding the user object and then address 
+    //     // even though i will directly using the db find call to get the db and directly get the address.
+    //     let address = userAll.find(value => value._id == userId)?.address.filter(m => m.tag == addressTag)[0]!;
 
-        let newValue: OrderWithDeliveryTiming = { ...m, deliveryTiming: address.deliveryTiming };
+    //     let newValue: OrderWithDeliveryTiming = { ...m, deliveryTiming: address.deliveryTiming };
         
-        return newValue;
-    })
-    
-    //getting the address value
-   // let addressToDelivery = userAll.find(value => value._id == userId )?.address.filter( )
+    //     return newValue;
+    // })
 
-
-    // console.log(orderList)
-    // sending 4 at a time only offset for that -- pagination is possble in mongoDB
-    // sending the data back 
+    // return NextResponse.json({
+    //     result: {currentOrderData, prevOrderData}
+    // });
 
     return NextResponse.json({
-        result: {currentOrderData, prevOrderData}
-    });
+        message:"no more usage of this endpoint"
+    })
 }

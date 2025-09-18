@@ -21,6 +21,8 @@ export function UserInfo({ children }: { children: React.ReactNode }) {
                 if (isUserInfo == "profile" || isUserInfo == "data" || isUserInfo == "address") {
                     redirect("/registration/" + userId as string)
                 }else if (isUserInfo == false) {
+                console.log(isUserInfo)
+                    return;
                 }else if((isUserInfo as string).split(",")[0] == "address-data") {
                     redirect("/users/"+userId+"/address?"+(isUserInfo as string).split(",")[1])
                 }

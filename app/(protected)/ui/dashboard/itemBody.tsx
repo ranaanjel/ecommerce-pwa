@@ -49,6 +49,7 @@ export function ItemComponentBody({itemname}:{itemname:string}) {
                 let disclaimer = m.disclaimer || "";
                 let productInfo = {"Type":m.productInformation?.type || category, "Shell Life":m.productInformation?.shellLife || "vegetables : 1 - 2 days or see label", "Storage Temperature":m.productInformation?.storageTemperature || "","Container":m.productInformation?.container || ""} 
                 let limit = m.maxOrder ;
+                
 
                 
                 return <ItemCardComponent limitValueOrder={limit} disclaimer={disclaimer} productInfo={productInfo} cardType="item" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} setOpenModal={function (value: SetStateAction<boolean>): void {

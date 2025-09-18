@@ -106,52 +106,54 @@ export default function AddList() {
     </div>
 }
 
-function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.Dispatch<SetStateAction<number>>}) {
-
+function AllItems({ title, setCurrentTotal }: { title: string, setCurrentTotal: React.Dispatch<SetStateAction<number>> }) {
 
     const searchRef = useRef<HTMLInputElement>(null);
     const [searchValue, setSearchValue] = useState("")
     const [categoryValue, setCategoryValue] = useState<string[]>([])
     const [currentValue, setCurrentValue] = useState<string>("all")
-    const [offset, setOffset] = useState(0);
     const [list, setList] = useState<Itemlist[]>([])
     const [isStarting, startTransition] = useTransition();
     const footerRef = useRef<HTMLDivElement>(null)
     const lastURL = useRef("https://localhost:3000");
+    const [offset, setOffset] = useState(0);
     let localOffset = useRef(offset);
     let url = window.location.origin;
     let debounceClear: React.RefObject<ReturnType<typeof setTimeout> | undefined> = useRef(undefined)
     let [fetching, setFetching] = useState(false);
-    let [gettingValue, setGettingValue] = useState(true)
+    let [gettingValue, setGettingValue] = useState(true);
+    let offsetRef = useRef(0);
+
+    // we are getting items --> item name wise items?searchValue=*** / category wise - categoryItem/<category> 
+    // / category/allItem All wise; done
+
 
     function categoryChange(category: string) {
 
         setList([])
         setOffset(0);
+        offsetRef.current = 0;
+
         if (category == "all") {
             let fetchURL = url + "/query/v1/category/allItem?offset="
             lastURL.current = fetchURL;
             localOffset.current = 0;
-
         } else {
-            category = category.replace(/-|_|&|,|\s/g, "").toLowerCase();
+            // category = category.replace(/-|_|&|,|\s/g, "").toLowerCase();
+            // if (category == "vegetables") {
+            //     category = "vegetables"
+            // } else if (category == "dairyproduct") {
+            //     category = "dairy product"
+            // }
 
-            if (category == "vegetables") {
-                category = "vegetable"
-            } else if (category == "dairyproduct") {
-                category = "dairy"
-            }
-
-            let fetchURL = url + "/query/v1/categoryItem/" + category + "?offset=";
+            let fetchURL = url + "/query/v1/categoryItem/" + category.toLocaleLowerCase() + "?offset=";
             lastURL.current = fetchURL;
         }
         if (searchRef.current) {
             searchRef.current.value = ""
-
         }
 
         setGettingValue(true)
-
     }
 
     // interface ScrollingEvent extends React.UIEvent<HTMLDivElement> { }
@@ -161,16 +163,16 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
     // }
 
     let fetchData = useCallback(async function fetchData(observer: IntersectionObserver) {
-
-        // console.log("fetching the data", localOffset)
         //getting the what was the last url we used for the fetch
         //using that again.
         setFetching(true)
 
         let list: Itemlist[] | any = []
 
-        if (searchRef.current && searchRef.current.value.length > 0) {
-            let value = await axios(lastURL.current)
+        if (searchRef.current && searchRef.current.value.trim().length > 0) {
+
+
+            let value = await axios(url + '/query/v1/items/?searchValue=' + searchRef.current.value.trim())
             list = value.data.result;
             list = list.items;
 
@@ -179,6 +181,11 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
             if (!list) {
                 setGettingValue(false)
                 setList([])
+                if (footerRef.current) {
+                    setFetching(false)
+                    observer.unobserve(footerRef.current)
+                    return;
+                }
                 return
             }
             startTransition(() => {
@@ -188,18 +195,38 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
                 })
                 setFetching(false)
             })
+             if (footerRef.current) {
+                    setFetching(false)
+                    observer.unobserve(footerRef.current)
+                    return;
+                }
 
-            setOffset(0);
+            // setOffset(0);
+            offsetRef.current = 0;
 
         } else {
-            console.log( localOffset.current, lastURL.current + localOffset.current)
-            let value = await axios(lastURL.current + localOffset.current)
+            // console.log( localOffset.current, lastURL.current + localOffset.current, offsetRef.current,"-------------------")
+            // console.log(lastURL.current + offsetRef.current)
+            let value = await axios(lastURL.current + offsetRef.current)
             list = value.data.result;
 
             if (!list) {
                 setGettingValue(false)
                 setList([])
-                return
+                if (list.length == 0 && footerRef.current) {
+                    setFetching(false)
+                    observer.unobserve(footerRef.current)
+                    return;
+                }
+                return;
+            }
+            if (list.length == 0) {
+                if (list.length == 0 && footerRef.current) {
+                    setFetching(false)
+                    observer.unobserve(footerRef.current)
+                    return;
+                }
+                return;
             }
             startTransition(() => {
                 setList(prev => {
@@ -207,7 +234,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
                     if (!prev) {
                         return [prev]
                     }
-                    if (!list) {
+                    if (list.length == 0) {
                         return [...prev]
                     }
                     return [...prev, ...list]
@@ -220,17 +247,15 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
                 return m + 8
             })
 
-        }
+            offsetRef.current = offsetRef.current + 8;
 
+        }
 
         setGettingValue(false)
 
-        if (list.length == 0 && footerRef.current) {
-            observer.unobserve(footerRef.current)
-            return;
-        }
 
-    },[footerRef])
+
+    }, [footerRef])
 
     useEffect(function () {
         //getting all the items initially 
@@ -252,7 +277,6 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
     }, [])
 
     useEffect(function () {
-
         let observer = new IntersectionObserver((entry) => {
             entry.forEach(m => {
                 if (m.isIntersecting) {
@@ -271,58 +295,65 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
         let currentFoot = footerRef.current;
         return () => {
             if (currentFoot) {
+
                 observer.unobserve(currentFoot);
             }
             //localStorage.clear();
             //TODO : later not clearing up - setting a time for clear up and then on the reload using the data to fill the button value as well.
         };
 
-    }, [currentValue, searchValue,fetchData])
+    }, [currentValue, searchValue, fetchData])
 
     function InputHandler() {
 
+
         if (searchRef.current) {
-            let value = searchRef.current.value;
+            let value = searchRef.current.value.trim();
 
-            clearInterval(debounceClear.current);
+            if (value.trim() == "") {
+                console.log("empty")
+                // return;
+            }
+            console.log(value, value.length)
+            clearTimeout(debounceClear.current);
             if (value.length > 0) {
-                // setList([])
-                // setOffset(0)
+                console.log("value is above the limit")
                 debounceClear.current = setTimeout(function () {
-                    let fetchURL = url + '/query/v1/items/?searchValue=' + value.trim();
-
-
+                    console.log(searchRef.current?.value, "---- in the set time out")
+                    let value = searchRef.current?.value.trim();
+                    console.log(value)
+                    let fetchURL = url + '/query/v1/items/?searchValue=' + value;
+                    console.log(fetchURL);
                     lastURL.current = fetchURL
                     setList([])
                     setOffset(0)
+                    setGettingValue(true);
+                    offsetRef.current = 0;
+                }, 500)
 
-                    console.log(lastURL.current)
-
-
-                }, 800)
+                return;
 
             } else {
-                debounceClear.current = setTimeout(function () {
-                    let fetchURL = url + '/query/v1/category/allItem/?offset=';
-                    lastURL.current = fetchURL
-                    setList([])
-                    setOffset(0)
-                    setCurrentValue("all")
-                    console.log(lastURL.current)
+                let fetchURL = url + '/query/v1/category/allItem/?offset=';
+                lastURL.current = fetchURL
+                setList([])
+                offsetRef.current = 0;
+                setOffset(0)
+                setCurrentValue("all")
+                setGettingValue(true);
+                return;
 
 
-                }, 800)
             }
 
         }
-
-        setGettingValue(true);
+        console.log(lastURL.current)
 
     }
 
-    return <div className="h-screen bg-white overflow-scroll flex justify-evenly flex-col" >
+    return <div className="h-screen bg-white overflow-scroll flex justify-between min-h-screen flex-col" >
 
-        <div className="px-6"  >
+        <div className="px-6 "  >
             <div className="flex gap-2 items-center">
                 <SearchBarComponent onchangeHandler={setSearchValue} refValue={searchRef} onClickHandler={InputHandler} />
                 <SelectComponent setCurrentItem={setCurrentValue} onclickFunction={categoryChange} name={currentValue} list={categoryValue}></SelectComponent>
@@ -355,7 +386,7 @@ function AllItems({title, setCurrentTotal}:{title:string, setCurrentTotal:React.
 
                     </div> : <div >{gettingValue ? <SkeletonLoading /> : <ItemNotFound searchValue={searchRef}></ItemNotFound>}</div>
                 } {
-                    isStarting || fetching ? <CategoryLoading></CategoryLoading> : ""
+                    fetching ? <CategoryLoading></CategoryLoading> : ""
                 }
             </div>
         </div>

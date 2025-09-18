@@ -11,12 +11,14 @@ import { BottomBar } from "../ui/dashboard/bottomBar";
 import { EachCategory } from "../ui/dashboard/eachCategory";
 import { Footer } from "../ui/dashboard/footer";
 import { InfoValue } from "@/actions/databaseCall";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function Page() {
     const [address, setAddress] = useState("");
     const [isPending, startTransition] = useTransition();
 
+    let {data:dataSession, status} = useSession();
     const footerRef = useRef<HTMLDivElement | null>(null);
     const name = useCallback(async function() {
         let data = await InfoValue("address")
@@ -27,13 +29,13 @@ export default function Page() {
     useEffect(function () {
         //fetching the address from the backend and based on the user id i.e localstorage stored and then saving in the localstorage for the future reference.
         //basic details and other things in the localstorage.
-        
         // getting address
         startTransition(async function () {
             let data  = await name();
             if(!data) {
+                console.log(dataSession?.user?.id)
                 setTimeout(function () {
-                    signOut()
+                    redirect("/registration/"+dataSession?.user?.id)
                 },1000)
             }
             

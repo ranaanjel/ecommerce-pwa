@@ -1,4 +1,6 @@
-self.addEventListener("install", installEvent => {
+
+try {
+    self.addEventListener("install", installEvent => {
     installEvent.waitUntil(
         caches.open("offline")
     )
@@ -16,3 +18,6 @@ self.addEventListener("fetch", fetchEvent => {
         return res;
     }).catch( ()=> caches.match(fetchEvent.request)))
 })
+}catch(err) {
+    console.log(err, "error occurred")
+}

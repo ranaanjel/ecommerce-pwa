@@ -3,14 +3,23 @@ import { user, UserAddress, userAll } from "@/app/(protected)/lib/user-placehold
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ userId: string }> }) {
 
-    let userId = (await params).userId;
+    // let userId = (await params).userId;
+    
 
-    let result: UserAddress | UserAddress[] = [];
+    // let result: UserAddress | UserAddress[] = [];
+    
 
-    //getting the restaruant details - name, representative / username, phoneno
+    // //getting the restaruant details - name, representative / username, phoneno
+    
 
 
+    // return NextResponse.json({
+    
+    //     result: "updated the profile of the user"
+    
+    // })
+    
     return NextResponse.json({
-        result: "updated the profile of the user"
+        message:"no more usage of this endpoint"
     })
 }

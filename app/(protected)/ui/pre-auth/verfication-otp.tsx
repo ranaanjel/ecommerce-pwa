@@ -116,7 +116,7 @@ export default function VerificationOTP() {
             <div className="flex gap-[15px] justify-center">
                <input
                     ref={inputRefs}
-                    type="tel"
+                    type="password"
                     // value={password}
                     onChange={(e) => handleInputChange( e.target.value)}
                     // onKeyDown={(e) => handleKeyDown( e)}

@@ -1,22 +1,42 @@
 import { categoryList, upcomingCategoryList } from "@/app/(protected)/lib/placeholder-data"
+import axios from "axios";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { SetStateAction } from "react";
+import { useEffect, useState } from "react";
 
-export function Categories({  type , active}: { type: "page" | "dropdown" | "component"| "line", active?:string }) {
+
+export function Categories({ type, active }: { type: "page" | "dropdown" | "component" | "line", active?: string }) {
 
     //component - inside the dashboard
     //page for the /dashbaord/category
     //popover for the /category/[category]
+
+    let [categoryListFetch, setCategoryListFetch] = useState<{name:string,imageURL:string, buttonURL:string }[]>([]);
+    let [upcomingListFetch, setCategoryUpcoming] = useState<{name:string,imageURL:string, buttonURL:string }[]>([]);
+
+
+
+     useEffect(function () {
+        let url = (window.location.origin);
+
+        let itemsUrl = url + "/query/v1/category/list" ;
+        
+        axios.get(itemsUrl).then(m => {
+            let data = m.data.result;
+            setCategoryListFetch(data.active)
+            setCategoryUpcoming(data.upcoming)
+        })
+
+    }, [])
 
     if (type == "component") {
         return <div className="px-6 text-black">
             <div className="text-xl font-semibold">Shop by category</div>
             <div className="grid grid-cols-3 place-items-center text-center w-full gap-2 my-2">
                 {
-                    categoryList.map((m, index) => {
+                  categoryListFetch && categoryListFetch.length > 0 && categoryListFetch.map((m, index) => {
                         let itemName = m.name;
                         let imageURL = m.imageURL
                         let buttonURL = m.buttonURL;
@@ -27,12 +47,12 @@ export function Categories({  type , active}: { type: "page" | "dropdown" | "com
         </div>
 
     }
-    if (type == "page") {
+    if (type == "page") { //dashboard/category
 
         return <div className="px-2 text-black">
             <div className="grid grid-cols-3 place-items-center text-center w-full gap-1 my-2">
                 {
-                    categoryList.map((m, index) => {
+                    categoryListFetch && categoryListFetch.length > 0 && categoryListFetch.map((m, index) => {
                         let itemName = m.name;
                         let imageURL = m.imageURL
                         let buttonURL = m.buttonURL;
@@ -49,7 +69,7 @@ export function Categories({  type , active}: { type: "page" | "dropdown" | "com
 
                 <div className="grid grid-cols-3 place-items-center text-center w-full gap-1 my-2">
                     {
-                        upcomingCategoryList.map((m, index) => {
+                        categoryListFetch && categoryListFetch.length > 0 && upcomingListFetch.map((m, index) => {
                             let itemName = m.name;
                             let imageURL = m.imageURL
                             console.log(itemName)
@@ -61,7 +81,7 @@ export function Categories({  type , active}: { type: "page" | "dropdown" | "com
         </div>
     }
 
-    if(type == "line") {
+    if (type == "line") {
         return <div className=" text-black">
             <div className="flex justify-between">
                 <div className="text-md font-semibold">Categories</div>
@@ -69,7 +89,7 @@ export function Categories({  type , active}: { type: "page" | "dropdown" | "com
             </div>
             <div className="flex pb-2 place-items-center text-center w-full gap-2 my-2 overflow-x-scroll lightScroll ">
                 {
-                    categoryList.map((m, index) => {
+                  categoryListFetch && categoryListFetch.length > 0 && categoryListFetch.map((m, index) => {
                         let itemName = m.name;
                         let imageURL = m.imageURL
                         let buttonURL = m.buttonURL;
@@ -78,26 +98,26 @@ export function Categories({  type , active}: { type: "page" | "dropdown" | "com
                 }
             </div>
         </div>
-        
+
     }
 
-    return  <div className="px-6 text-black">
-            <div className="grid grid-cols-3 place-items-center text-center w-full gap-2 my-2">
-                {
-                    categoryList.map((m, index) => {
-                        let itemName = m.name;
-                        let imageURL = m.imageURL
-                        let buttonURL = m.buttonURL;
-                        return <CategoryItem active={active} type="dropdown" key={index} itemName={itemName} imageURL={imageURL} buttonURL={buttonURL} />
-                    })
-                }
-            </div>
+    return <div className="px-6 text-black">
+        <div className="grid grid-cols-3 place-items-center text-center w-full gap-2 my-2">
+            {
+                categoryListFetch && categoryListFetch.length > 0 && categoryListFetch.map((m, index) => {
+                    let itemName = m.name;
+                    let imageURL = m.imageURL
+                    let buttonURL = m.buttonURL;
+                    return <CategoryItem active={active} type="dropdown" key={index} itemName={itemName} imageURL={imageURL} buttonURL={buttonURL} />
+                })
+            }
         </div>
-    
+    </div>
+
 
 }
 
-function CategoryItem({ active,itemName, imageURL, buttonURL, type }: { active?:string,type: "page" | "component" | "dropdown", itemName: string, imageURL: string, buttonURL: string }) {
+function CategoryItem({ active, itemName, imageURL, buttonURL, type }: { active?: string, type: "page" | "component" | "dropdown", itemName: string, imageURL: string, buttonURL: string }) {
     let router = useRouter();
 
     if (type == "component") {
@@ -137,29 +157,29 @@ function CategoryItem({ active,itemName, imageURL, buttonURL, type }: { active?:
         </div>
     }
 
-    let checkup = itemName.replace(/\s/g , "");
+    let checkup = itemName.replace(/\s/g, "");
     let test = active?.replace(/\s/g, "");
 
-    if(checkup.includes(test!)) {
-        return  <div onClick={function () {
+    if (checkup.includes(test!)) {
+        return <div onClick={function () {
             router.push(buttonURL)
         }} className="flex flex-col gap-1 items-center min-h-[94px]" >
             <div className="bg-[#cce8ff] w-[74px] h-[60px] rounded relative">
                 <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} alt={itemName} height={90} width={90} className="w-[100px] absolute bottom-0" />
             </div>
-            <div  className="font-normal text-xs w-[77px]">{itemName}</div>
+            <div className="font-normal text-xs w-[77px]">{itemName}</div>
         </div>
     }
 
 
     return <div onClick={function () {
-            router.push(buttonURL)
-        }} className="flex flex-col gap-1 items-center min-h-[94px]" >
-            <div className="bg-[#cce8ff] w-[74px] h-[60px] rounded relative">
-                <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} alt={itemName} height={90} width={90} className="w-[100px] absolute bottom-0" />
-            </div>
-            <div  className="font-light text-xs w-[77px]">{itemName}</div>
+        router.push(buttonURL)
+    }} className="flex flex-col gap-1 items-center min-h-[94px]" >
+        <div className="bg-[#cce8ff] w-[74px] h-[60px] rounded relative">
+            <Image placeholder="blur" blurDataURL="/blur.jpg" src={imageURL} alt={itemName} height={90} width={90} className="w-[100px] absolute bottom-0" />
         </div>
+        <div className="font-light text-xs w-[77px]">{itemName}</div>
+    </div>
 }
 
 function UpcomingCategory({ itemName, imageURL, buttonURL, type }: { type?: "page" | "component" | "dropdown", itemName: string, imageURL: string, buttonURL?: string }) {

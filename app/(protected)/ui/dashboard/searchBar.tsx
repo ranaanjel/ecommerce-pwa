@@ -3,6 +3,7 @@
 import { SetStateAction, useRef, useState } from "react";
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { useRouter } from "next/navigation";
+import { eo } from "date-fns/locale";
 
 export function SearchBar() {
     //fetching the items;
@@ -44,22 +45,27 @@ export function SearchBar() {
     </div>
 }
 
-export function SearchBarComponent({ refValue, onClickHandler, onKeypressHandler, onchangeHandler}: { refValue?: React.RefObject<HTMLInputElement | null>, onClickHandler?:(React.ChangeEventHandler<HTMLInputElement>) , onKeypressHandler?:(React.KeyboardEventHandler<HTMLInputElement>), onchangeHandler? : React.Dispatch<SetStateAction<string>>}) {
+export function SearchBarComponent({ refValue, onClickHandler, onKeypressHandler, onchangeHandler }: { refValue?: React.RefObject<HTMLInputElement | null>, onClickHandler?: React.ChangeEventHandler<HTMLInputElement>, onKeypressHandler?: (React.KeyboardEventHandler<HTMLInputElement>), onchangeHandler?: React.Dispatch<SetStateAction<string>> }) {
 
-    let itemList  = ["peri peri", "cornflakes", "mushroom", "paneer", "cheese blend", "cabbage", "potato", "curd", "milk", "packaging material", "napkins"]
-    let randomValue = Math.floor(Math.random()*itemList.length)
+    let itemList = ["peri peri", "cornflakes", "mushroom", "paneer", "cheese blend", "cabbage", "potato", "curd", "milk", "packaging material", "napkins"]
+    let randomValue = Math.floor(Math.random() * itemList.length)
     let currentItem = itemList[randomValue]
 
     return <div className="w-full">
 
-       < div className=" relative flex my-2 border-1 rounded-md border-gray-300  h-12 px-2 w-full items-center gap-2 overflow-hidden     ">
+        < div className=" relative flex my-2 border-1 rounded-md border-gray-300  h-12 px-2 w-full items-center gap-2 overflow-hidden     ">
             <div className="text-red-600">
                 <MagnifyingGlassIcon className="size-6" />
             </div>
-            <input onChangeCapture={function(eob) {
-                onchangeHandler?.((eob.target as HTMLInputElement).value);
-            }} onKeyDown={onKeypressHandler} ref={refValue}  onInput={onClickHandler} type="search" className="text-black w-full border-none p-2 item-stretch focus:outline-none focus-visible:outline-none" placeholder={"Search for '" + currentItem+"'"} />
-            </div>
+            <input onChange={function (eob) {
+
+                if(onchangeHandler && onClickHandler) {
+                onchangeHandler(prev => eob.target.value);
+                }else {
+                    console.log("no change value is push to up")
+                }
+            }} onKeyDown={onKeypressHandler} ref={refValue} onInput={onClickHandler}  type="search" className="text-black w-full border-none p-2 item-stretch focus:outline-none focus-visible:outline-none" placeholder={"Search for '" + currentItem + "'"} />
+        </div>
 
     </div>
 
