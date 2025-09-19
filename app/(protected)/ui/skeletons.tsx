@@ -1,8 +1,12 @@
 "use client"
 import { useState } from "react"
 
-export function SkeletonLoading({type}:{type?:"crate"|"item"}) {
+export function SkeletonLoading({type}:{type?:"crate"|"item"|"banner"}) {
 
+    if(type == "banner") {
+       return <div className={"animate-pulse relative h-52 min-w-[100%] w-[100%] snap-always snap-center bg-gray-400/50 rounded-lg py-6 px-4 overflow-hidden flex-col flex gap-3 items-start justify-between"}>
+    </div>
+    }
 
     if(type == "crate" ){
         

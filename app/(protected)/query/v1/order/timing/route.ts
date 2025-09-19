@@ -28,5 +28,6 @@ export async function GET(
     }
     return NextResponse.error()
 
+
 }
 //making sure end time is not 12 am 

@@ -1,15 +1,12 @@
 "use client"
 
-import { Preorder } from "@/app/(protected)/lib/placeholder-data"
 import { localPreorder } from "@/app/(protected)/lib/utils"
 import { AlertModal } from "@/app/(protected)/ui/alertModal"
-import { BottomBar } from "@/app/(protected)/ui/dashboard/bottomBar"
 import { MagnifyingGlassIcon } from "@radix-ui/react-icons"
 import axios from "axios"
 import { ChevronLeftIcon } from "lucide-react"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
-import { title } from "process"
 import { Dispatch, SetStateAction, useEffect, useState } from "react"
 
 export default function Page() {
@@ -22,16 +19,7 @@ export default function Page() {
     let description = "curate one yourself, faster checkout"
     let bgBody = " bg-linear-to-t from-[#ff9b0e] to-white ";
 
-    // let [currentCard, setCurrentCard] = useState<Preorder>({
-    //     title: "",
-    //     bgBody: "",
-    //     description: "",
-    //     bgTitle: "",
-    //     buttonURL: "",
-    //     imageURL: "",
-    //     list: [],
-    //     //page value depemds adding on the required places -- type - page / dashboard -- for component not for the database
-    // })
+  
     const [openModal, setOpenModal] = useState(false);
     const [alertData, setAlertData] = useState("");
 
@@ -80,12 +68,11 @@ export default function Page() {
             <div className="h-21 border-t border-gray-200 fixed bottom-0  shadow-xs bg-white/50 w-full">
                 {/* //add to cart fixed on the page */}
                 <div className="flex justify-center items-center px-8 py-4 text-white ">
-                    <div className="w-2/3 bg-logo rounded-sm cursor-pointer text-xl text-center p-2" onClick={function () {
+                    <div className="w-2/3 bg-logo rounded-sm cursor-pointer text-xl text-center p-2" onClick={ async function () {
 
                         if (titleValue == "") {
                             setAlertData("Please Add Title");
                             setOpenModal(true)
-
                             return;
                         } else if (descriptionValue == "") {
                             setAlertData("Please Add description");
@@ -103,48 +90,59 @@ export default function Page() {
 
                             return;
                         } else if (bgTitleValue == "") {
-
                             setAlertData("Please Select bgBody Color")
                             setOpenModal(true)
-
+                            return;
+                        }else if (titleValue.match(/[^A-z\s]/)) {
+                            setAlertData("Please no special character in the title")
+                            setOpenModal(true)
                             return;
                         }
-
                         //propagating the value to datbaase as well
                         //to the localstroage as well.
                         //checking if the title exist in the local storage -- don't have to check for in the databse.
                         let urlTitle = titleValue.toLocaleLowerCase().replace(/\s/g, "_")
-                        let data = ({
+                        let dataToPush = {
                             title: titleValue.toLocaleLowerCase().trim(),
                             bgBody: bgBodyValue,
                             description: descriptionValue.toLocaleLowerCase().trim(),
                             bgTitle: bgTitleValue,
                             buttonURL:"/dashboard/preorder-list/"+urlTitle ,
-                            imageURL: imageURLValue,
-                            list: [],
+                            iconURL: imageURLValue,
                             //page value depemds adding on the required places -- type - page / dashboard -- for component not for the database
+                        }
+
+                        // not choosing to add in the database 
+                       
+                        let url = window.location.origin + "/query/v1/preorder-list/createList/";
+
+                      try {
+                         let returnValue = await axios.post(url, {
+                            data:dataToPush
                         })
-
-                        let localStorageObject = JSON.parse(localStorage.getItem(localPreorder) as string);
-
-                        if(!localStorageObject) {
-                            localStorageObject = {}
-                        }
-
-                        console.log(data.title in localStorageObject) 
-                        if(data.title in localStorageObject) {
-                            setAlertData("Title already exists")
+                        if(returnValue.data.success) {
+                            setAlertData("successfully added the new preorder list")
                             setOpenModal(true)
-                            return;
                         }else {
-                            localStorageObject[data.title] = data;
-                            console.log(localStorageObject)
-                            localStorage.setItem(localPreorder, JSON.stringify(localStorageObject))
+                            setAlertData(returnValue.data.message)
+                            setOpenModal(true)
                         }
+                        // there is no error 
+                        // router.push("/dashboard/preorder-list/" + params)
+                      }catch (err) {
+                        console.log(err, "error occured while putting the data")
+                      }
 
-                        router.push(data.buttonURL + "/add-to-list")
-
-
+                        // if(data.title in localStorageObject) {
+                        //     setAlertData("Title already exists")
+                        //     setOpenModal(true)
+                        //     return;
+                        // }else {
+                        //     localStorageObject[data.title] = data;
+                        //     console.log(localStorageObject)
+                        //     localStorage.setItem(localPreorder, JSON.stringify(localStorageObject))
+                        // }
+                        router.push(dataToPush.buttonURL + "/add-to-list")
                     }} >
 
                         Add Items To List
@@ -187,7 +185,7 @@ function ChooseColor({ setBgBody, setBgTitle }: { setBgBody: Dispatch<SetStateAc
         let url = window.location.origin + "/query/v1/preorder-list/colorPallate";
         axios.get(url).then(m => {
             setPalatte(m.data.result)
-        })
+        }).catch(err=> console.log(err))
     }, [])
     const [active, setActive] = useState(0)
 
@@ -230,7 +228,7 @@ function ChooseImage({ setImageURL }: { setImageURL: Dispatch<SetStateAction<str
         let url = window.location.origin + "/query/v1/preorder-list/createImage";
         axios.get(url).then(m => {
             setImage(m.data.result)
-        })
+        }).catch(err=> console.log(err))
     }, [])
     const [active, setActive] = useState(0)
 
@@ -240,10 +238,10 @@ function ChooseImage({ setImageURL }: { setImageURL: Dispatch<SetStateAction<str
         </div>
         <div className="grid grid-cols-6 gap-1">
             {
-                image.map((m, index) => {
+              image && image.length > 0 && image.map((m, index) => {
 
                     // console.log(bgBody, bgTitle)
-                    if (!m.includes("_page.png")) {
+                    if (!m.includes("_page.png") && !(m.startsWith("https://"))) {
 
                         m = m.replace(".png", "_page.png")
                     }

@@ -18,30 +18,21 @@ export default function Page() {
     let [list, setList] = useState<Preorder[]>([]);
 
 
-    if(localStorage.getItem(localPreorder)) {
-        let data = JSON.parse(localStorage.getItem(localPreorder) as string);
-        let result:Preorder[] = Array.from(Object.values(data));
-        list = (result)
-    }else {
-        localStorage.setItem(localPreorder, "{}");
-    }
+    // if(localStorage.getItem(localPreorder)) {
+    //     let data = JSON.parse(localStorage.getItem(localPreorder) as string);
+    //     let result:Preorder[] = Array.from(Object.values(data));
+    //     list = (result)
+    // }else {
+        // localStorage.setItem(localPreorder, "{}");
+    // }
 
     useEffect(function () {
         let url = window.location.origin + "/query/v1/preorder-list";
+        localStorage.setItem(localPreorder, "{}");
         axios.get(url).then(m => {
             let data  = m.data.result;
-            //replacing the localstorage data with the data
-            let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
-            for (let items of data) {
-                let title = items.title.toLowerCase()
-                //simply updating the local database with outside value.
-                // in case the value is there it will change or if not will create it.
-                 localData[title] = items
-            }
-            localStorage.setItem(localPreorder,JSON.stringify(localData))
-            let result:Preorder[] = Array.from(Object.values(data));
-            setList(result)
-        })
+            setList(data)
+        }).catch(err=> console.log(err))
 
     },[])
 
@@ -49,7 +40,7 @@ export default function Page() {
     //about the preorder list - we must store the value of the preorder for the faster loading and better quality experience and fetching the data after 
     // in case of new updates.
 
-    return <div className="text-black bg-[#ebf6f6]">
+    return <div className="text-black h-screen  bg-[#ebf6f6]">
         <TopBar>
             <div className="select-none w-full flex justify-between items-center relative ">
                 <div className="flex flex-start items-center mb-2">
@@ -79,9 +70,10 @@ export default function Page() {
                 let list = m.list;
                 let bgTitle = m.bgTitle;
                 let bgBody = m.bgBody;
+                let iconURL = m.iconURL;
                 // in case the thing is out of stock and coming soon - making sure they are at the bottom end of the list 
                 // that is fetching value
-                return  <PreorderCard type="page"  bgBody={bgBody} bgTitle={bgTitle} key={index} title={title} description={description} imageURL={imageURL} buttonURL={buttonURL} list={list} />
+                return  <PreorderCard type="page" iconURL={iconURL} bgBody={bgBody} bgTitle={bgTitle} key={index} title={title} description={description} imageURL={imageURL} buttonURL={buttonURL} list={list} />
             })
            }
 

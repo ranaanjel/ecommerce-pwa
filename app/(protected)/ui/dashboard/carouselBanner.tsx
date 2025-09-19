@@ -3,16 +3,27 @@
 import { banner } from "@/app/(protected)/lib/placeholder-data"
 import Banner from "./Banner";
 import { useEffect, useRef, useState } from "react";
+import axios from "axios";
+import { SkeletonLoading } from "../skeletons";
 
 export default function CaraouselBanner() {
 
     let bannerRefs = useRef<Array<HTMLDivElement>>([]);
+    let [bannerFetch, setBannerFetch] = useState<{title:string, text:string,buttonURL:string, imageURL:string, gradientColor:string}[]>()
 
     let [currentIndex, setCurrentIndex] = useState(0)
 
     useEffect(function () {
-
+        // builtin 
         //getting data from the backend banner
+        let url = window.location.origin + "/query/v1/banner";
+        axios.get(url).then(m => {
+
+            let data = m.data.data;
+
+            setBannerFetch(data)
+
+        }).catch(err=> console.log(err))
     },[])
 
     return <div className="relative">
@@ -37,7 +48,7 @@ export default function CaraouselBanner() {
 
             }
         }}>
-        {banner.map((m, index)=> {
+        {(bannerFetch && bannerFetch.length > 0 && bannerFetch.map((m, index)=> {
             let title = m.title;
             let text = m.text;
             let buttonURL = m.buttonURL;
@@ -45,7 +56,7 @@ export default function CaraouselBanner() {
             let gradientColor = m.gradientColor;
 
             return <Banner bannerRefs={bannerRefs} key={index} index={String(index)} title={title} text={text} buttonURL={buttonURL} imageURL={imageURL} gradientColor={gradientColor}  />
-        })}
+        })) || <SkeletonLoading type="banner"></SkeletonLoading>}
        
     </div>
      <div className="absolute z-2 bottom-[15%] left-1/2 translate-x-[-50%] flex gap-2">

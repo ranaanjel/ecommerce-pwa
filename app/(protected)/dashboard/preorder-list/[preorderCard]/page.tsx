@@ -1,6 +1,6 @@
 "use client"
 import axios from "axios";
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { SkeletonPreOrderCard } from "@/app/(protected)/ui/skeletonPreOrderCard";
 import { Itemlist, Preorder, unit } from "@/app/(protected)/lib/placeholder-data";
 import { useParams, useRouter } from "next/navigation";
@@ -10,7 +10,7 @@ import { ItemCard } from "@/app/(protected)/ui/dashboard/itemCard";
 import { ConfirmModal } from "@/app/(protected)/ui/confirmModal";
 import { localPreorder } from "@/app/(protected)/lib/utils";
 import { Trash2Icon } from "lucide-react";
-import { crateItemInterface } from "@/app/(protected)/lib/definitions";
+import { crateItemInterface, crateItemInterfaceEach } from "@/app/(protected)/lib/definitions";
 import { Crate } from "@/actions/databaseCall";
 
 export default function Page() {
@@ -22,36 +22,33 @@ export default function Page() {
         list: [],
         bgTitle: "",
         bgBody: "",
+        iconURL:""
     })
     let params = String(useParams().preorderCard);
     let router = useRouter()
 
     // console.log(data)
 
-    if (localStorage.getItem(localPreorder)) {
-        let dataResult = JSON.parse(localStorage.getItem(localPreorder) as string);
-        params = params.replace(/_/g, " ")
-        //console.log(dataResult[params], params)
-        if (params in dataResult) {
-            data = dataResult[params]
-        }
-    } else {
-        localStorage.setItem(localPreorder, "{}");
-    }
+    // if (localStorage.getItem(localPreorder)) {
+    //     let dataResult = JSON.parse(localStorage.getItem(localPreorder) as string);
+    //     params = params.replace(/_/g, " ")
+    //     //console.log(dataResult[params], params)
+    //     if (params in dataResult) {
+    //         data = dataResult[params]
+    //     }
+    // } else {
+        // localStorage.setItem(localPreorder, "{}");
+    // }
 
     useEffect(function () {
         let url = window.location.origin + "/query/v1/preorder-list/" + params;
 
+        localStorage.setItem(localPreorder, "{}");
         axios.get(url).then(m => {
             // console.log(m.data.result)
-            if (m.data.result == "non-found") {
-                let dataResult = JSON.parse(localStorage.getItem(localPreorder) as string);
-                //console.log(dataResult[params], params)
-                if (params in dataResult) {
-                    //TODO database cehcking
-                }else {
+            // console.log(m.data.result)
+            if (m.data.result == "non-found") { // rarely going to use for the fallback 
                     router.push("/not-found-404")
-                }
                 //TODO - pushing the data to the database for future references
             }else {
                   setData(() => {
@@ -60,12 +57,14 @@ export default function Page() {
                     title: value.title,
                     description: value.description,
                     imageURL: value.imageURL,
+                    iconURL:value.iconURL,
                     buttonURL: value.buttonURL,
                     list: value.list,
                     bgTitle: value.bgTitle,
                     bgBody: value.bgBody,
                     type: value.type
                 };
+
                 return newdata
             })
             }
@@ -80,7 +79,7 @@ export default function Page() {
             data.title == "" ? <SketelonPage></SketelonPage> : null
         }
         {
-            data.title ? <PreorderCardPage buttonURL={data.buttonURL} title={data.title} imageURL={data.imageURL} list={data.list} bgTitle={data.bgTitle} bgBody={data.bgBody} type={data.type} description={data.description} ></PreorderCardPage> : ""
+            data.title ? <PreorderCardPage iconURL={data.iconURL} buttonURL={data.buttonURL} title={data.title} imageURL={data.imageURL} list={data.list} bgTitle={data.bgTitle} bgBody={data.bgBody} type={data.type} description={data.description} ></PreorderCardPage> : ""
         }
     </div>
 }
@@ -94,13 +93,12 @@ function SketelonPage() {
 
 function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody, type, buttonURL }: Preorder) {
 
-
-    let currentPreorderData: crateItemInterface = [];
+    let currentPreorderData = useRef<any[]>([]);
 
     //adding more items - local storage using for that
     //three section  -- header , body, fixed times.
     const router = useRouter();
-    if(!imageURL.includes("_page.png")) {
+    if(!imageURL.includes("_page.png") && !imageURL.startsWith("https://")) {
         imageURL = imageURL.replace(".png", "_page.png");
     }
     const [items, setItems] = useState(list) // current item list of preorder card
@@ -171,7 +169,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                             let outofstock = m.outOfStock
                             let comingSoon = m.comingSoon
                             let category = m.category ?? "all";
-                            let currentQuant = m.currentQuantity ?? 0;
+                            let currentQuant = m.currentQuantity ?? 1;
 
                             return <ItemCard setItemDelete={setItemDelete} setOpenModal={setOpenModal} cardType="preorder" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} currentQuantity={currentQuant} currentData={currentPreorderData} />
 
@@ -185,36 +183,52 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
             {/* //add to cart fixed on the page */}
             <div className="flex justify-between items-center px-8 py-4 text-white bg-logo rounded-sm cursor-pointer text-xl" onClick={ async function () {
                 // making the crate -- localstorage filled with the current list 
+
                 let localstorageObject;
+
                 if (!localStorage.getItem("crate")) {
                     localstorageObject = localStorage.setItem("crate", "{}");
                 }
+
                 localstorageObject = JSON.parse(localStorage.getItem("crate") as string);
                 
-                for (var items of currentPreorderData) {
+                for (var items of currentPreorderData.current) {
 
                     if (!(items.itemname in localstorageObject)) {
                         localstorageObject[items.itemname] = items;
-                        console.log("creating", items, localstorageObject)
+                        // console.log("creating", items, localstorageObject)
                     } else {
                         localstorageObject[items.itemname].quant = items.quant;
-                        console.log("changing", items.itemname)
+                        // console.log("changing", items.itemname)
                     }
-
-                    if(items.skip) {
+                    if(items.skip || items.outofstock) {
                         delete localstorageObject[items.itemname]
                     }
 
                 }
-                //TODO --> adding only the values required --> skip, quant and itemID
-                await Crate(Array.from(Object.values(localstorageObject)))
+                //TODO --> adding only the values required --> skip, quant and itemId
                 
+                 let dataToPushListUpdate = Object.values(localstorageObject).map((m:any)=> {
+                    return {name:m.itemname, currentQuantity:m.quant }
+                 })
+                 let url = window.location.origin + "/query/v1/preorder-list/updateitems/"+(title as string).replace(/_/g," ");
+                      try {
+                         let returnValue = await axios.post(url, {
+                            data:dataToPushListUpdate
+                        })
+                        // there is no error 
+                        // router.push("/dashboard/preorder-list/" + params)
+                      }catch (err) {
+                        console.log(err, "error occured while putting the data")
+                      }
+                await Crate(Array.from(Object.values(localstorageObject))) 
+                //updating the list at the backend end as well crate value for later on fetching.
                
                localStorage.setItem("crate", JSON.stringify(localstorageObject));
                 // console.log(localStorage.getItem("crate"))
                 // value and redirecting to the /dashboard/crates
                 // console.log(currentPreorderData)
-              router.push("/dashboard/crate")
+                 router.push("/dashboard/crate")
             }}>
                 <div>
                     {items.length} items |

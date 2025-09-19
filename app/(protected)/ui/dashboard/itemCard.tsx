@@ -2,19 +2,19 @@
 import { Crate } from "@/actions/databaseCall";
 import { CrateContext } from "../rootLayoutClient";
 import { crateItemInterface, crateItemInterfaceEach } from "@/app/(protected)/lib/definitions";
-import { category, Itemlist } from "@/app/(protected)/lib/placeholder-data";
+import { category, Itemlist, Preorder } from "@/app/(protected)/lib/placeholder-data";
 import { localCrate, localPreorder } from "@/app/(protected)/lib/utils";
 import axios from "axios";
 import { BadgeIndianRupee, Check, Trash2Icon } from "lucide-react"
 import Image from "next/image";
 import Link from "next/link";
 import { useParams, useSearchParams } from "next/navigation";
-import { Dispatch, SetStateAction, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { Dispatch, RefObject, SetStateAction, useCallback, useContext, useEffect, useMemo, useReducer, useRef, useState } from "react";
 
 
 interface ExtraList extends Itemlist {
     cardType: "category" | "dashboard" | "item" | "preorder" | "preorder-search" | "similar",
-    currentData?: any,
+    currentData?: RefObject<any[]>,
     setOpenModal?: Dispatch<SetStateAction<boolean>>,
     setItemDelete?: Dispatch<SetStateAction<string>>,
     preorderName?: string,
@@ -26,11 +26,12 @@ interface ExtraList extends Itemlist {
         "Container"?: string
     },
     disclaimer?: string,
-    limitValueOrder?: number
-
+    limitValueOrder?: number,
+    preorderListItem?: { name: string }[];
+    allData?:Preorder
 }
 
-export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, setOpenModal, setItemDelete, preorderName }: ExtraList) {
+export function ItemCard({ allData,setCurrentTotal, cardType, name, brand, mrp, imageURL, buttonURL, quantity, primarySize, category, secondarySize, discountValue, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, setOpenModal, setItemDelete, preorderName, preorderListItem }: ExtraList) {
 
 
 
@@ -49,7 +50,7 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
 
     let wholeItem = {
         name, cardType, brand, mrp, imageURL, buttonURL, quantity,
-        primarySize, category, secondarySize, discountPrice, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData, preorderName, setOpenModal, setItemDelete,
+        primarySize, category, secondarySize, discountPrice, savingAmount, offers, unit, secondaryUnit, conversionRate, outOfStock, comingSoon, currentQuantity, currentData:currentData?.current, preorderName, setOpenModal, setItemDelete,
         discountValue
     }
 
@@ -63,7 +64,6 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
         if (localStorage.getItem(localCrate)) {
             setTotalLength(Array.from(Object.keys(JSON.parse(localStorage.getItem(localCrate) as string))).length)
             let localItem = JSON.parse(localStorage.getItem(localCrate) as string);
-
             if (localItem[name]) {
                 dispatch({ payload: localItem[name].quant })
             }
@@ -123,7 +123,7 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button setCrateId={setCrateId} offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                    <Button outOfStock={outOfStock as boolean}  setCrateId={setCrateId} offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -186,7 +186,7 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button setCrateId={setCrateId} offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                    <Button outOfStock={outOfStock as boolean} setCrateId={setCrateId} offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -222,13 +222,19 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
             return;
         }
 
-        if (preorderName in localObject) {
-            localObject[preorderName].list.forEach((m: Itemlist) => {
+        // if (preorderName in localObject) {
+        //     localObject[preorderName].list.forEach((m: Itemlist) => {
+        //         if (m.name == name) {
+        //             checkInList = true;
+        //         }
 
+        //     })
+        // }
+        if (preorderListItem) {
+            preorderListItem.forEach((m) => {
                 if (m.name == name) {
                     checkInList = true;
                 }
-
             })
         }
 
@@ -275,7 +281,7 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button setCrateId={setCrateId} offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} setCurrentTotal={setCurrentTotal} preorderName={preorderName} fullItem={wholeItem} inList={checkInList} type="preorder-list" primarySize={quant} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                    <Button outOfStock={outOfStock as boolean} listData={allData} setCrateId={setCrateId} offers={offers} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} setCurrentTotal={setCurrentTotal} preorderName={preorderName} fullItem={wholeItem} inList={checkInList} type="preorder-list" primarySize={quant} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -345,7 +351,7 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
 
                 <div className="flex justify-center">
                     {/* //button */}
-                    <Button setCrateId={setCrateId} offers={offers} setDiscountPrice={setDiscountPrice} originalDiscountValue={discountValue} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} currentPreorderData={currentData} toShow={(outOfStock ?? false) || (comingSoon ?? false)} currentQuantity={currentQuantity || 0} primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                    <Button outOfStock={outOfStock as boolean} setCrateId={setCrateId} offers={offers} setDiscountPrice={setDiscountPrice} originalDiscountValue={discountValue} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} currentPreorderData={currentData} toShow={(outOfStock ?? false) || (comingSoon ?? false)} currentQuantity={currentQuantity || 0} primarySize={primarySize} mrp={mrp} itemname={name} quant={primarySize} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
                 </div>
             </div>
             <div className="bg-gray-400/50 w-full h-2 self-end block">
@@ -364,6 +370,7 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
             <div onClick={function () {
                 setOpenModal?.(m => !m)
                 setItemDelete?.(name)
+
             }} className="absolute right-0 p-2 z-5 ">
                 <Trash2Icon className="text-gray-500 size-4 active:text-red-600 hover:text-red-600 cursor-pointer" />
             </div>
@@ -380,7 +387,7 @@ export function  ItemCard({ setCurrentTotal, cardType, name, brand, mrp, imageUR
 
 }
 
-function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPrice, originalDiscountValue, setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData, inList, preorderName, skip, imageURL, buttonURL, maxOrder, offers }: { type?: "preorder-list" | "crateList", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: any, inList?: boolean, fullItem?: Itemlist, preorderName?: string, setCurrentTotal?: React.Dispatch<SetStateAction<number>>, skip: boolean, imageURL: string, buttonURL: string, parentInputRef?: React.RefObject<HTMLInputElement | null>, maxOrder?: number, offers?: any, setDiscountPrice: React.Dispatch<SetStateAction<number>>, originalDiscountValue: number, changeSaveValue?: React.Dispatch<SetStateAction<number>>, changeTotalValue?: React.Dispatch<SetStateAction<number>>, setCrateId: React.Dispatch<SetStateAction<string>> }) {
+function Button({ outOfStock,listData,setCrateId, changeSaveValue, changeTotalValue, setDiscountPrice, originalDiscountValue, setCurrentTotal, fullItem, type, quant, itemname, category, setItemQuantity, unit, discountPrice, mrp, primarySize, currentQuantity = 0, toShow, currentPreorderData, inList, preorderName, skip, imageURL, buttonURL, maxOrder, offers }: { type?: "preorder-list" | "crateList", quant: number, itemname: string, category: string, primarySize: number, setItemQuantity: any, unit: string, discountPrice: number, mrp: number, currentQuantity?: number, toShow?: boolean, currentPreorderData?: RefObject<any[]>, inList?: boolean, fullItem?: Itemlist, preorderName?: string, setCurrentTotal?: React.Dispatch<SetStateAction<number>>, skip: boolean, imageURL: string, buttonURL: string, parentInputRef?: React.RefObject<HTMLInputElement | null>, maxOrder?: number, offers?: any, setDiscountPrice: React.Dispatch<SetStateAction<number>>, originalDiscountValue: number, changeSaveValue?: React.Dispatch<SetStateAction<number>>, changeTotalValue?: React.Dispatch<SetStateAction<number>>, setCrateId: React.Dispatch<SetStateAction<string>>, listData?:Preorder, outOfStock:boolean }) { 
     //managing the cart value in the localstorage for multi page state management?.
     let existingData = useRef<any>("");
     let [quantity, setQuantity] = useState(0)
@@ -411,19 +418,22 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
 
     useEffect(function () {
 
+        console.log(currentQuantity, itemname, "---- use effect")
         if (localStorage.getItem("crate")) {
             existingData.current = JSON.parse(localStorage.getItem("crate") as string);
             if (itemname in existingData.current) {
                 setQuantity(existingData.current[itemname].quant);
                 setItemQuantity({ payload: (existingData.current[itemname].quant) });
             } //CHANGED TODO //TODO
-            if (currentQuantity != 0) {
+            else if (currentQuantity != 0) {
                 console.log("itemname ", itemname)
                 console.log("current data ", currentQuantity)
                 setItemQuantity({ payload: currentQuantity });
                 setQuantity(currentQuantity);
             }
-
+        }else {
+                setItemQuantity({ payload: currentQuantity });
+                setQuantity(currentQuantity);
         }
 
     }, [currentQuantity, itemname, setItemQuantity]);
@@ -440,15 +450,15 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
         primarySize,
         buttonURL,
         imageURL,
-        offers
+        offers,
+        outOfStock
     }
 
     // console.log(itemData)
-   
+
 
     if (currentPreorderData) {
-        currentPreorderData.push(itemData)
-
+        currentPreorderData.current.push(itemData);
     }
 
     async function saveInLocal(quantity: number) {
@@ -488,26 +498,26 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
     }
 
     function addingToList() {
+
         if (preorderState) {
+            // list only can add 
             return;
         }
-
-        if (!localStorage.getItem(localPreorder)) {
-            localStorage.setItem(localPreorder, "{}")
-        }
-
-        let localObject = JSON.parse(localStorage.getItem(localPreorder) as string) ?? {};
-
+        
         if (!preorderName) {
             //console.log("must provide the preorder name")
             return;
         }
 
-        if (preorderName in localObject) {
-            // //console.log(localObject[preorderName].list, "before")
-            localObject[preorderName].list.push(fullItem)
-            // //console.log(localObject[preorderName].list, "after");
+        // console.log(!(preorderName in JSON.parse(localStorage.getItem(localPreorder) as string)), preorderName)
+         if (!(preorderName in JSON.parse(localStorage.getItem(localPreorder) as string))) {
+            localStorage.setItem(localPreorder, JSON.stringify({[preorderName]:listData}));     
+        } 
 
+        let localObject = JSON.parse(localStorage.getItem(localPreorder) as string) ?? {};       
+
+        if(preorderName in localObject) {
+            localObject[preorderName].list.push(fullItem)
             setCurrentTotal?.(localObject[preorderName].list.length)
             setPreorderState(true)
             localStorage.setItem(localPreorder, JSON.stringify(localObject))
@@ -571,7 +581,7 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
 
             return prev + primarySize;
         })
-        console.log(quant, quantity, "-------------- additional", primarySize + quantity , primarySize)
+        console.log(quant, quantity, "-------------- additional", primarySize + quantity, primarySize)
         // //console.log(quantity)
         //quant is the primary value and quantity is the current quantity.
         setItemQuantity({ payload: primarySize + quantity });
@@ -607,7 +617,7 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
         }
 
         changePrice(quantity - primarySize)
-         saveInLocal(difference)
+        saveInLocal(difference)
         let diff = quantity - primarySize;
         if (inputRef.current) {
             inputRef.current.value = String(diff);
@@ -688,9 +698,9 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
             }
 
         }} className="w-3/10 p-1 text-center select-none">-</div>
-        <input ref={inputRef}  defaultValue={quantity} type="phone" onChange={(obj) => {
+        <input ref={inputRef} defaultValue={quantity} type="phone" onChange={(obj) => {
 
-          
+
             clearInterval(clearValue);
             clearValue = window.setTimeout(async function () {
                 let data: number = Number(obj.target.value);
@@ -703,9 +713,9 @@ function Button({ setCrateId, changeSaveValue, changeTotalValue, setDiscountPric
                     data = 0
                     if (inputRef.current) {
                         //console.log(inputRef.current.value)
-                         inputRef.current.value = "1"
-                    changeValue(1)
-                    return;
+                        inputRef.current.value = "1"
+                        changeValue(1)
+                        return;
                     }
                 }
 
@@ -769,10 +779,11 @@ interface extraCrateList extends crateItemInterfaceEach {
     setSaving: React.Dispatch<SetStateAction<number>>,
     setTotalPrice: React.Dispatch<SetStateAction<number>>,
     offers: any,
-    setCrateId: React.Dispatch<SetStateAction<string>>
+    setCrateId: React.Dispatch<SetStateAction<string>>,
+    outOfStock:boolean
 }
 
-export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateList, itemname, quant, category, unit, discountPrice, mrp, skip, primarySize, imageURL, buttonURL, offers }: extraCrateList) {
+export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateList, itemname, quant, category, unit, discountPrice, mrp, skip, primarySize, imageURL, buttonURL, offers, outOfStock }: extraCrateList) {
 
 
     function reduceFn(state: number, action: { payload?: number }) {
@@ -826,8 +837,10 @@ export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateLi
         <div className="flex w-2/6   py-2 flex-col gap-2 justify-end items-end">
             {/* //button */}
             <div className="  w-full flex flex-col justify-center gap-2 items-center">
-                <Button offers={offers} setCrateId={setCrateId} originalDiscountValue={discountPrice} setDiscountPrice={setDiscountPrice} type={"crateList"} setItemQuantity={dispatch} skip={skip} primarySize={parseFloat(primarySize)} mrp={mrp} itemname={itemname} quant={Number(quantityValue)} discountPrice={discountValue} category={category!} unit={unit} imageURL={imageURL} buttonURL={buttonURL} changeSaveValue={setSaving} changeTotalValue={setTotalPrice} />
-                <div onClick={function () {
+                <Button outOfStock={outOfStock} offers={offers} setCrateId={setCrateId} originalDiscountValue={discountPrice} setDiscountPrice={setDiscountPrice} type={"crateList"} setItemQuantity={dispatch} skip={skip} primarySize={parseFloat(primarySize)} mrp={mrp} itemname={itemname} quant={Number(quantityValue)} discountPrice={discountValue} category={category!} unit={unit} imageURL={imageURL} buttonURL={buttonURL} changeSaveValue={setSaving} changeTotalValue={setTotalPrice} />
+                <div onClick={ async function () {
+
+
                     setCrateList(prev => {
                         let list: crateItemInterface | undefined = prev.find(function (value) {
                             return value[0] == category;
@@ -855,10 +868,20 @@ export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateLi
                         delete (localObject[itemname]);
                         localStorage.setItem(localCrate, JSON.stringify(localObject))
                     }
+                      let url = location.origin + "/query/v1/crateList/deleteUpdate/"+itemname
+                   try {
+                     let fetchData = await axios.get(url);
+                    console.log(fetchData);
+                   }catch(err) {
+                    
+                    console.log(err)
+                   }
+
                     //db call
 
                 }}>
                     <Trash2Icon onClick={function () {
+
                         setLength(prev => prev - 1)
                     }} className="text-red-500 size-4"></Trash2Icon>
                 </div>
@@ -918,7 +941,7 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
         axios.get("/query/v1/items/category/" + category).then(m => {
             let data = m.data.result;
             setList(data);
-        })
+        }).catch(err => console.log(err))
 
         let quantityFromOffers = (paramsValue.get("quantity"));
         //in casse the unit is different then conversion is required for the items
@@ -952,7 +975,7 @@ export function ItemCardComponent({ productInfo, disclaimer, setCurrentTotal, ca
                     </div>
                     {/* //button */}
                     <div className="flex w-1/2 justify-end">
-                        <Button setCrateId={setCrateId} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} offers={offers} maxOrder={limitValueOrder} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
+                        <Button outOfStock={outOfStock as boolean} setCrateId={setCrateId} originalDiscountValue={discountValue} setDiscountPrice={setDiscountPrice} offers={offers} maxOrder={limitValueOrder} imageURL={imageURL} buttonURL={buttonURL} skip={outOfStock || comingSoon || false} primarySize={primarySize} mrp={mrp} itemname={name} quant={quant} setItemQuantity={dispatch} discountPrice={discountPrice} category={category!} unit={unit} />
                     </div>
                 </div>
                 <div className="text-md text-green-500">

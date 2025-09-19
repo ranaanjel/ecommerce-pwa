@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 
 export async function GET (request:NextRequest) {
-    let authValue= await auth();
+  try {  let authValue= await auth();
     let url = process.env.BACKEND_URL!+"categoryList";
 
     let dataValue = await axios.get(url,{
@@ -23,9 +23,11 @@ export async function GET (request:NextRequest) {
 
     return NextResponse.json({result : {active:data.active, upcoming:data.upcoming}})
          
-    }
+    }} catch(err) {
 
+        console.log(err)
     return NextResponse.error()
+    }
 
 
     

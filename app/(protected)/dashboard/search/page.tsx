@@ -105,7 +105,7 @@ export default function SearchPage() {
                         })
                         setFetchDone(true);
 
-                    })
+                    }).catch(err=> console.log(err))
                     //once we receive it and then changing the filter and list on the chagne of the 
                     //values.
                 }, 1000)

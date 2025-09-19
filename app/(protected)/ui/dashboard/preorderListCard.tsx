@@ -23,6 +23,7 @@ export default function PreOrder() {
         let url = window.location.origin + "/query/v1/preorder-list";
         axios.get(url).then(m => {
             let data  = m.data.result;
+            // console.log(data)
             //replacing the localstorage data with the data
             let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
             for (let items of data) {
@@ -34,7 +35,7 @@ export default function PreOrder() {
             localStorage.setItem(localPreorder,JSON.stringify(localData))
             let result:Preorder[] = Array.from(Object.values(data));
             setPreorderList(result)
-        })
+        }).catch(err=> console.log(err))
 
     },[])
 
@@ -56,7 +57,9 @@ export default function PreOrder() {
                 let list = m.list;
                 let bgTitle = m.bgTitle;
                 let bgBody = m.bgBody;
-                return  <PreorderCard bgBody={bgBody} bgTitle={bgTitle} key={index} title={title} description={description} imageURL={imageURL} buttonURL={buttonURL} list={list} />
+                let iconURL = m.iconURL
+
+                return  <PreorderCard bgBody={bgBody} iconURL={iconURL} bgTitle={bgTitle} key={index} title={title} description={description} imageURL={imageURL} buttonURL={buttonURL} list={list} />
             })
            }
         </div>

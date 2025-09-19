@@ -17,7 +17,7 @@ import React, { SetStateAction, useCallback, useContext, useEffect, useMemo, use
 import { crateItemInterface } from "../../lib/definitions";
 import { CrateItemCard } from "@/app/(protected)/ui/dashboard/itemCard";
 import { useSession } from "next-auth/react";
-import { DeleteAddress, InfoValue } from "@/actions/databaseCall";
+import { DeleteAddress, InfoValue, pincodeFind } from "@/actions/databaseCall";
 
 // type crateItemEachInterface = { category: string, discountPrice: number, itemname: string, mrp: number, quant: number, unit: unit, skip: boolean, primarySize?: string, imageURL?: string, buttonURL?: string };
 
@@ -65,12 +65,12 @@ export default function Page() {
 
         if (data) {
             let userId = data.user?.id;
-
-            if (localStorage.getItem(editId) != "") {
+            console.log(localStorage.getItem(editId) != "",  localStorage.getItem(editId))
+            if (localStorage.getItem(editId) != "" && localStorage.getItem(editId)) {
+                console.log("going herer")
                 setOrderId(localStorage.getItem(editId) ?? "")
-                setType("edit") ;
+                setType("edit");
             }
-            // getting start and end period 
             const url = location.origin + "/query/v1/order/timing";
             axios.get(url).then(m => {
                 let data = m.data.result;
@@ -113,7 +113,7 @@ export default function Page() {
                         setOrderId("")
                         // localStorage.setItem(localOrderId, "") // not required crate since it is default true in db - unique value
                         localStorage.setItem(localCrate, "{}")
-                        localStorage.setItem(editId,"")
+                        localStorage.setItem(editId, "")
                         location.reload();
                     }, 1000 * 60 * 10)
                 } else {
@@ -129,6 +129,18 @@ export default function Page() {
                 let tag = params.get("tag") || "";
 
                 //nothing doing - simply returning data -- from order
+
+                startTransition(async function () {
+                     let url = location.origin + "/query/v1/crateList"
+                   try {
+                     let fetchData = await axios.get(url);
+                    localStorage.setItem(localCrate, JSON.stringify(fetchData.data.result))
+                    
+                   }catch(err) {
+                    
+                    console.log(err)
+                   }
+                })
 
                 setDetails(() => {
                     let value: UserAddress = { restaurantName: "", restaurantType: [""], deliveryTiming: "", shopDetails: "", address, pincode: "", receiver, tag, instruction, default: true }
@@ -150,18 +162,22 @@ export default function Page() {
                 startTransition(async function () {
 
                     let dataReturn = await InfoValue("extra-all");
-
+                    let url = location.origin + "/query/v1/crateList"
+                   try {
+                     let fetchData = await axios.get(url);
+                    localStorage.setItem(localCrate, JSON.stringify(fetchData.data.result))
+                    // console.log(fetchData.data.result)
+                   }catch(err) {
+                    
+                    console.log(err)
+                   }
                     let { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue, deliveryAvailable } = dataReturn;
-            
                     setDetails(() => {
                         let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue, deliveryAvailable }
-                        // console.log(value.restaurantName)
                         return value;
 
                     })
-
                     setAddress(address)
-
                     setInstruction(prev => {
                         if (!prev) {
                             return [...(instruction)]
@@ -174,39 +190,32 @@ export default function Page() {
 
         }
         //fetching the address, user name, instruction , shop details.
-
-        // window.addEventListener("beforeunload", function (e) {
-        //     e.preventDefault();
-        //     e.returnValue = "Are you sure you want to leave ?"
-        // })
-            // data items 
+        // data items 
         if (localStorage.getItem(localCrate)) {
 
             let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
-            let length = Array.from(Object.keys(localObject)).length;
-     
-            setLength(length);
+            let lengthOriginal = Array.from(Object.keys(localObject)).length;
+
             let totalValue = 0;
             let fullDiscount = 0;
 
             let items: crateItemInterface = Array.from(Object.values(localObject));
+            items = items.filter(m => !m.skip);
             let listValue: Record<string, crateItemInterface> = {
-
             }
+            setLength(items.length);
 
             for (var eachItem of items) {
                 let category = eachItem.category;
                 let currentMRP = eachItem.mrp * eachItem.quant;
                 fullDiscount += currentMRP - (eachItem.discountPrice * eachItem.quant);
                 totalValue += eachItem.discountPrice * eachItem.quant;
-
                 if (category in listValue) {
                     listValue[category].push(eachItem)
                 } else {
                     listValue[category] = [eachItem];
                 }
             }
-
             setList(() => {
                 return listValue
             })
@@ -214,10 +223,8 @@ export default function Page() {
                 let value = Array.from(Object.entries(listValue))
                 return value;
             })
-
             setTotalPrice(totalValue);
             setSaving(fullDiscount);
-   
         }
 
     }, [params, router, setLength, data])
@@ -239,7 +246,7 @@ export default function Page() {
                         setConfirm(true)
                         setCrateId("");
                         setOrderId("");
-                        localStorage.setItem(editId,"")
+                        localStorage.setItem(editId, "")
 
                     }} className="flex items-center gap-2 cursor-pointer">
                         <div className="font-medium bg-logo h-[35px] w-[35px] flex justify-center items-center  rounded-full text-2xl">
@@ -262,13 +269,13 @@ export default function Page() {
                     }
 
                     {
-                        orderId.length > 0 && orderId    && <div className="flex justify-between items-center border-gray-200 border rounded bg-white py-2 px-4 mt-4 mx-6">
+                        orderId.length > 0 && orderId && <div className="flex justify-between items-center border-gray-200 border rounded bg-white py-2 px-4 mt-4 mx-6">
                             <div className="flex justify-center items-center w-[20%] ">
                                 <MessageSquareWarningIcon className="size-8 text-yellow-400"></MessageSquareWarningIcon>
                             </div>
                             <div className="w-[80%] flex flex-col gap-1 items-start justify-start text-gray-600 ">
                                 <div className="w-[95%] ">
-                                    currently editing order : <span className="uppercase text-xs text-yellow-600">{" #" + orderId.slice(0,16)}</span>
+                                    currently editing order : <span className="uppercase text-xs text-yellow-600">{" #" + orderId.slice(0, 16)}</span>
                                 </div>
                                 <div className="text-xs  w-[95%] text-justify  underline rounded-sm text-red-400 ">
                                     upon not completing modification in 10 mins it will discard automatically
@@ -279,7 +286,7 @@ export default function Page() {
                     {crateList.length > 0 ? <div className="p-6">
                         {disable ? <div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
                             No Delivery to {details.pincode}
-                        </div>:<div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
+                        </div> : <div className="bg-white h-16 w-full flex items-center px-4 border border-gray-200" >
                             Saved &nbsp; <span className="text-green-500">{" ₹ " + `${saving}` + " "}</span> &nbsp; with free delivery
                         </div>}
                         <div className="bg-white h-auto p-4 flex justify-between gap-4">
@@ -370,15 +377,16 @@ export default function Page() {
                                             let category = value.category;
                                             let unit = value.unit;
                                             let discountPrice = value.discountPrice;
-                                            let skip = value.skip;
+                                            let skip = value.outOfStock;
                                             let mrp = value.mrp;
                                             let primarySize = value.primarySize;
                                             let imageURL = value.imageURL;
                                             let buttonURL = value.buttonURL;
                                             let offers = value.offers;
+                                            let outOfStock = value.outOfStock;
 
                                             return <div key={index} >
-                                                <CrateItemCard setCrateId={setCrateId} offers={offers} setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}
+                                                <CrateItemCard outOfStock={outOfStock} setCrateId={setCrateId} offers={offers} setSaving={setSaving} setTotalPrice={setTotalPrice} setCrateList={setCrateList} itemname={itemname} quant={quant} category={category} unit={unit} discountPrice={discountPrice} skip={skip} mrp={mrp} primarySize={primarySize} imageURL={imageURL} buttonURL={buttonURL}
                                                 ></CrateItemCard>
                                             </div>
 
@@ -460,19 +468,20 @@ function EmptyCrate() {
     </div>
 }
 
-function OrderPlace({returnMessage}:{returnMessage:string}) {
-    
+function OrderPlace({ returnMessage }: { returnMessage: string }) {
+
     return <div className="flex-col absolute top-0 left-0 w-screen h-screen bg-white/50 z-10 flex justify-center items-center">
-            <Image unoptimized src="/order.gif" height={80} width={60} alt="order-loading"></Image>
-            <div className="text-sm font-thin bg-white w-1/2 p-10 text-center">
-                {returnMessage}
-            </div>
+        <Image unoptimized src="/order.gif" height={80} width={60} alt="order-loading"></Image>
+        <div className="text-sm font-thin bg-white w-1/2 p-10 text-center">
+            {returnMessage}
+        </div>
     </div>
 }
 
 
-function CrateBottom({type,setReturnMessage,setOrderPlace,crateId, disable, num, totalPrice, userId, orderId, instruction, details, saving, crateList }: {type:string,
-    crateId:string,
+function CrateBottom({ type, setReturnMessage, setOrderPlace, crateId, disable, num, totalPrice, userId, orderId, instruction, details, saving, crateList }: {
+    type: string,
+    crateId: string,
     num: number;
     totalPrice: number;
     userId: string;
@@ -482,8 +491,8 @@ function CrateBottom({type,setReturnMessage,setOrderPlace,crateId, disable, num,
     saving: number;
     crateList: [string, crateItemInterface][];
     disable: boolean,
-    setOrderPlace:React.Dispatch<SetStateAction<boolean>>
-    setReturnMessage:React.Dispatch<SetStateAction<string>>
+    setOrderPlace: React.Dispatch<SetStateAction<boolean>>
+    setReturnMessage: React.Dispatch<SetStateAction<string>>
 }) {
 
     return <div className="h-18 bg-white select-none shadow-sm w-full z-8 fixed bottom-0">
@@ -604,7 +613,7 @@ function InstructionModal({ instructionValue, clickHandle, setInstruction, setIn
     </div>
 
 }
-function AddressModal({noTime,disableButton, userId, details, setDetails, onclick, setAddress, setAddressModal, setInstruction }: { onclick: () => void, setAddress: React.Dispatch<SetStateAction<string>>, setInstruction: React.Dispatch<SetStateAction<string[]>>, userId: string, setDetails: React.Dispatch<SetStateAction<UserAddress>>, setAddressModal: React.Dispatch<SetStateAction<boolean>>, details: UserAddress, disableButton:React.Dispatch<SetStateAction<boolean>>, noTime:boolean }) {
+function AddressModal({ noTime, disableButton, userId, details, setDetails, onclick, setAddress, setAddressModal, setInstruction }: { onclick: () => void, setAddress: React.Dispatch<SetStateAction<string>>, setInstruction: React.Dispatch<SetStateAction<string[]>>, userId: string, setDetails: React.Dispatch<SetStateAction<UserAddress>>, setAddressModal: React.Dispatch<SetStateAction<boolean>>, details: UserAddress, disableButton: React.Dispatch<SetStateAction<boolean>>, noTime: boolean }) {
 
     let [list, setList] = useState<UserAddress[]>([])
     let [isPending, startTransition] = useTransition();
@@ -665,24 +674,28 @@ function AddressModal({noTime,disableButton, userId, details, setDetails, onclic
                             let additionalNo = m.additionalNo;
                             let deliveryAvailable = m.deliveryAvailable;
 
+                            console.log(deliveryAvailable, address)
 
                             return <div onClick={function () {
 
                             }} className={"flex items-center px-6 h-auto rounded-sm  border gap-3 py-3 border-gray-200 text-gray-500 justify-between **"} key={index}>
-                                <div onClick={function () {
+                                <div onClick={async function () {
+                                    let deliveryAvailable = await pincodeFind(pincode);
+
+                                    // console.log(deliveryAvailable)
                                     setDetails(prev => {
-                                        let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue , deliveryAvailable}
+                                        let value: UserAddress = { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue, deliveryAvailable }
                                         return value;
                                     })
                                     // console.log(address, deliveryAvailable)
-                                    if(!deliveryAvailable) {
+                                    if (!deliveryAvailable) {
                                         disableButton(true)
-                                    }else {
-                                        if(!noTime) {
+                                    } else {
+                                        if (!noTime) {
                                             disableButton(false)
                                         }
                                     }
-                                    
+
                                     setInstruction([...instruction])
                                     setAddress(address)
                                     setAddressModal(false);
@@ -699,7 +712,7 @@ function AddressModal({noTime,disableButton, userId, details, setDetails, onclic
                                 <div className="flex gap-2">
                                     <div onClick={function () {
 
-                                        let useSearchParams = "restaurantName=" + restaurantName + "&restaurantType=" + restaurantType + "&deliveryTiming=" + deliveryTiming + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + instruction + "&default=" + defaultValue + "&address=" + address + "&type=" + "modified" + "&callback=" + window.location.pathname+"&additionalNo=" + additionalNo;
+                                        let useSearchParams = "restaurantName=" + restaurantName + "&restaurantType=" + restaurantType + "&deliveryTiming=" + deliveryTiming + "&shopDetails=" + shopDetails + "&pincode=" + pincode + "&tag=" + tag + "&receiver=" + receiver + "&instruction=" + instruction + "&default=" + defaultValue + "&address=" + address + "&type=" + "modified" + "&callback=" + window.location.pathname + "&additionalNo=" + additionalNo;
                                         router.push("/users/" + userId + "/address_details?" + useSearchParams)
 
                                     }}>
@@ -755,7 +768,7 @@ function AddressModal({noTime,disableButton, userId, details, setDetails, onclic
     </div>
 }
 
-function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButton }: {setNoTime:React.Dispatch<SetStateAction<boolean>>, startPeriod: number, endPeriod: number, setDisableButton?: React.Dispatch<SetStateAction<boolean>> }) {
+function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButton }: { setNoTime: React.Dispatch<SetStateAction<boolean>>, startPeriod: number, endPeriod: number, setDisableButton?: React.Dispatch<SetStateAction<boolean>> }) {
     //rate updates before 5 pm
     //evening 5 pm to 2 am 
 
@@ -777,7 +790,7 @@ function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButto
         let currentSec = curr.getSeconds();
 
         if (endPeriod < startPeriod) {
-        
+
             if (currentHour < startPeriod && currentHour >= endPeriod) {
                 clearInterval(clearTime.current)
                 setNoOrder(true)
@@ -788,11 +801,11 @@ function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButto
             // i.e in case of 24 hr , 1 am , 2 am so on i.e next day
             // let endPeriodTime = new Date(currentYear, currentMonth, currentDate+1, endPeriod);
             let hourDifference;
-            if(currentHour < startPeriod) {
-             hourDifference =   endPeriod - currentHour - 1;
-            }else {
+            if (currentHour < startPeriod) {
+                hourDifference = endPeriod - currentHour - 1;
+            } else {
 
-             hourDifference = 24 - currentHour + endPeriod - 1;
+                hourDifference = 24 - currentHour + endPeriod - 1;
             }
             let minDifference = 60 - currentMin;
             let secDifference = 60 - currentSec;

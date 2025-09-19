@@ -31,13 +31,17 @@ export default function AddList() {
         description: "",
         bgBody: "",
         bgTitle: "",
+        iconURL: ""
     })
+    let [listDataOriginal, setDataOriginal] = useState<string[]>([])
 
-    if (localStorage.getItem(localPreorder)) {
+    if (localStorage.getItem(localPreorder) != "null" && localStorage.getItem(localPreorder) != "{}"  && localStorage.getItem(localPreorder) != null) {
         let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
         if (title in localData) {
             preorderData = localData[title];
         }
+    } else {
+        localStorage.setItem(localPreorder, "{}")
     }
     let [currentTotal, setCurrentTotal] = useState(preorderData.list.length)
 
@@ -45,6 +49,7 @@ export default function AddList() {
         // i don't have to check the localstorage for it since 
         // incase of not in the localstorage 
         let url = window.location.origin + "/query/v1/preorder-list/" + params;
+
         axios.get(url).then(m => {
             let data = m.data.result;
             if (data == "non-found") {
@@ -57,8 +62,14 @@ export default function AddList() {
                 }
             } else {
                 setPreorderData(data)
+                if(preorderData.title == "") {
+
+                    setCurrentTotal(data.list.length)
+                }
+                setDataOriginal(data.list.map((m:any) => m.name))
+
             }
-        })
+        }).catch(err => console.log(err))
 
     }, [params, preorderData.title, router])
 
@@ -85,15 +96,48 @@ export default function AddList() {
         </TopBar>
 
         {/* //search bar first */}
-        <AllItems setCurrentTotal={setCurrentTotal} title={title.toLowerCase()} />
-
-
+        <AllItems allData={preorderData} setCurrentTotal={setCurrentTotal} title={title.toLowerCase()} listData={preorderData.list.map(m => ({ name: m.name }))} />
         <div className="h-21 border-t border-gray-200 bg-white fixed bottom-0 p-4 shadow-xs  w-full">
             {/* //add to cart fixed on the page */}
-            <div className="flex justify-between items-center px-8 py-4 text-white bg-logo rounded-sm cursor-pointer text-xl" onClick={function () {
+            <div className="flex justify-between items-center px-8 py-4 text-white bg-logo rounded-sm cursor-pointer text-xl" onClick={async function () {
                 //adding to the local stroage of the preorder-item --> list values
                 //updating the database as well from here.
-                router.push("/dashboard/preorder-list/" + params)
+
+                //checking the difference
+
+                if (localStorage.getItem(localPreorder) != "null" && localStorage.getItem(localPreorder) != "{}") {
+
+                    let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
+
+                    if (title in localData) {
+                        preorderData = localData[title];
+                        // checking the data and seeing the difference for to update the preorder list in the database.
+
+                        let listLocal = preorderData.list.map(m => m.name);
+                        let dataChange = listLocal.filter(m => !(listDataOriginal.includes(m)));
+
+                       
+                        let url = window.location.origin + "/query/v1/preorder-list/additems/"+(params as string).replace(/_/g," ");
+
+                      try {
+                         let returnValue = await axios.post(url, {
+                            data:dataChange
+                        })
+                        // there is no error 
+                        // router.push("/dashboard/preorder-list/" + params)
+                         router.push("/dashboard/preorder-list/" + params)
+
+                         console.log(returnValue)
+                      }catch (err) {
+                        console.log(err, "error occured while putting the data")
+                      } 
+                        // making the current quantity and other things
+
+                    }
+                } else {
+                    // --- there is no change at all 
+                    router.push("/dashboard/preorder-list/" + params)
+                }
             }}>
                 <div>
                     {currentTotal} items |
@@ -106,14 +150,14 @@ export default function AddList() {
     </div>
 }
 
-function AllItems({ title, setCurrentTotal }: { title: string, setCurrentTotal: React.Dispatch<SetStateAction<number>> }) {
+function AllItems({ title, setCurrentTotal, listData, allData }: { title: string, setCurrentTotal: React.Dispatch<SetStateAction<number>>, listData: { name: string }[], allData: Preorder }) {
 
     const searchRef = useRef<HTMLInputElement>(null);
     const [searchValue, setSearchValue] = useState("")
     const [categoryValue, setCategoryValue] = useState<string[]>([])
     const [currentValue, setCurrentValue] = useState<string>("all")
     const [list, setList] = useState<Itemlist[]>([])
-    const [isStarting, startTransition] = useTransition();
+    const [_, startTransition] = useTransition();
     const footerRef = useRef<HTMLDivElement>(null)
     const lastURL = useRef("https://localhost:3000");
     const [offset, setOffset] = useState(0);
@@ -195,11 +239,11 @@ function AllItems({ title, setCurrentTotal }: { title: string, setCurrentTotal: 
                 })
                 setFetching(false)
             })
-             if (footerRef.current) {
-                    setFetching(false)
-                    observer.unobserve(footerRef.current)
-                    return;
-                }
+            if (footerRef.current) {
+                setFetching(false)
+                observer.unobserve(footerRef.current)
+                return;
+            }
 
             // setOffset(0);
             offsetRef.current = 0;
@@ -380,7 +424,7 @@ function AllItems({ title, setCurrentTotal }: { title: string, setCurrentTotal: 
                                 let outofstock = m.outOfStock
                                 let comingSoon = m.comingSoon
                                 let category = m.category ?? "all";
-                                return <ItemCard setCurrentTotal={setCurrentTotal} preorderName={title} cardType="preorder-search" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} />
+                                return <ItemCard allData={allData} preorderListItem={listData} setCurrentTotal={setCurrentTotal} preorderName={title} cardType="preorder-search" key={index} category={category} conversionRate={conversion} name={name} imageURL={imageURL} buttonURL={buttonURL} quantity={quantity} primarySize={primarySize} secondarySize={secondarySize} secondaryUnit={secondaryUnit} mrp={mrp} discountValue={discountPrice} savingAmount={savingAmount} offers={offers} unit={unit} brand={brand} outOfStock={outofstock} comingSoon={comingSoon} />
                             })
                         }
 

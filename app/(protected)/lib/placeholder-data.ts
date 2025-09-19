@@ -113,6 +113,7 @@ export interface Preorder {
   title: string;
   description: string;
   imageURL: string;
+  iconURL: string;
   buttonURL: string;
   list: Itemlist[];
   bgTitle: string,
@@ -126,12 +127,13 @@ export interface Preorder {
 //not doing this way all the data to be seprated i.e brand, items, category, preorder
 // joining them when required.
 
-export const preorderList: Preorder[] = [
+export const preorderList: Preorder[] = [ 
   {
     title: "Daily Order",
     description: "getting your regular",
     imageURL: "/preorder-list/daily_order.png",
     buttonURL: "/dashboard/preorder-list/daily_order",
+    iconURL: "/dashboard/preorder-list/daily_order",
     list: [{
       name: "Tomato",
       imageURL: "/categories-item/vegetable/tomato.png",
@@ -147,7 +149,7 @@ export const preorderList: Preorder[] = [
       brand: "generic",
       secondaryUnit: unit.none,
       type: { all: "all", vegetable: "tomato , potato & onion" },
-      outOfStock: true,
+      outOfStock: false,
       currentQuantity: 2,
       category:"vegetable"
     }, {
@@ -350,6 +352,7 @@ export const preorderList: Preorder[] = [
     title: "Last Day Order",
     description: "your previous day order",
     imageURL: "/preorder-list/last_day_order.png",
+    iconURL: "/preorder-list/last_day_order.png",
     buttonURL: "/dashboard/preorder-list/last_day_order",
     list: [{
       name: "Toned Milk",
@@ -564,6 +567,7 @@ export const preorderList: Preorder[] = [
     title: "Create one",
     description: "create a new one",
     imageURL: "/preorder-list/create_one.png",
+    iconURL: "/preorder-list/create_one.png",
     buttonURL: "/dashboard/preorder-list/create_one",
     list: [],
     bgTitle: "bg-[#5cb3cc]",
@@ -573,6 +577,7 @@ export const preorderList: Preorder[] = [
     title: "Festival Time",
     description: "2x your supply in high demand",
     imageURL: "/preorder-list/festival_time.png",
+    iconURL: "/preorder-list/festival_time.png",
     buttonURL: "/dashboard/preorder-list/festival_time",
     list: [{
       name: "Ketchup Bottle",

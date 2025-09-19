@@ -36,32 +36,33 @@ export function OrderPageBody() {
     async function loadMoreData() {
 
         startTransition(async function () {
-                let returnData = await getOrder("all",String(offset.current));
-                let currentOrder:OrderCollection[] = returnData?.currentOrder;
-                let prevOrder:OrderCollection[] = returnData?.prevOrder;
+            let returnData = await getOrder("all", String(offset.current));
+            let currentOrder: OrderCollection[] = returnData?.currentOrder;
+            let prevOrder: OrderCollection[] = returnData?.prevOrder;
 
-                if (currentOrder.length == 0 && prevOrder.length == 0) {
-                     setContentThere(false)
-                     setLoading(false)
+            if (currentOrder.length == 0 && prevOrder.length == 0) {
+                setContentThere(false)
+                setLoading(false)
                 return;
             }
 
-                setCurrOrderList(prev => {
-                    if(!prev) {
-                        return currentOrder;
-                    }
-                    return [...prev,...currentOrder]});
-                setPrevOrderList(prev => {
-                    if(!prev) {
+            setCurrOrderList(prev => {
+                if (!prev) {
+                    return currentOrder;
+                }
+                return [...prev, ...currentOrder]
+            });
+            setPrevOrderList(prev => {
+                if (!prev) {
 
-                        return prevOrder
-                    }
+                    return prevOrder
+                }
 
-                    return [...prev,...prevOrder]
-                })
+                return [...prev, ...prevOrder]
+            })
             setLoading(false)
         })
-     
+
 
         offset.current += 4;
     }
@@ -74,35 +75,36 @@ export function OrderPageBody() {
             setUserId(userId ?? "")
 
             startTransition(async function () {
-                let returnData = await getOrder("all",String(offset.current));
-                let currentOrder:OrderCollection[] = returnData?.currentOrder;
-                let prevOrder:OrderCollection[] = returnData?.prevOrder;
+                let returnData = await getOrder("all", String(offset.current));
+                let currentOrder: OrderCollection[] = returnData?.currentOrder;
+                let prevOrder: OrderCollection[] = returnData?.prevOrder;
 
                 setCurrOrderList(prev => {
-                    if(!prev) {
+                    if (!prev) {
                         return currentOrder;
                     }
-                    return [...prev,...currentOrder]});
+                    return [...prev, ...currentOrder]
+                });
                 setPrevOrderList(prev => {
-                    if(!prev) {
+                    if (!prev) {
 
                         return prevOrder
                     }
 
-                    return [...prev,...prevOrder]
+                    return [...prev, ...prevOrder]
                 })
+                setLoading(false);
+                setFirstFetch(true);
             })
             offset.current = offset.current + 4;
         }
-        setLoading(false);
-        setFirstFetch(true);
-    }, [router])
+    }, [router, data])
 
 
     async function editFunction() {
         // TODO time period 2 hours from creation time - then only allow
         startTransition(async () => {
-            let ModifyReturn = await orderModify(orderIdRef.current) ;
+            let ModifyReturn = await orderModify(orderIdRef.current,"edit");
 
             if (ModifyReturn.success) {
                 alertText.current = "Modifying Order !"
@@ -113,7 +115,7 @@ export function OrderPageBody() {
                     m.quant = Number(m.quant)
                     localData[m.itemname] = m
                 })
-                
+
                 localStorage.setItem(localCrate, JSON.stringify(localData));
                 localStorage.setItem(localOrderId, orderIdRef.current)
                 //crate page should not create it ;
@@ -122,7 +124,11 @@ export function OrderPageBody() {
                 setTimeout(function () {
                     router.push("/dashboard/crate?type=edit&orderId=" + orderIdRef.current + "&address=" + ModifyReturn.address + "&instruction=" + ModifyReturn.instruction + "&tag=" + ModifyReturn.tag + "&receiver=" + ModifyReturn.receiver);
                 }, 500)
-            } else {
+            } else if (ModifyReturn.message){
+
+                alertText.current = ModifyReturn.message
+                setOpenAlert(true)
+            }  else {
 
                 setOpenAlert(true)
                 alertText.current = "Try Again !"
@@ -136,27 +142,27 @@ export function OrderPageBody() {
         //put request to the backend regarding the modiification
         //of the
         let cancelReturn = await orderCancel(orderIdRef.current);
-        
-        if(cancelReturn) {  
 
-                setOpenAlert(true)
-                alertText.current = "Order is cancelled !"
-                setTimeout(function () {
-                    location.reload();
-                }, 500)
+        if (cancelReturn) {
 
-        }else {
+            setOpenAlert(true)
+            alertText.current = "Order is cancelled !"
+            setTimeout(function () {
+                location.reload();
+            }, 500)
 
-                setOpenAlert(true)
-                alertText.current = "Can't Cancel Order After 2 hours!"
+        } else {
+
+            setOpenAlert(true)
+            alertText.current = "Can't Cancel Order After 2 hours!"
         }
     }
     async function reorderFunction() {
 
-         startTransition(async () => {
-            let ModifyReturn = await orderModify(orderIdRef.current) ; // it is same
+        startTransition(async () => {
+            let ModifyReturn = await orderModify(orderIdRef.current, "reorder"); // it is same
 
-               if (ModifyReturn.success) {
+            if (ModifyReturn.success) {
                 alertText.current = "Repeating Order !"
                 setOpenAlert(true)
                 let localData: { [key: string]: crateItemInterfaceEach } = {};
@@ -171,15 +177,19 @@ export function OrderPageBody() {
                 setTimeout(function () {
                     router.push("/dashboard/crate?type=repeat&orderId=" + orderIdRef.current + "&address=" + ModifyReturn.address + "&instruction=" + ModifyReturn.instruction + "&tag=" + ModifyReturn.tag + "&receiver=" + ModifyReturn.receiver);
                 }, 500)
+            }else if (ModifyReturn.message){
+
+                alertText.current = ModifyReturn.message
+                setOpenAlert(true)
             } else {
 
-                setOpenAlert(true)
                 alertText.current = "Try Again !"
+                setOpenAlert(true)
             }
 
         })
 
-       
+
 
     }
     return <div className="h-screen overflow-scroll bg-[#ebf6f6] pb-36">
@@ -188,7 +198,7 @@ export function OrderPageBody() {
                 {
                     currentOrderList.map((m, index) => {
 
-                        let orderId = m.orderId.slice(0,15);
+                        let orderId = m.orderId.slice(0, 15);
                         let orderCreated = m.createdOrder;
                         let deliveryDate = m.deliveryDate;
                         let deliveryTiming = m.deliveryTiming;
@@ -196,7 +206,7 @@ export function OrderPageBody() {
                         let deliveryStatus = m.deliveryStatus;
                         let orderStatus = m.orderStatus;
 
-                       
+
                         let orderValue = m.totalValue;
 
 
@@ -229,7 +239,7 @@ export function OrderPageBody() {
                                                 <div className="">
                                                     {/* //TODO  i.e making we are able to next day as of now, current day, day after tomorrow , after 2 days till week */}
                                                     {
-                                                        " "} {deliveryDate.split(" ").slice(0,4).join(" ")}
+                                                        " "} {deliveryDate.split(" ").slice(0, 4).join(" ")}
                                                 </div>
                                                 <div>
                                                     {deliveryTiming + " "}  preferred slot time
@@ -294,8 +304,8 @@ export function OrderPageBody() {
 
                             <div >
                                 <div className="flex items-center text-lg gap-2">
-                                    <div className="text-sm">{orderCreated.split(" ").slice(0,3).join(" ")}</div>
-                                    <span className="text-gray-600 text-xs uppercase ">{" #" + orderId.split("-")[2].slice(0,13)}</span>
+                                    <div className="text-sm">{orderCreated.split(" ").slice(0, 3).join(" ")}</div>
+                                    <span className="text-gray-600 text-xs uppercase ">{" #" + orderId.split("-")[2].slice(0, 13)}</span>
                                 </div>
                                 <div>
                                     Order value : {" ₹ " + orderValue}
@@ -324,8 +334,8 @@ export function OrderPageBody() {
                 <div className="text-xl "> Time to make your <span className="underline">first order</span> <span className="text-primary">!</span> </div>
                 <div className="w-1/2 mt-2">
                     <GenericButton onclick={function () {
-                    router.push("/dashboard/category")
-                }} text="Explore Items" classValue="flex p-2 justify-around text-center bg-logo text-white" icon={<Image src="/crate.svg" width={25} height={35} alt="explore category"/>} ></GenericButton>
+                        router.push("/dashboard/category")
+                    }} text="Explore Items" classValue="flex p-2 justify-around text-center bg-logo text-white" icon={<Image src="/crate.svg" width={25} height={35} alt="explore category" />} ></GenericButton>
                 </div>
             </div>
         }

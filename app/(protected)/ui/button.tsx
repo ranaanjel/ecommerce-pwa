@@ -8,7 +8,7 @@ import { CrateContext } from "./rootLayoutClient";
 import axios from "axios";
 import { UserAddress } from "../lib/user-placeholder";
 import { crateItemInterface } from "../lib/definitions";
-import { PlaceOrder } from "@/actions/databaseCall";
+import { PlaceOrder, updateCurrentCrate } from "@/actions/databaseCall";
 
 export function GenericButton({ icon, classValue, onclick, text, refValue }: {
     onclick?: () => void,
@@ -131,10 +131,11 @@ export function SwipeButton(
             //modifying the value -- edit the order value;
 
             //getting all data from the props
-            console.log("swipe for modify")
 
             let returnModifyOrder = await PlaceOrder("modify", editOrder as string, "", [""], )
             let orderId = returnModifyOrder;
+            
+            console.log("swipe for modify", orderId)
 
             if(!orderId) {
                 return;
@@ -156,7 +157,12 @@ export function SwipeButton(
        
             startTransition(async function () {
 
-                let dataOrderReturn = await PlaceOrder("new", crateId, details.tag,instruction, saving, totalPrice );
+                // updating the list value as well
+                let data = Object.values(JSON.parse(localStorage.getItem(localCrate) as string));
+                
+                await updateCurrentCrate(data);
+
+                let dataOrderReturn = await PlaceOrder("new", crateId, details.tag,Array.from(new Set(instruction)), saving, totalPrice );
                 
                 if(!dataOrderReturn) {
                     router.push("/dashboard/crate");
@@ -212,7 +218,6 @@ export function SwipeButton(
                             fromTextRef.current.textContent = to;
                             fromTextRef.current.style.opacity = "1";
                             deliveryRef.current.classList.remove("hide");
-                            console.log(deliveryRef.current.style.display)
                         }
                         swipeRef.current.innerHTML = ""
                         swipeRef.current.classList.add("swipe")

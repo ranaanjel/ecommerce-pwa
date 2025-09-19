@@ -6,12 +6,11 @@ interface CardFooterProps {
   totalItems: number;
   buttonURL:string
 }
-export function PreorderCard({title, description, imageURL, buttonURL, list, bgBody, bgTitle, type}:Preorder) {
+export function PreorderCard({title, description, imageURL, buttonURL, list, bgBody, bgTitle, type, iconURL}:Preorder) {
 
     let totalItem = list.length;
     let bodyClass = "relative mt-2 h-86 min-w-[52%] w-[52%] max-w-[52%] rounded-lg "+ bgBody;
     let titleClass = bgTitle
-    // console.log(titleClass, bodyClass)
     
     if (type == "page") {
       bodyClass = "relative h-86 rounded-lg "+ bgBody;
@@ -19,7 +18,7 @@ export function PreorderCard({title, description, imageURL, buttonURL, list, bgB
     }
 
     return <div className={bodyClass}>
-    <CardHeader titleClass={titleClass} title={title} description={description} imageURL={imageURL}   />
+    <CardHeader titleClass={titleClass} title={title} description={description} imageURL={type=="page"? imageURL : iconURL}   />
     <div className="min-h-[38%]">
         {
            list.length > 0 ? list.filter(m => !m.outOfStock).slice(0,2).map((item:Itemlist, index) => {
@@ -29,6 +28,7 @@ export function PreorderCard({title, description, imageURL, buttonURL, list, bgB
 
                 let mrp = String(item.mrp);
                 let quantity = item.currentQuantity ?? item.quantity;
+
 
                 if(localStorage.getItem("crate")) {
                   let localCrate = JSON.parse(localStorage.getItem("crate")as string);

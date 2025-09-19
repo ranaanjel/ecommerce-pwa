@@ -34,16 +34,16 @@ export default function Page() {
             let data  = await name();
             if(!data) {
                 console.log(dataSession?.user?.id)
-                setTimeout(function () {
+                // setTimeout(function () {
                     redirect("/registration/"+dataSession?.user?.id)
-                },1000)
+                // },1000)
             }
             
             data = data.length > 25 ? data.slice(0,25)+"..." : data;
             setAddress(data);
         }) 
 
-    }, [])
+    }, [dataSession])
 
     //having all time - cart logo / preorder list logo to quickly go to their page in case of adding the items from navigating the places.
 

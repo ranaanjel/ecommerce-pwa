@@ -7,7 +7,7 @@ import { TopBar } from "@/app/(protected)/ui/dashboard/topBar";
 
 export default async function Page({ params }: { params: Promise<{ categoryType: string }> }) {
     let categoryType = (await params);
-    let data = categoryType.categoryType.split("_").join(" , ") ;
+    let data = categoryType.categoryType.split("_").join(", ") ;
 
     // convention for writing the cateogry  
 
@@ -16,7 +16,7 @@ export default async function Page({ params }: { params: Promise<{ categoryType:
     }
     let index = data.lastIndexOf(",");
     if(index !=-1) {
-        data = data.substring(0, index) + "&" + data.substring(index+1)
+        data = data.substring(0, index) + " &" + data.substring(index+1)
     }
     console.log(data)
 

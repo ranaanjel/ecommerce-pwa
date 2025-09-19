@@ -21,7 +21,7 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
         let url = window.location.origin + "/query/v1/categoryItem/" + category + "?offset=" + marginValue.current;
         let data = await axios.get(url)
    
-        console.log(data.data.result, observerValue.current) 
+        // console.log(data.data.result, observerValue.current) 
         if (data.data.result.length == 0 && observerValue.current !=undefined) {
             observerValue.current.unobserve(footRef as HTMLElement);
         }

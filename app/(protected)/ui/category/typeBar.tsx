@@ -9,6 +9,7 @@ import { filterProps } from "../filterModal";
 export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<SetStateAction<filterProps[]>>}) {
 
     const [list, setList] = useState([]);
+    const [typeImageList, setTypeImageList] = useState([]);
     const [loading, setLoading] = useState(true)
 
     useEffect(function () {
@@ -17,8 +18,19 @@ export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<Set
            //console.log(data.data.result)
         //    console.log(data.data.result, type)
            setList(data.data.result)
+        //    setLoading(false)
+        }).catch(err=> console.log(err))
+
+         url = window.location.origin +"/query/v1/type/"+type+"/images";
+        axios.get(url).then(data => {
+           //console.log(data.data.result)
+        //    console.log(data.data.result, type)
+        // console.log(data.data.result)
+           setTypeImageList(data.data.result)
            setLoading(false)
         })
+
+
     },[type])
 
     return <div className=" flex flex-col gap-6 flex-start py-4 items-center justify-start h-[92%] overflow-scroll typebar">
@@ -46,8 +58,9 @@ export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<Set
                 </div>
             
             {loading ? <SkeletonType/>:""}
-            {list.map((typeValue, index) => {
+            { Object.entries(typeImageList).length > 0 &&  list.map((typeValue, index) => {
                 //changing the type of the filter value - to that type as well.
+                // console.log(typeValue)
                 return <div onClick={function () {
                     setType(prev => {
                       let newValue =  prev.map(m => {
@@ -69,7 +82,7 @@ export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<Set
                     })
                 }} key={index}className="text-xs flex flex-col items-center">
                     <div className="h-[50px] w-[50px] bg-[#ebf6ff]/60 rounded-full flex justify-start items-center">
-                        <Image placeholder="blur" blurDataURL="/blur.jpg" src={"/types/"+typeValue+".png"} alt={typeValue} width={50} height={50} className="rounded-full"/> 
+                        <Image placeholder="blur" blurDataURL="/blur.jpg" src={typeImageList[typeValue]} alt={typeValue} width={50} height={50} className="rounded-full"/> 
                     </div> 
                     <div className="text-[11px] text-center text-xs p-0.5">
                     {typeValue}

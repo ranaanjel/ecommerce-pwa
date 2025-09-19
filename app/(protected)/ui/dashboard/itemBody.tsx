@@ -21,7 +21,7 @@ export function ItemComponentBody({itemname}:{itemname:string}) {
             let data = m.data.result;
             setItem([data])
             setLoading(false)
-        })
+        }).catch(err=> console.log(err))
 
 
     },[itemname])

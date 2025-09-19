@@ -1,10 +1,12 @@
 import { categoryList, upcomingCategoryList } from "@/app/(protected)/lib/placeholder-data"
+import Loading from "@/app/loading";
 import axios from "axios";
 import { ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { CategoryLoading } from "../loadingComponent";
 
 
 export function Categories({ type, active }: { type: "page" | "dropdown" | "component" | "line", active?: string }) {
@@ -27,7 +29,7 @@ export function Categories({ type, active }: { type: "page" | "dropdown" | "comp
             let data = m.data.result;
             setCategoryListFetch(data.active)
             setCategoryUpcoming(data.upcoming)
-        })
+        }).catch(err=> console.log(err))
 
     }, [])
 
@@ -57,14 +59,17 @@ export function Categories({ type, active }: { type: "page" | "dropdown" | "comp
                         let imageURL = m.imageURL
                         let buttonURL = m.buttonURL;
                         return <CategoryItem type="page" key={index} itemName={itemName} imageURL={imageURL} buttonURL={buttonURL} />
-                    })
+                    }) 
                 }
             </div>
+            {categoryListFetch.length == 0 && <div className=" items-center  w-full">
+                <Image placeholder="blur" blurDataURL="/blur.jpg" src={"/loading-items.gif"} alt="" width={100} height={100} className="object-cover w-[400px] h-[400px]" />
+                    </div>
+            }
             <div>
                 <div className="flex text-xl px-4 mt-4 font-semibold">
                     Coming soon
                     < Image src="/PersonSimpleRun.svg" height={25} width={25} alt="coming soon" />
-
                 </div>
 
                 <div className="grid grid-cols-3 place-items-center text-center w-full gap-1 my-2">

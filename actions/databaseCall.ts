@@ -8,6 +8,7 @@ import { addDays } from "date-fns";
 import { OrderState } from "@/app/(protected)/lib/user-placeholder";
 import { timePeriod } from "@/app/(protected)/lib/utils";
 import { unit } from "@/app/(protected)/lib/placeholder-data";
+import axios from "axios";
 
 export async function UserDataInfo(userId: string) {
     let objectId = new ObjectId(userId);
@@ -112,7 +113,46 @@ export async function registerUser(userId: string, query: string, onPage: string
         let categoryPricingObjectId = await db.collection("categorypricings").findOne({
             default: true
         })
-        let defaultPreOrderCard = (await db.collection("defaultpreorderlists").find({}).toArray()).map(m => m._id)
+
+        let defaultPreOrderCard = (await db.collection("defaultpreorderlists").find({}).toArray());
+        let defaultPreOrderCardItems = (await db.collection("defaultpreorderlistitems").find({}).toArray());
+        // creating a new one preorderlist card for and items as well
+
+        let listOfNewlyCreatedPreorderCard: ObjectId[] = [];
+
+        for (let eachPreordercard of defaultPreOrderCard) {
+
+            let dataToPutPreorder = {
+                title: eachPreordercard.title,
+                description: eachPreordercard.description,
+                buttonURL: eachPreordercard.buttonURL,
+                imageURL: eachPreordercard.imageURL,
+                iconURL: eachPreordercard.iconURL,
+                bgTitleColor: eachPreordercard.bgTitleColor,
+                bgBodyColor: eachPreordercard.bgBodyColor,
+                userId: objectId
+            }
+
+            let returnPreorderCard = (await db.collection("preorderlists").insertOne(dataToPutPreorder));
+
+            listOfNewlyCreatedPreorderCard.push(returnPreorderCard.insertedId);
+            //finding the default preorder list items 
+
+            let foundPreorderlistItem = defaultPreOrderCardItems.find(m => {
+                return m.preorderListId.toString() == eachPreordercard._id.toString();
+            })
+            console.log(foundPreorderlistItem?.listValue, "-----------------")
+
+            let dataToPutPreorderItems = {
+                userId: objectId,
+                preorderListId: returnPreorderCard.insertedId,
+                listValue: foundPreorderlistItem?.listValue ?? []
+            };
+
+            await db.collection("preorderlistitems").insertOne(dataToPutPreorderItems);
+        }
+
+
         //creating the default preorder for the user and assigning them here.
         await consumerData.insertOne({
             "userId": objectId,
@@ -124,7 +164,7 @@ export async function registerUser(userId: string, query: string, onPage: string
             "createdAt": new Date(),
             "updatedAt": new Date(),
             "orderHistoryId": [],
-            "preorderCardId": defaultPreOrderCard,
+            "preorderCardId": listOfNewlyCreatedPreorderCard,
             "currentCartId": "",
         })
 
@@ -198,6 +238,9 @@ export async function InfoValue(type: string) {
     })
     // console.log(userId)
 
+    // checking if the address previously added - delivery available now ?
+
+
     if (type == "address") {
         if (returnAddress) {
             return returnAddress.address;
@@ -240,13 +283,18 @@ export async function InfoValue(type: string) {
             let data = await consumerAddress.find(
                 { userId: objectId }).toArray();
             // console.log(data)
-            let returnAddress = data.map((m: any) => ({
+
+
+            // let deliveryReturn = (await (await fetch(backendURL+ returnAddress?.pincode)).json()).delivery;
+            // console.log(deliveryReturn,returnAddress?.pincode, "---- server call ");
+
+            let returnAddressData = data.map((m: any) => ({
                 ...m,
                 _id: m._id.toString(),
-                userId: m.userId?.toString?.() ?? m.userId
+                userId: m.userId?.toString?.() ?? m.userId,
             }));
 
-            return returnAddress;
+            return returnAddressData;
         } else {
             return false;
         }
@@ -263,6 +311,9 @@ export async function InfoValue(type: string) {
 
     } else if (type == "extra-all") {
         //returning the default address 
+
+        // let deliveryReturn = (await (await fetch(backendURL+ returnAddress?.pincode)).json()).delivery;
+        // console.log(deliveryReturn,returnAddress?.pincode, "---- server call ");
 
         if (returnData && returnAddress) {
             let restaurantName = (returnData.restaurantName);
@@ -371,7 +422,7 @@ export async function UpdateUser(type: string, search: string) {
                 return "tag:not-exist"
             }
 
-            let deliveryReturn = (await (await fetch(backendURL + "user/" + pincode)).json()).delivery;
+            let deliveryReturn = (await (await fetch(backendURL + pincode)).json()).delivery;
 
 
             await consumerAddress.updateOne({
@@ -440,7 +491,7 @@ export async function InsertData(type: string, search: string) {
         }
 
         //
-        let pincodeReturn = (await (await fetch(backendURL + "user/" + pincode)).json()).delivery;
+        let pincodeReturn = (await (await fetch(backendURL + pincode)).json()).delivery;
 
         await consumerAddress.insertOne({
             userId: objectId,
@@ -509,7 +560,7 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
     // console.log(instruction)
     // creating a new order
 
-    
+
     if (type == "new") {
 
         let currentOrderPrecheck = await order.find({
@@ -537,9 +588,9 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
             let currentTime = new Date();
             let deliveryDate: Date | null = null;
             let currentHour = currentTime.getHours();
-            
-            let dataTimeValue:number[] = timePeriod;
-            let startPeriod:number=dataTimeValue[0];
+
+            let dataTimeValue: number[] = timePeriod;
+            let startPeriod: number = dataTimeValue[0];
 
             if (currentHour >= startPeriod) {
                 deliveryDate = addDays(currentTime, 1)
@@ -587,10 +638,10 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
             })// updating instruction
             return returnOrderData.insertedId.toString();
 
-        }else {
+        } else {
             return false;
         }
-    }else if(type=="modify") {
+    } else if (type == "modify") {
         // get the current crate - convert to default false
         // orders - document -- changing the status
         // consumer data - no change we order history added4
@@ -599,11 +650,11 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
             customerId: objectId, current: true
         });
         let orderReturnValue = await order.findOne({
-                orderId:crateId
-            })
+            orderId: crateId
+        })
 
         let returnAddress = await consumerAddress.findOne({
-            _id:orderReturnValue?.userAddressId
+            _id: orderReturnValue?.userAddressId
         })
 
         console.log(currentCrate, crateId, type, returnAddress)
@@ -620,12 +671,12 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
                 }
             }) // changing the current crate false.
 
-           await order.updateOne({
-                orderId:crateId
+            await order.updateOne({
+                orderId: crateId
             }, {
-                $set:{
-                    orderStatus:"order modified",
-                    orderList:currentCrate._id
+                $set: {
+                    orderStatus: "order modified",
+                    orderList: currentCrate._id
                 }
             }); // creating order
             await consumerData.updateOne({
@@ -644,7 +695,7 @@ export async function PlaceOrder(type: string, crateId: string, tag: string, ins
             })// updating instruction
 
             return orderReturnValue?._id.toString();
-        }else {
+        } else {
             return false;
         }
 
@@ -686,23 +737,23 @@ export async function Crate(list: Record<string, any>) {
 
     // filter the data --> items an array object --> itemId, quant, skip, id(optional)
 
-    list = list.map( (m:{
-      "itemname": string,
-      "quant": number,
-      "discountPrice": number,
-      "mrp": number,
-      "skip": boolean,
+    list = list.map((m: {
+        "itemname": string,
+        "quant": number,
+        "discountPrice": number,
+        "mrp": number,
+        "skip": boolean,
     }) => {
         //sorting the offer based on the quantity
 
         let mrp = m.mrp;
         let discount = m.discountPrice;
-        return {    
+        return {
             ...m,
-            itemId:m.itemname,
-            skip:m.skip,
-            quant:m.quant,
-            price:[mrp, discount]
+            itemId: m.itemname,
+            skip: m.skip,
+            quant: m.quant,
+            price: [mrp, discount]
         }
     })
 
@@ -724,7 +775,7 @@ export async function Crate(list: Record<string, any>) {
                 currentCartId: returnNewCrate.insertedId // perfect
             }
         })
-        
+
 
         //returning the id
         return returnNewCrate.insertedId?.toString();
@@ -739,7 +790,6 @@ export async function Crate(list: Record<string, any>) {
             current: true, customerId: objectId, _id: returnCrate._id
         }, { $set: objectToUpdate });
         //return the id
-
         return returnCrate?._id.toString();
     }
 }
@@ -767,7 +817,7 @@ export async function getOrder(type: string, value: string) {
         })
 
         if (!!currentOrder && !!currentData) {
-         
+
             let currentAddress = await consumerAddress.findOne({
                 _id: currentOrder.userAddressId
             })
@@ -883,7 +933,7 @@ export async function orderCancel(orderId: string) {
     }
     return true;
 }
-export async function orderModify(orderId: string) {
+export async function orderModify(orderId: string, type:string) {
 
     let data: any = []
     let db = (await client).db("cart");
@@ -897,12 +947,35 @@ export async function orderModify(orderId: string) {
     let objectId = new ObjectId(userId as string);
 
     //beware of clients side -- making logic in the frontend itself
+
+
+
     let returnOrder = await orderData.findOne({
         orderId, userId: objectId
     })
     if (!returnOrder) {
         return { data: [], success: false }
     }
+
+    let createdTime = returnOrder.createOrderTime;
+    let currentHour = (new Date())
+    
+    let diff = Number(currentHour) - Number(createdTime)
+
+    if(type == "edit") {
+
+    // assuming we are doing the delivery
+    diff /= (1000 * 60);
+
+    if (diff > 120) {
+        return {
+            data: [], success: false, message:
+                "more than 2 hours can't edit now"
+        }
+    }
+    }
+
+
     let returnAddress = await consumerAddress.findOne({
         _id: returnOrder.userAddressId
     })
@@ -915,10 +988,94 @@ export async function orderModify(orderId: string) {
     if (!returnCrate) {
         return { data: [], success: false }
     }
+    let url = process.env.BACKEND_URL! + "crateLatestList/"+returnCrate._id.toString();
+
+   try {
+
+    let authValue = await auth()
+    
+    let dataList: Record<string, any> = (await axios.get(url,{
+        headers: {
+            "x-user-id": authValue?.user?.id
+        }})).data.result;
+    
+    console.log(dataList)
+
+    return { data: dataList || returnCrate.items, success: true, instruction: returnAddress.instruction, receiver: returnAddress.receiver, address: returnAddress.address, tag: returnAddress.tag }
+   
+  } 
+
+   catch(err) {
+    console.log(err)
+    return { data: [], success: false }
+   }
+
     //currently we are sending the data - if possible sending the item data from the objectid
     //TODO 
     // gettting the details from db for each item object and sending what is required in the items value - everything.
     //export type crateItemInterfaceEach = { category: string, discountPrice: number, itemname: string, mrp: number, quant: number, unit: unit, skip: boolean , primarySize:string, imageURL:string, buttonURL:string};
     //skip here is outofstock value -> SKIP == OUTOFSTOCK
-    return { data: returnCrate.items, success: true, instruction: returnAddress.instruction, receiver: returnAddress.receiver, address: returnAddress.address, tag: returnAddress.tag }
+}
+export async function pincodeFind(pincode: string) {
+    return (await (await fetch(process.env.BACKEND_URL! + pincode)).json()).delivery;
+}
+
+export async function updateCurrentCrate(listValue: any[]) {
+
+    // temporary -- currently only storing 
+    let db = (await client).db("cart");
+    let backendURL = process.env.BACKEND_URL!;
+    let crateData = db.collection("crates");
+    let consumerData = db.collection("consumerdatas");
+
+
+    let session = await auth();
+    let userId = session?.user?.id;
+    let objectId = new ObjectId(userId as string);
+
+    //beware of clients side -- making logic in the frontend itself;
+
+    let returnCrate = await crateData.findOne({
+        customerId: objectId, current: true
+    })
+
+    let list = listValue.map((m: {
+        "itemname": string,
+        "quant": number,
+        "discountPrice": number,
+        "mrp": number,
+        "skip": boolean,
+    }) => {
+        //sorting the offer based on the quantity
+
+        let mrp = m.mrp;
+        let discount = m.discountPrice;
+        return {
+            ...m,
+            itemId: m.itemname,
+            skip: m.skip,
+            quant: m.quant,
+            price: [mrp, discount]
+        }
+    })
+
+    //data to add list
+    if (!returnCrate) {
+        // creating a new one 
+        //returning the id
+        return { success: false, message: "no such current crate" };
+
+    } else {
+        // already the current exist so simply updating the current one
+        let objectToUpdate = {
+            items: list,
+            updatedAt: new Date()
+        }
+        await crateData.updateOne({
+            current: true, customerId: objectId, _id: returnCrate?._id
+        }, { $set: objectToUpdate });
+        //return the id
+        return returnCrate?._id.toString();
+    }
+
 }
