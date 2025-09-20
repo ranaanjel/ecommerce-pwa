@@ -16,14 +16,14 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
         const [isLoading, SetLoading] = useState(false);
         const [itemList, setItemList] = useState<any[]>([])
         let dataOffset = useRef<number>(0);
-        console.log("running twice")
+        // console.log("running twice")
         let deDounceClear:React.RefObject<any>=useRef(undefined)
 
 
         let fetchData = useCallback(async function (observer:IntersectionObserver, footerRef:HTMLElement) {
                 SetLoading(true)
                 let url = window.location.origin;
-                console.log("fetching the data")
+                // console.log("fetching the data")
                 let result = (await axios(url + "/query/v1/category?offset=" + dataOffset.current)).data.data;
 
                 if (result.length > 0) {
@@ -54,12 +54,12 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
         },[dataOffset ])
 
         useEffect(function () {
-                console.log("category component running")
+                // console.log("category component running")
                 let observer = new IntersectionObserver((entry) => {
-                        console.log(entry.length)
+                        // console.log(entry.length)
                         entry.forEach(m => {
                                 if (m.isIntersecting) {
-                                        console.log(offMargin)
+                                        // console.log(offMargin)
                                         //debouncing
                                         clearTimeout(deDounceClear.current)
                                         deDounceClear.current = setTimeout(function () {

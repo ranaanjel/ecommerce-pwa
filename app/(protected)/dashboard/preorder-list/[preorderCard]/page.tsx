@@ -211,6 +211,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                  let dataToPushListUpdate = Object.values(localstorageObject).map((m:any)=> {
                     return {name:m.itemname, currentQuantity:m.quant }
                  })
+                 console.log(dataToPushListUpdate)
                  let url = window.location.origin + "/query/v1/preorder-list/updateitems/"+(title as string).replace(/_/g," ");
                       try {
                          let returnValue = await axios.post(url, {
@@ -221,6 +222,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                       }catch (err) {
                         console.log(err, "error occured while putting the data")
                       }
+                      
                 await Crate(Array.from(Object.values(localstorageObject))) 
                 //updating the list at the backend end as well crate value for later on fetching.
                

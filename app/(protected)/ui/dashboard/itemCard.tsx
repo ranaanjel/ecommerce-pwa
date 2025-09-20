@@ -418,16 +418,16 @@ function Button({ outOfStock,listData,setCrateId, changeSaveValue, changeTotalVa
 
     useEffect(function () {
 
-        console.log(currentQuantity, itemname, "---- use effect")
         if (localStorage.getItem("crate")) {
-            existingData.current = JSON.parse(localStorage.getItem("crate") as string);
+            existingData.current = JSON.parse(localStorage.getItem("crate") as string)
+
             if (itemname in existingData.current) {
                 setQuantity(existingData.current[itemname].quant);
                 setItemQuantity({ payload: (existingData.current[itemname].quant) });
             } //CHANGED TODO //TODO
             else if (currentQuantity != 0) {
-                console.log("itemname ", itemname)
-                console.log("current data ", currentQuantity)
+                // console.log("itemname ", itemname)
+                // console.log("current data ", currentQuantity)
                 setItemQuantity({ payload: currentQuantity });
                 setQuantity(currentQuantity);
             }
@@ -463,10 +463,13 @@ function Button({ outOfStock,listData,setCrateId, changeSaveValue, changeTotalVa
 
     async function saveInLocal(quantity: number) {
         let localstorageObject;
+
         if (!localStorage.getItem("crate")) {
             localstorageObject = localStorage.setItem("crate", "{}");
         }
+
         localstorageObject = JSON.parse(localStorage.getItem("crate") as string);
+
         if (!(itemname in localstorageObject)) {
             itemData.quant = quantity;
             localstorageObject[itemname] = itemData;
@@ -481,6 +484,7 @@ function Button({ outOfStock,listData,setCrateId, changeSaveValue, changeTotalVa
 
             // //console.log("changing", itemname)
         }
+        console.log(localstorageObject)
         let crateReturnId: string = await Crate(Array.from(Object.values(localstorageObject))) as string;
 
         setCrateId(crateReturnId)
@@ -491,7 +495,7 @@ function Button({ outOfStock,listData,setCrateId, changeSaveValue, changeTotalVa
         if (localStorage.getItem(localCrate)) {
             let localObject = JSON.parse(localStorage.getItem(localCrate) as string) ?? {};
             let length = Array.from(Object.keys(localObject)).length;
-            console.log("length", length)
+            // console.log("length", length)
             //console.log(length)
             setTotalLength(length)
         }
@@ -581,7 +585,7 @@ function Button({ outOfStock,listData,setCrateId, changeSaveValue, changeTotalVa
 
             return prev + primarySize;
         })
-        console.log(quant, quantity, "-------------- additional", primarySize + quantity, primarySize)
+        // console.log(quant, quantity, "-------------- additional", primarySize + quantity, primarySize)
         // //console.log(quantity)
         //quant is the primary value and quantity is the current quantity.
         setItemQuantity({ payload: primarySize + quantity });
@@ -630,7 +634,7 @@ function Button({ outOfStock,listData,setCrateId, changeSaveValue, changeTotalVa
 
         changePrice(value)
 
-        console.log(value, "----- input")
+        // console.log(value, "----- input")
         setQuantity(prev => {
             return value
         }
@@ -800,21 +804,26 @@ export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateLi
     const crateContext = useContext(CrateContext);
     const setLength = crateContext?.setCrateLength ?? (() => { });
 
-    useEffect(function () {
-        if (!skip) {
-            //getting from localstorage
-            let localItem = JSON.parse(localStorage.getItem(localCrate) as string);
-            if (localItem[itemname]) {
-                dispatch({ payload: localItem[itemname].quant })
-            }
-        }
-    }, [itemname, skip])
+    console.log(quantityValue, "quantity value")
+
+    // useEffect(function () {
+    //     console.log(quant, "---- quant")
+    //     if (!skip) {
+    //         //getting from localstorage
+    //         let localItem = JSON.parse(localStorage.getItem(localCrate) as string);
+    //         console.log(quant, localItem[itemname].quant, "------ in the crate")
+    //         if (localItem[itemname]) {
+    //             dispatch({ payload: localItem[itemname].quant })
+    //         }
+    //     }
+    // }, [itemname, skip])
 
     if (skip) {
         return <div></div>
     }
 
     return <div onClick={function () {
+
 
     }} className="bg-white relative mt-2 w-full  flex items-start justify-between ">
         <div className=" flex  w-1/6 justify-center self-center items-center ">
@@ -868,6 +877,7 @@ export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateLi
                         delete (localObject[itemname]);
                         localStorage.setItem(localCrate, JSON.stringify(localObject))
                     }
+                    //db call
                       let url = location.origin + "/query/v1/crateList/deleteUpdate/"+itemname
                    try {
                      let fetchData = await axios.get(url);
@@ -877,7 +887,6 @@ export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateLi
                     console.log(err)
                    }
 
-                    //db call
 
                 }}>
                     <Trash2Icon onClick={function () {

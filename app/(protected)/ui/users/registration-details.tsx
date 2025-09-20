@@ -56,7 +56,7 @@ export default function RegistrationDetails({
   };
 
   return (
-    <div className="rounded-[10px mx-auto max-w-[480px] w-full overflow-hidden font-dm-sans bg-gradient-to-t from-[#00429A] via-[#00429A] to-[#ffffff]">
+    <div className="rounded-[10px mx-auto max-w-[480px] h-screen w-full overflow-hidden font-dm-sans bg-gradient-to-t from-[#00429A] via-[#00429A] to-[#ffffff]">
       <div className="w-full px-4 overflow-hidden">
         <div className="flex items-center gap-5 justify-between">
           <div className="text-[#00429a] text-2xl font-bold">

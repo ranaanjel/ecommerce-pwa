@@ -9,8 +9,7 @@ export async function POST(request: NextRequest, {params}:{params:Promise<{preor
     let preorderName = (await params).preorderCard;
 
     let url = process.env.BACKEND_URL! + "preorderList/updatetolist/"+ preorderName;
-    console.log(url)
-
+    console.log(data.data)
     let dataValue = await axios.post(url,data ,{
         headers: {
             "x-user-id": authValue?.user?.id

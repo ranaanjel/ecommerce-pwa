@@ -54,6 +54,8 @@ export default function Page() {
     const [orderPlace, setOrderPlace] = useState(false);
     const [returnMessage, setReturnMessage] = useState("Placing your order");
 
+    const [fetching, setFetching]  = useState(true);
+
     const [crateId, setCrateId] = useState("");
     const [type, setType] = useState("")
 
@@ -65,7 +67,7 @@ export default function Page() {
 
         if (data) {
             let userId = data.user?.id;
-            console.log(localStorage.getItem(editId) != "",  localStorage.getItem(editId))
+            // console.log(localStorage.getItem(editId) != "",  localStorage.getItem(editId))
             if (localStorage.getItem(editId) != "" && localStorage.getItem(editId)) {
                 console.log("going herer")
                 setOrderId(localStorage.getItem(editId) ?? "")
@@ -135,6 +137,7 @@ export default function Page() {
                    try {
                      let fetchData = await axios.get(url);
                     localStorage.setItem(localCrate, JSON.stringify(fetchData.data.result))
+                    setFetching(false)
                     
                    }catch(err) {
                     
@@ -166,6 +169,8 @@ export default function Page() {
                    try {
                      let fetchData = await axios.get(url);
                     localStorage.setItem(localCrate, JSON.stringify(fetchData.data.result))
+                    // console.log(fetchData.data.result)
+                    setFetching(false)
                     // console.log(fetchData.data.result)
                    }catch(err) {
                     
@@ -246,6 +251,7 @@ export default function Page() {
                         setConfirm(true)
                         setCrateId("");
                         setOrderId("");
+                        localStorage.setItem(localCrate, "{}")
                         localStorage.setItem(editId, "")
 
                     }} className="flex items-center gap-2 cursor-pointer">
@@ -258,9 +264,14 @@ export default function Page() {
         </TopBar>
         {/* <BottomBar></BottomBar> */}
 
+                {
+                    fetching && <div className="flex justify-center items-center  w-full h-[80px] m-auto">
+        <Image src={"/loading-items.gif"} alt="" width={100} height={100} className="object-cover w-[400px] h-[400px]" />
+    </div>
+                }
 
         {
-            length > 0 ? <div>
+          !fetching &&   length > 0 && <div>
                 <div className="h-screen overflow-scroll bg-[#ebf6f6] pb-32 ">
 
                     {
@@ -416,7 +427,10 @@ export default function Page() {
                 </div>
                 {/* //TODO making sure the instruction are updated in the user next when checking the instruction we default value. */}
                 <CrateBottom type={type} setReturnMessage={setReturnMessage} crateId={crateId} setOrderPlace={setOrderPlace} disable={disable} totalPrice={totalPrice} userId={userId} orderId={orderId} instruction={instruction} details={details} saving={saving} crateList={crateList} num={length} />
-            </div> : <EmptyCrate></EmptyCrate>
+            </div> 
+        }
+        {
+            !fetching &&  length == 0 && <EmptyCrate></EmptyCrate>
         }
         {
             openConfirm && <ConfirmModal onclick={function () {

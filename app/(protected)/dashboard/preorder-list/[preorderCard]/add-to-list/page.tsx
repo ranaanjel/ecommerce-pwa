@@ -127,7 +127,7 @@ export default function AddList() {
                         // router.push("/dashboard/preorder-list/" + params)
                          router.push("/dashboard/preorder-list/" + params)
 
-                         console.log(returnValue)
+                        //  console.log(returnValue)
                       }catch (err) {
                         console.log(err, "error occured while putting the data")
                       } 
