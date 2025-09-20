@@ -22,9 +22,8 @@ export function EachCategory({ footerRef }: { footerRef: React.RefObject<HTMLEle
 
         let fetchData = useCallback(async function (observer:IntersectionObserver, footerRef:HTMLElement) {
                 SetLoading(true)
-                let url = window.location.origin;
                 // console.log("fetching the data")
-                let result = (await axios(url + "/query/v1/category?offset=" + dataOffset.current)).data.data;
+                let result = (await axios("/query/v1/category?offset=" + dataOffset.current)).data.data;
 
                 if (result.length > 0) {
                         setOffMargin(prev => {

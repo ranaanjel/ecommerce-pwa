@@ -22,6 +22,8 @@ self.addEventListener("push", async function (event) {
 self.addEventListener("notificationclick", function (event) {
     console.log("notification click recieved");
     event.notification.close();
-    event.waitUntil(clients.openWindow("https://localhost:3000/dashboard"))
+    if(typeof window != undefined) {
+        event.waitUntil(clients.openWindow(window.location.origin))
+    }
 })
 

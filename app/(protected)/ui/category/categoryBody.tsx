@@ -16,7 +16,7 @@ export function CategoryBody({ categoryType }: { categoryType: string }) {
 
     useEffect(function () {
         // console.log(categoryType)
-            let url = window.location.origin + "/query/v1/type/" + categoryType + "?brand=true"
+            let url =  "/query/v1/type/" + categoryType + "?brand=true"
            
             axios.get(url).then(m => {
                 let {type, brand} = m.data.result;

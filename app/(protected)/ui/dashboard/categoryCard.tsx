@@ -21,9 +21,8 @@ export function Categories({ type, active }: { type: "page" | "dropdown" | "comp
 
 
      useEffect(function () {
-        let url = (window.location.origin);
 
-        let itemsUrl = url + "/query/v1/category/list" ;
+        let itemsUrl =  "/query/v1/category/list" ;
         
         axios.get(itemsUrl).then(m => {
             let data = m.data.result;

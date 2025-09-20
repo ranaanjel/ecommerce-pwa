@@ -29,12 +29,28 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({data})
          
     }
+    else {
+      // Handle the case when success is false
+      return NextResponse.json(
+        { error: "Backend request was not successful" },
+        { status: 400 }
+      );
+    }
 }catch(err) {
     console.log(err)
-    return NextResponse.error()
+    //   return NextResponse.json(
+   return NextResponse.json(
+      { error: "Failed to fetch location data" },
+      { status: 500 }
+    );
+}
 }
 
-
-}
+// Type error: Type 'typeof import("/home/atomic-zeone/Desktop/development-file/quickcrats/code_base/pwa-commerce-mobile/app/(protected)/query/v1/banner/route")' does not satisfy the expected type 'RouteHandlerConfig<"/query/v1/banner">'.
+//   The types returned by 'GET(...)' are incompatible between these types.
+//     Type 'Promise<NextResponse<{ data: any; }> | NextResponse<{ error: string; }> | undefined>' is not assignable to type 'void | Response | Promise<Response> | Promise<void>'.
+//       Type 'Promise<NextResponse<{ data: any; }> | NextResponse<{ error: string; }> | undefined>' is not assignable to type 'Promise<Response>'.
+//         Type 'NextResponse<{ data: any; }> | NextResponse<{ error: string; }> | undefined' is not assignable to type 'Response'.
+//           Type 'undefined' is not assignable to type 'Response'
 
 

@@ -25,7 +25,10 @@ export async function GET(request: NextRequest) {
         return NextResponse.json({ result : data })
     }
 
-    return NextResponse.error()
+      return NextResponse.json(
+      { error: "Failed to fetch location data" },
+      { status: 500 }
+    );
 
     // return NextResponse.json({
     //     result: preorderList

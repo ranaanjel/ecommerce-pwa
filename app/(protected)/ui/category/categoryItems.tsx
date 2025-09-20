@@ -18,7 +18,7 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
     let fetchData = useCallback( async function fetchData( footRef:HTMLElement) {
         setFetchLoad(true);
         console.log("fetching the dataa")
-        let url = window.location.origin + "/query/v1/categoryItem/" + category + "?offset=" + marginValue.current;
+        let url = "/query/v1/categoryItem/" + category + "?offset=" + marginValue.current;
         let data = await axios.get(url)
    
         // console.log(data.data.result, observerValue.current) 
@@ -39,7 +39,7 @@ export function CategoryItems({ category, footerRef, filterValue, typeCategory }
         setFetchLoad(false);
 
         // console.log(data.data.result, marginValue )
-    },[marginValue, category, footerRef, observerValue])
+    },[marginValue, category, observerValue])
     useEffect(function () {
         fetchData( footerRef.current as HTMLElement);
         let observer = new IntersectionObserver(function (entries) {

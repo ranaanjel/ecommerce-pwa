@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { orderAll, OrderCollection, UserAddress, userAll } from "@/app/(protected)/lib/user-placeholder";
+// import { orderAll, OrderCollection, UserAddress, userAll } from "@/app/(protected)/lib/user-placeholder";
 
 export async function GET(
     request: NextRequest,

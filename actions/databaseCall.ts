@@ -185,6 +185,7 @@ export async function registerUser(userId: string, query: string, onPage: string
         //checking the pincode; 
         //backend url --
         let requestURL = process.env.BACKEND_URL! + pincode
+        console.log(requestURL)
         // console.log(requestURL)
         let deliveryPossible = await (await fetch(requestURL)).json();
 

@@ -26,7 +26,10 @@ export async function GET(
         console.log(data)
         return NextResponse.json({result: [data[0], data[1]]}) // an  list of item object
     }
-    return NextResponse.error()
+      return NextResponse.json(
+      { error: "Failed to fetch location data" },
+      { status: 500 }
+    );
 
 
 }

@@ -16,7 +16,7 @@ export default function CaraouselBanner() {
     useEffect(function () {
         // builtin 
         //getting data from the backend banner
-        let url = window.location.origin + "/query/v1/banner";
+        let url = "/query/v1/banner";
         axios.get(url).then(m => {
 
             let data = m.data.data;

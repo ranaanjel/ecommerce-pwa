@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { orderAll } from "@/app/(protected)/lib/user-placeholder";
 
 export async function PUT(
     request: NextRequest,

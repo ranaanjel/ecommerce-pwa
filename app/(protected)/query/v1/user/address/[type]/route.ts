@@ -33,12 +33,7 @@ export async function GET(request:NextRequest, {params}:{params:Promise<{type:st
 //     result = address ?? [];
 //     //user will going to have a address for sure.
 //    } else {
-//     return NextResponse.error()
-//    }
-
-//     return NextResponse.json({
-//         result
-//     })
+//       return NextResponse.json(
 return NextResponse.json({
         message:"no more usage of this endpoint"
     })

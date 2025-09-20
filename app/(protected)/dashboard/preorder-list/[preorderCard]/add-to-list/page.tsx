@@ -40,15 +40,17 @@ export default function AddList() {
         if (title in localData) {
             preorderData = localData[title];
         }
-    } else {
-        localStorage.setItem(localPreorder, "{}")
-    }
-    let [currentTotal, setCurrentTotal] = useState(preorderData.list.length)
+    } 
+    let [currentTotal, setCurrentTotal] = useState(preorderData.list.length || 1)
 
     useEffect(function () {
         // i don't have to check the localstorage for it since 
         // incase of not in the localstorage 
-        let url = window.location.origin + "/query/v1/preorder-list/" + params;
+        let url = "/query/v1/preorder-list/" + params;
+        
+        if(typeof localStorage != undefined) {
+            localStorage.setItem(localPreorder, "{}")
+        }
 
         axios.get(url).then(m => {
             let data = m.data.result;
@@ -105,6 +107,7 @@ export default function AddList() {
 
                 //checking the difference
 
+                if(typeof localStorage == undefined) return;
                 if (localStorage.getItem(localPreorder) != "null" && localStorage.getItem(localPreorder) != "{}") {
 
                     let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
@@ -117,7 +120,7 @@ export default function AddList() {
                         let dataChange = listLocal.filter(m => !(listDataOriginal.includes(m)));
 
                        
-                        let url = window.location.origin + "/query/v1/preorder-list/additems/"+(params as string).replace(/_/g," ");
+                        let url =  "/query/v1/preorder-list/additems/"+(params as string).replace(/_/g," ");
 
                       try {
                          let returnValue = await axios.post(url, {
@@ -159,10 +162,10 @@ function AllItems({ title, setCurrentTotal, listData, allData }: { title: string
     const [list, setList] = useState<Itemlist[]>([])
     const [_, startTransition] = useTransition();
     const footerRef = useRef<HTMLDivElement>(null)
-    const lastURL = useRef("https://localhost:3000");
+    const lastURL = useRef(process.env.NEXT_PUBLIC_FRONTEND_URL!);
     const [offset, setOffset] = useState(0);
     let localOffset = useRef(offset);
-    let url = window.location.origin;
+    
     let debounceClear: React.RefObject<ReturnType<typeof setTimeout> | undefined> = useRef(undefined)
     let [fetching, setFetching] = useState(false);
     let [gettingValue, setGettingValue] = useState(true);
@@ -179,7 +182,7 @@ function AllItems({ title, setCurrentTotal, listData, allData }: { title: string
         offsetRef.current = 0;
 
         if (category == "all") {
-            let fetchURL = url + "/query/v1/category/allItem?offset="
+            let fetchURL = "/query/v1/category/allItem?offset="
             lastURL.current = fetchURL;
             localOffset.current = 0;
         } else {
@@ -190,7 +193,7 @@ function AllItems({ title, setCurrentTotal, listData, allData }: { title: string
             //     category = "dairy product"
             // }
 
-            let fetchURL = url + "/query/v1/categoryItem/" + category.toLocaleLowerCase() + "?offset=";
+            let fetchURL =  "/query/v1/categoryItem/" + category.toLocaleLowerCase() + "?offset=";
             lastURL.current = fetchURL;
         }
         if (searchRef.current) {
@@ -216,7 +219,7 @@ function AllItems({ title, setCurrentTotal, listData, allData }: { title: string
         if (searchRef.current && searchRef.current.value.trim().length > 0) {
 
 
-            let value = await axios(url + '/query/v1/items/?searchValue=' + searchRef.current.value.trim())
+            let value = await axios( '/query/v1/items/?searchValue=' + searchRef.current.value.trim())
             list = value.data.result;
             list = list.items;
 
@@ -299,19 +302,19 @@ function AllItems({ title, setCurrentTotal, listData, allData }: { title: string
 
 
 
-    }, [footerRef])
+    }, [ footerRef])
 
     useEffect(function () {
         //getting all the items initially 
-        let url = window.location.origin;
-        let allCategoriesValue = url + "/query/v1/category/all";
+        
+        let allCategoriesValue = "/query/v1/category/all";
 
         axios(allCategoriesValue).then(m => {
             let result = m.data.result;
             setCategoryValue(result)
         })
 
-        let fetchURL = url + "/query/v1/category/allItem?offset=";
+        let fetchURL =  "/query/v1/category/allItem?offset=";
         // axios.get(fetchURL+0).then(m => {
         //     setList(m.data.result)
         // })
@@ -366,7 +369,7 @@ function AllItems({ title, setCurrentTotal, listData, allData }: { title: string
                     console.log(searchRef.current?.value, "---- in the set time out")
                     let value = searchRef.current?.value.trim();
                     console.log(value)
-                    let fetchURL = url + '/query/v1/items/?searchValue=' + value;
+                    let fetchURL =  '/query/v1/items/?searchValue=' + value;
                     console.log(fetchURL);
                     lastURL.current = fetchURL
                     setList([])
@@ -378,7 +381,7 @@ function AllItems({ title, setCurrentTotal, listData, allData }: { title: string
                 return;
 
             } else {
-                let fetchURL = url + '/query/v1/category/allItem/?offset=';
+                let fetchURL = '/query/v1/category/allItem/?offset=';
                 lastURL.current = fetchURL
                 setList([])
                 offsetRef.current = 0;

@@ -21,7 +21,10 @@ export async function DELETE(request: NextRequest,{params}:{params:Promise<{preo
         return NextResponse.json({ success:true })
     }
 
-    return NextResponse.error()
+      return NextResponse.json(
+      { error: "Failed to fetch location data" },
+      { status: 500 }
+    );
 
     // return NextResponse.json({
     //     result: preorderList

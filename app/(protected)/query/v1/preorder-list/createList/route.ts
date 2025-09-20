@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import axios from "axios";
 
-export async function POST(request: NextRequest, {params}:{params:Promise<{preorderCard:string}>}) {
+export async function POST(request: NextRequest) {
 
     let authValue = await auth();
     let data = await request.json();

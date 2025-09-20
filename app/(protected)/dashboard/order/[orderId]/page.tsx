@@ -43,7 +43,7 @@ export default function OrderId() {
         }, 1000)
 
 
-    }, [])
+    }, [params.orderId])
 
     return <div className="bg-[#ebf6f6] h-screen overflow-hidden text-black">
         <TopBar>

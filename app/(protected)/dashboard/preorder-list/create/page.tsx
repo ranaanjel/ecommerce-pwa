@@ -114,7 +114,7 @@ export default function Page() {
 
                         // not choosing to add in the database 
                        
-                        let url = window.location.origin + "/query/v1/preorder-list/createList/";
+                        let url = "/query/v1/preorder-list/createList/";
 
                       try {
                          let returnValue = await axios.post(url, {
@@ -182,7 +182,7 @@ function ChooseColor({ setBgBody, setBgTitle }: { setBgBody: Dispatch<SetStateAc
     const [palette, setPalatte] = useState<string[][]>([])
 
     useEffect(function () {
-        let url = window.location.origin + "/query/v1/preorder-list/colorPallate";
+        let url = "/query/v1/preorder-list/colorPallate";
         axios.get(url).then(m => {
             setPalatte(m.data.result)
         }).catch(err=> console.log(err))
@@ -225,7 +225,7 @@ function ChooseImage({ setImageURL }: { setImageURL: Dispatch<SetStateAction<str
     const [image, setImage] = useState<string[]>([])
 
     useEffect(function () {
-        let url = window.location.origin + "/query/v1/preorder-list/createImage";
+        let url =  "/query/v1/preorder-list/createImage";
         axios.get(url).then(m => {
             setImage(m.data.result)
         }).catch(err=> console.log(err))

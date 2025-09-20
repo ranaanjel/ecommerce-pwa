@@ -71,9 +71,8 @@ export default function SearchPage() {
                 clearValue = setTimeout(function () {
 
                     //making call to the backend for the data 
-                    let url = (window.location.origin);
 
-                    let itemsUrl = url + "/query/v1/items/?searchValue=" + value;
+                    let itemsUrl =  "/query/v1/items/?searchValue=" + value;
 
                     axios.get(itemsUrl).then(m => {
                         let { items, brandList, typeList, categoryList } = m.data.result;

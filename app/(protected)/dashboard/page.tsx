@@ -23,7 +23,7 @@ export default function Page() {
     const name = useCallback(async function() {
         let data = await InfoValue("address")
         return data;
-    },[InfoValue])
+    },[])
 
     //useEffect 
     useEffect(function () {
@@ -43,7 +43,7 @@ export default function Page() {
             setAddress(data);
         }) 
 
-    }, [dataSession])
+    }, [name, dataSession])
 
     //having all time - cart logo / preorder list logo to quickly go to their page in case of adding the items from navigating the places.
 

@@ -23,10 +23,20 @@ export async function GET (request:NextRequest) {
 
     return NextResponse.json({result : {active:data.active, upcoming:data.upcoming}})
          
-    }} catch(err) {
+    }else {
+      // Handle the case when success is false
+      return NextResponse.json(
+        { error: "Backend request was not successful" },
+        { status: 400 }
+      );
+    } 
+  } catch(err) {
 
         console.log(err)
-    return NextResponse.error()
+      return NextResponse.json(
+      { error: "Failed to fetch location data" },
+      { status: 500 }
+    );
     }
 
 

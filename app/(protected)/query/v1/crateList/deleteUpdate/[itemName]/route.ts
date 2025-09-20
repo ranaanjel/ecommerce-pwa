@@ -27,7 +27,10 @@ export async function GET(request: NextRequest, {params}:{params:Promise<{itemNa
         return NextResponse.json({ success:true })
     }
 
-    return NextResponse.error()
+      return NextResponse.json(
+      { error: "Failed to fetch location data" },
+      { status: 500 }
+    );
 
 
     // if(String(request.nextUrl).includes("brand")) {

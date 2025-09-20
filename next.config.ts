@@ -4,6 +4,11 @@ const nextConfig: NextConfig = {
   /* config options here */
 
   reactStrictMode: false,
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
+  },  
   allowedDevOrigins: [ "192.168.1.8"],
   async headers() {
     return [{

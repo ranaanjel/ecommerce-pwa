@@ -35,11 +35,12 @@ export function ConfirmModal({ onclick, type, setOpenModal, setItems, itemDelete
                             //propogating to database -- since it will only work that time -- and it will be able to fetch the data which is not getting corrected this time.
 
                            
-                            let url = window.location.origin + "/query/v1/preorder-list/deleteList/" + (preorderName as string).replace(/_/g, " ");
+                            let url =  "/query/v1/preorder-list/deleteList/" + (preorderName as string).replace(/_/g, " ");
 
                             axios.delete(url).then(m => {
                             console.log("successfully deleted ")
                             
+                            if(typeof localStorage == undefined) return;
                             if (localStorage.getItem(localPreorder)) {
                                 let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
 
@@ -99,7 +100,7 @@ export function ConfirmModal({ onclick, type, setOpenModal, setItems, itemDelete
                             let dataToPushListUpdate = prev.map((m: any) => {
                                 return { name: m.name, currentQuantity: m.currentQuantity }
                             })
-                            let url = window.location.origin + "/query/v1/preorder-list/updateitems/" + (preorderName as string).replace(/_/g, " ");
+                            let url = "/query/v1/preorder-list/updateitems/" + (preorderName as string).replace(/_/g, " ");
 
                             axios.post(url, {
                                 data: dataToPushListUpdate
@@ -107,6 +108,7 @@ export function ConfirmModal({ onclick, type, setOpenModal, setItems, itemDelete
                                 console.log("successfully updated ")
                             }).catch(err => console.log(err, "error occured while putting the data"))
 
+                            if(typeof localStorage == undefined) return prev;
 
                             if (!localStorage.getItem(localPreorder)) {
                                 localStorage.setItem(localPreorder, "{}")

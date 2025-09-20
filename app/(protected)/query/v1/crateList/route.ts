@@ -14,6 +14,7 @@ export async function GET(request: NextRequest ) {
     let authValue = await auth();
     let url = process.env.BACKEND_URL! + "currentCrate";
 
+    
     let dataValue = await axios.get(url, {
         headers: {
             "x-user-id": authValue?.user?.id
@@ -24,6 +25,7 @@ export async function GET(request: NextRequest ) {
 
     let success = dataValue.data.success;
 
+    console.log(resultFromBackend, success)
     if (success) {
         let data = (resultFromBackend)
         // console.log(data.subCategoryList, data.brandList, "---------------------")
@@ -31,8 +33,11 @@ export async function GET(request: NextRequest ) {
         return NextResponse.json({ result: data })
 
     }
-
-    return NextResponse.error()
+    
+      return NextResponse.json(
+      { error: dataValue.data.message },
+      { status: 404 }
+    );
 
 
     // if(String(request.nextUrl).includes("brand")) {

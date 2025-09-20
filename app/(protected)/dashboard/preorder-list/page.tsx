@@ -27,7 +27,8 @@ export default function Page() {
     // }
 
     useEffect(function () {
-        let url = window.location.origin + "/query/v1/preorder-list";
+        let url =  "/query/v1/preorder-list";
+        if(typeof localStorage == undefined) return;
         localStorage.setItem(localPreorder, "{}");
         axios.get(url).then(m => {
             let data  = m.data.result;

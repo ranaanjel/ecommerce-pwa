@@ -32,7 +32,10 @@ export async function GET(request:NextRequest, {params}:{params:Promise<{itemNam
         return NextResponse.json({result: data}) // an  list of item object
     }
 
-    return NextResponse.error()
+      return NextResponse.json(
+      { error: "Failed to fetch location data" },
+      { status: 500 }
+    );
         // return NextResponse.json({
         // result: data
         // })

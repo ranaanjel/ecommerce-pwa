@@ -41,8 +41,9 @@ export default function Page() {
     // }
 
     useEffect(function () {
-        let url = window.location.origin + "/query/v1/preorder-list/" + params;
+        let url = "/query/v1/preorder-list/" + params;
 
+        if(typeof localStorage == undefined) return;
         localStorage.setItem(localPreorder, "{}");
         axios.get(url).then(m => {
             // console.log(m.data.result)
@@ -186,6 +187,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
 
                 let localstorageObject;
 
+                if(typeof localStorage == undefined) return;
                 if (!localStorage.getItem("crate")) {
                     localstorageObject = localStorage.setItem("crate", "{}");
                 }
@@ -212,7 +214,7 @@ function PreorderCardPage({ title, description, imageURL, list, bgTitle, bgBody,
                     return {name:m.itemname, currentQuantity:m.quant }
                  })
                  console.log(dataToPushListUpdate)
-                 let url = window.location.origin + "/query/v1/preorder-list/updateitems/"+(title as string).replace(/_/g," ");
+                 let url = "/query/v1/preorder-list/updateitems/"+(title as string).replace(/_/g," ");
                       try {
                          let returnValue = await axios.post(url, {
                             data:dataToPushListUpdate

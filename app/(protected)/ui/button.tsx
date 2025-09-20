@@ -158,6 +158,7 @@ export function SwipeButton(
             startTransition(async function () {
 
                 // updating the list value as well
+        if(typeof localStorage == undefined) return;
                 let data = Object.values(JSON.parse(localStorage.getItem(localCrate) as string));
                 
                 await updateCurrentCrate(data);
@@ -182,6 +183,8 @@ export function SwipeButton(
                     router.push("/dashboard/order/" + orderId)
                     setTimeout(function () {
                         setCrateLength(0)
+                        if(typeof localStorage == undefined) return;
+
                         localStorage.setItem(localCrate, "{}");
                         localStorage.setItem("crateId", "");
                     }, 500)

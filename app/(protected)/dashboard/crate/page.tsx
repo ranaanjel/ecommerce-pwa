@@ -68,12 +68,15 @@ export default function Page() {
         if (data) {
             let userId = data.user?.id;
             // console.log(localStorage.getItem(editId) != "",  localStorage.getItem(editId))
+            if(typeof localStorage == undefined) return;
+
+            
             if (localStorage.getItem(editId) != "" && localStorage.getItem(editId)) {
                 console.log("going herer")
                 setOrderId(localStorage.getItem(editId) ?? "")
                 setType("edit");
             }
-            const url = location.origin + "/query/v1/order/timing";
+            const url =  "/query/v1/order/timing";
             axios.get(url).then(m => {
                 let data = m.data.result;
                 setStartPeriod(data[0])
@@ -133,7 +136,7 @@ export default function Page() {
                 //nothing doing - simply returning data -- from order
 
                 startTransition(async function () {
-                     let url = location.origin + "/query/v1/crateList"
+                     let url = "/query/v1/crateList"
                    try {
                      let fetchData = await axios.get(url);
                     localStorage.setItem(localCrate, JSON.stringify(fetchData.data.result))
@@ -165,7 +168,7 @@ export default function Page() {
                 startTransition(async function () {
 
                     let dataReturn = await InfoValue("extra-all");
-                    let url = location.origin + "/query/v1/crateList"
+                    let url =  "/query/v1/crateList"
                    try {
                      let fetchData = await axios.get(url);
                     localStorage.setItem(localCrate, JSON.stringify(fetchData.data.result))
@@ -173,8 +176,8 @@ export default function Page() {
                     setFetching(false)
                     // console.log(fetchData.data.result)
                    }catch(err) {
-                    
                     console.log(err)
+                    setFetching(false)
                    }
                     let { restaurantName, restaurantType, deliveryTiming, shopDetails, address, pincode, receiver, tag, instruction, default: defaultValue, deliveryAvailable } = dataReturn;
                     setDetails(() => {
@@ -251,6 +254,8 @@ export default function Page() {
                         setConfirm(true)
                         setCrateId("");
                         setOrderId("");
+                        
+                       if(typeof localStorage == undefined) return;
                         localStorage.setItem(localCrate, "{}")
                         localStorage.setItem(editId, "")
 
@@ -434,6 +439,7 @@ export default function Page() {
         }
         {
             openConfirm && <ConfirmModal onclick={function () {
+            if(typeof localStorage == undefined) return;
                 if (localStorage.getItem(localCrate)) {
                     localStorage.setItem(localCrate, "{}")
                     localStorage.setItem(localOrderId, "")
@@ -845,7 +851,7 @@ function CountDownComponent({ setNoTime, startPeriod, endPeriod, setDisableButto
             setDiffMin(String(minDifference).padStart(2, "0"))
             setDiffSec(String(secDifference).padStart(2, "0"))
         }
-    }, [endPeriod, setDisableButton, startPeriod])
+    }, [endPeriod, setDisableButton, startPeriod, setNoTime])
 
     useEffect(function () {
         //everything inside the setInterval

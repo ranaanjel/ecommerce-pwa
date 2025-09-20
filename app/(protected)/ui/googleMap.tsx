@@ -38,10 +38,7 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
     const reverseGeoCode = useCallback(async (lat: string, lng: string) => {
         try {
 
-            let url = CURRENT_URL && window.location.origin;
-            console.log(url)
-
-            const res = await axios.get(url + `/query/google-map?lat=${lat}&lng=${lng}`);
+            const res = await axios.get( `/query/google-map?lat=${lat}&lng=${lng}`);
             const result = res.data;
             console.log(result, "--------------------------------");
 
@@ -68,7 +65,7 @@ export default function LocationPickerMap({ setCurrentAddress, mapValue, getLoca
                     reverseGeoCode((latitude).toFixed(6), (longitude).toFixed(6))
                 }, async () => {
                     //in case of failure
-                    const data = await axios.get(window.location.origin + "/query/ipapi");
+                    const data = await axios.get("/query/ipapi");
                     const latitude = data.data.lat
                     const longitude = data.data.lng;
                     console.log(latitude, longitude)

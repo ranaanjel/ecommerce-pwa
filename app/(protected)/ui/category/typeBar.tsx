@@ -13,7 +13,7 @@ export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<Set
     const [loading, setLoading] = useState(true)
 
     useEffect(function () {
-        let url = window.location.origin +"/query/v1/type/"+type;
+        let url = "/query/v1/type/"+type;
         axios.get(url).then(data => {
            //console.log(data.data.result)
         //    console.log(data.data.result, type)
@@ -21,7 +21,7 @@ export function TypeBar({type, setType}:{type:string, setType:React.Dispatch<Set
         //    setLoading(false)
         }).catch(err=> console.log(err))
 
-         url = window.location.origin +"/query/v1/type/"+type+"/images";
+         url = "/query/v1/type/"+type+"/images";
         axios.get(url).then(data => {
            //console.log(data.data.result)
         //    console.log(data.data.result, type)

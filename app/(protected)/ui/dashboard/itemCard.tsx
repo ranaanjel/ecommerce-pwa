@@ -878,7 +878,7 @@ export function CrateItemCard({ setCrateId, setSaving, setTotalPrice, setCrateLi
                         localStorage.setItem(localCrate, JSON.stringify(localObject))
                     }
                     //db call
-                      let url = location.origin + "/query/v1/crateList/deleteUpdate/"+itemname
+                      let url =  "/query/v1/crateList/deleteUpdate/"+itemname
                    try {
                      let fetchData = await axios.get(url);
                     console.log(fetchData);

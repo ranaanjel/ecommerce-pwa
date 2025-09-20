@@ -20,11 +20,12 @@ export default function PreOrder() {
     }
 
     useEffect(function () {
-        let url = window.location.origin + "/query/v1/preorder-list";
+        let url =  "/query/v1/preorder-list";
         axios.get(url).then(m => {
             let data  = m.data.result;
             // console.log(data)
             //replacing the localstorage data with the data
+            if(typeof localStorage == undefined) return;
             let localData = JSON.parse(localStorage.getItem(localPreorder) as string);
             for (let items of data) {
                 let title = items.title.toLowerCase()
